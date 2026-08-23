@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>DevCursos+ | Plataforma de Cursos </title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+
+    <!-- OVERLAY MOBILE -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="logo">
+            <div class="logo-icon">
+                <i data-lucide="graduation-cap"></i>
+            </div>
+            <span>DevCursos<span>+</span></span>
+        </div>
+
+        <nav class="navigation">
+
+            <p class="nav-title">MENU</p>
+
+            <a href="#" class="nav-link active">
+                <i data-lucide="layout-dashboard"></i>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="#cursos" class="nav-link">
+                <i data-lucide="book-open"></i>
+                <span>Meus cursos</span>
+            </a>
+
+            <a href="#explorar" class="nav-link">
+                <i data-lucide="compass"></i>
+                <span>Explorar</span>
+            </a>
+
+            <a href="#" class="nav-link">
+                <i data-lucide="heart"></i>
+                <span>Favoritos</span>
+            </a>
+
+            <p class="nav-title">GERAL</p>
+
+            <a href="#" class="nav-link">
+                <i data-lucide="award"></i>
+                <span>Certificados</span>
+            </a>
+
+            <a href="#" class="nav-link">
+                <i data-lucide="settings"></i>
+                <span>Configurações</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="help-box">
+                <div class="help-icon">
+                    <i data-lucide="headphones"></i>
+                </div>
+
+                <strong>Precisa de ajuda?</strong>
+                <p>Fale com nosso suporte.</p>
+
+                <button>
+                    Central de ajuda
+                </button>
+            </div>
+
+            <div class="user-mini">
+                <div class="avatar">JS</div>
+
+                <div>
+                    <strong>Lucas Nazario</strong>
+                    <small>Aluno Premium</small>
+                </div>
+
+                <i data-lucide="more-horizontal"></i>
+            </div>
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <!-- HEADER -->
+        <header class="header">
+
+            <button class="mobile-menu" id="menuButton">
+                <i data-lucide="menu"></i>
+            </button>
+
+            <div class="search">
+                <i data-lucide="search"></i>
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Buscar cursos..."
+                >
+            </div>
+
+            <div class="header-actions">
+
+                <button class="icon-button">
+                    <i data-lucide="bell"></i>
+                    <span class="notification"></span>
+                </button>
+
+                <div class="profile">
+                    <div class="avatar">JS</div>
+
+                    <div class="profile-info">
+                        <strong>Lucas nazario</strong>
+                        <small>Aluno</small>
+                    </div>
+
+                    <i data-lucide="chevron-down"></i>
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- CONTENT -->
+        <div class="content">
+
+            <!-- HERO -->
+            <section class="hero">
+
+                <div class="hero-content">
+                    <span class="hero-label">
+                        <i data-lucide="sparkles"></i>
+                        Continue aprendendo
+                    </span>
+
+                    <h1>
+                        Olá, Lucas! 🖖
+                    </h1>
+
+                    <p>
+                        Continue sua jornada de aprendizado!
+                    </p>
+
+                    <button class="primary-button" id="continueButton">
+                        Continuar curso
+                        <i data-lucide="arrow-right"></i>
+                    </button>
+                </div>
+
+                <div class="hero-decoration">
+                    <div class="circle circle-1"></div>
+                    <div class="circle circle-2"></div>
+
+                    <i data-lucide="graduation-cap"></i>
+                </div>
+
+            </section>
+
+
+            <!-- STATS -->
+            <section class="stats">
+
+                <div class="stat-card">
+                    <div class="stat-icon purple">
+                        <i data-lucide="book-open"></i>
+                    </div>
+
+                    <div>
+                        <span>Cursos inscritos</span>
+                        <strong>12</strong>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i data-lucide="check-circle"></i>
+                    </div>
+
+                    <div>
+                        <span>Cursos concluídos</span>
+                        <strong>5</strong>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon orange">
+                        <i data-lucide="clock"></i>
+                    </div>
+
+                    <div>
+                        <span>Horas estudadas</span>
+                        <strong>48h</strong>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i data-lucide="flame"></i>
+                    </div>
+
+                    <div>
+                        <span>Sequência atual</span>
+                        <strong>7 dias</strong>
+                    </div>
+                </div>
+
+            </section>
+
+
+            <!-- CONTINUE -->
+            <section class="section" id="cursos">
+
+                <div class="section-header">
+                    <div>
+                        <h2>Continue aprendendo</h2>
+                        <p>Retome de onde você parou.</p>
+                    </div>
+
+                    <button class="see-all">
+                        Ver todos
+                        <i data-lucide="arrow-right"></i>
+                    </button>
+                </div>
+
+
+                <div class="course-progress-card">
+
+                    <div class="course-image web">
+                        <span>HTML</span>
+                        <strong>& CSS</strong>
+                    </div>
+
+                    <div class="course-info">
+
+                        <span class="category">DESENVOLVIMENTO</span>
+
+                        <h3>
+                            Desenvolvimento Web Completo
+                        </h3>
+
+                        <p>
+                            Aprenda HTML, CSS e JavaScript do zero ao avançado.
+                        </p>
+
+                        <div class="progress-area">
+
+                            <div class="progress-top">
+                                <span>Progresso</span>
+                                <strong>68%</strong>
+                            </div>
+
+                            <div class="progress">
+                                <div style="width:68%"></div>
+                            </div>
+
+                        </div>
+
+                        <div class="course-bottom">
+
+                            <span>
+                                <i data-lucide="play-circle"></i>
+                                Aula 24 de 36
+                            </span>
+
+                            <button class="small-button">
+                                Continuar
+                                <i data-lucide="arrow-right"></i>
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- EXPLORE -->
+            <section class="section" id="explorar">
+
+                <div class="section-header">
+
+                    <div>
+                        <h2>Explore novos cursos</h2>
+                        <p>Encontre o próximo assunto que você quer dominar.</p>
+                    </div>
+
+                    <button class="see-all">
+                        Ver catálogo
+                        <i data-lucide="arrow-right"></i>
+                    </button>
+
+                </div>
+
+
+                <!-- FILTERS -->
+                <div class="filters">
+
+                    <button class="filter active" data-category="todos">
+                        Todos
+                    </button>
+
+                    <button class="filter" data-category="desenvolvimento">
+                        Desenvolvimento
+                    </button>
+
+                    <button class="filter" data-category="design">
+                        Design
+                    </button>
+
+                    <button class="filter" data-category="marketing">
+                        Marketing
+                    </button>
+
+                    <button class="filter" data-category="negocios">
+                        Negócios
+                    </button>
+
+                </div>
+
+
+                <!-- COURSES -->
+                <div class="courses-grid" id="coursesGrid">
+
+                    <article class="course-card" data-category="desenvolvimento">
+
+                        <div class="course-cover javascript">
+                            <span>JS</span>
+
+                            <button class="favorite">
+                                <i data-lucide="heart"></i>
+                            </button>
+                        </div>
+
+                        <div class="course-card-body">
+
+                            <span class="category">
+                                DESENVOLVIMENTO
+                            </span>
+
+                            <h3>
+                                JavaScript do Zero ao Avançado
+                            </h3>
+
+                            <div class="course-meta">
+                                <span>
+                                    <i data-lucide="clock"></i>
+                                    32 horas
+                                </span>
+
+                                <span>
+                                    <i data-lucide="users"></i>
+                                    2.4k
+                                </span>
+                            </div>
+
+                            <div class="rating">
+                                ★★★★★
+                                <span>4.9</span>
+                            </div>
+
+                            <div class="card-footer">
+                           
+
+                                <button
+                                    class="details-button"
+                                    data-course="JavaScript do Zero ao Avançado"
+                                >
+                                    Ver curso
+                                </button>
+                            </div>
+
+                        </div>
+
+                    </article>
+
+
+                    <article class="course-card" data-category="design">
+
+                        <div class="course-cover design">
+                            <span>UI/UX</span>
+
+                            <button class="favorite">
+                                <i data-lucide="heart"></i>
+                            </button>
+                        </div>
+
+                        <div class="course-card-body">
+
+                            <span class="category">
+                                DESIGN
+                            </span>
+
+                            <h3>
+                                UI/UX Design Profissional
+                            </h3>
+
+                            <div class="course-meta">
+                                <span>
+                                    <i data-lucide="clock"></i>
+                                    24 horas
+                                </span>
+
+                                <span>
+                                    <i data-lucide="users"></i>
+                                    1.8k
+                                </span>
+                            </div>
+
+                            <div class="rating">
+                                ★★★★★
+                                <span>4.8</span>
+                            </div>
+
+                            <div class="card-footer">
+                 
+
+                                <button
+                                    class="details-button"
+                                    data-course="UI/UX Design Profissional"
+                                >
+                                    Ver curso
+                                </button>
+                            </div>
+
+                        </div>
+
+                    </article>
+
+
+                    <article class="course-card" data-category="marketing">
+
+                        <div class="course-cover marketing">
+                            <span>MARKETING</span>
+
+                            <button class="favorite">
+                                <i data-lucide="heart"></i>
+                            </button>
+                        </div>
+
+                        <div class="course-card-body">
+
+                            <span class="category">
+                                MARKETING
+                            </span>
+
+                            <h3>
+                                Marketing Digital Completo
+                            </h3>
+
+                            <div class="course-meta">
+                                <span>
+                                    <i data-lucide="clock"></i>
+                                    18 horas
+                                </span>
+
+                                <span>
+                                    <i data-lucide="users"></i>
+                                    3.1k
+                                </span>
+                            </div>
+
+                            <div class="rating">
+                                ★★★★★
+                                <span>4.9</span>
+                            </div>
+
+                            <div class="card-footer">
+                           
+
+                                <button
+                                    class="details-button"
+                                    data-course="Marketing Digital Completo"
+                                >
+                                    Ver curso
+                                </button>
+                            </div>
+
+                        </div>
+
+                    </article>
+
+
+                    <article class="course-card" data-category="negocios">
+
+                        <div class="course-cover business">
+                            <span>BUSINESS</span>
+
+                            <button class="favorite">
+                                <i data-lucide="heart"></i>
+                            </button>
+                        </div>
+
+                        <div class="course-card-body">
+
+                            <span class="category">
+                                NEGÓCIOS
+                            </span>
+
+                            <h3>
+                                Gestão e Liderança
+                            </h3>
+
+                            <div class="course-meta">
+                                <span>
+                                    <i data-lucide="clock"></i>
+                                    15 horas
+                                </span>
+
+                                <span>
+                                    <i data-lucide="users"></i>
+                                    1.2k
+                                </span>
+                            </div>
+
+                            <div class="rating">
+                                ★★★★★
+                                <span>4.7</span>
+                            </div>
+
+                            <div class="card-footer">
+                         
+
+                                <button
+                                    class="details-button"
+                                    data-course="Gestão e Liderança"
+                                >
+                                    Ver curso
+                                </button>
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                </div>
+
+                <div class="no-results" id="noResults">
+                    Nenhum curso encontrado.
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+
+    <!-- MODAL -->
+    <div class="modal" id="courseModal">
+
+        <div class="modal-content">
+
+            <button class="modal-close" id="modalClose">
+                <i data-lucide="x"></i>
+            </button>
+
+            <div class="modal-icon">
+                <i data-lucide="book-open"></i>
+            </div>
+
+            <span class="category">CURSO</span>
+
+            <h2 id="modalTitle">
+                Nome do curso
+            </h2>
+
+            <p>
+                Este curso foi desenvolvido para você aprender de forma
+                prática e evoluir suas habilidades.
+            </p>
+
+            <div class="modal-info">
+
+                <div>
+                    <i data-lucide="clock"></i>
+                    <span>20+ horas</span>
+                </div>
+
+                <div>
+                    <i data-lucide="video"></i>
+                    <span>40 aulas</span>
+                </div>
+
+                <div>
+                    <i data-lucide="award"></i>
+                    <span>Certificado</span>
+                </div>
+
+            </div>
+
+            <button class="primary-button modal-button">
+                Começar curso
+                <i data-lucide="arrow-right"></i>
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <script src="script.js"></script>
+
+    <script>
+        lucide.createIcons();
+    </script>
+
+</body>
+</html>
