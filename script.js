@@ -1,305 +1,202 @@
-/* =========================
-   ELEMENTOS
-========================= */
+const express = require("express");
+const cors = require("cors");
+const mysql = require("mysql2");
+const bcrypt = require("bcrypt");
 
-const menuButton = document.getElementById("menuButton");
-const sidebar = document.getElementById("sidebar");
-const overlay = document.getElementById("overlay");
-
-const filters = document.querySelectorAll(".filter");
-const courses = document.querySelectorAll(".course-card");
-
-const searchInput = document.getElementById("searchInput");
-const noResults = document.getElementById("noResults");
-
-const modal = document.getElementById("courseModal");
-const modalClose = document.getElementById("modalClose");
-const modalTitle = document.getElementById("modalTitle");
-
-const detailsButtons = document.querySelectorAll(".details-button");
-const favoriteButtons = document.querySelectorAll(".favorite");
-
-const continueButton = document.getElementById("continueButton");
+const app = express();
 
 
-/* =========================
-   MENU MOBILE
-========================= */
+// =========================
+// CONFIGURAÇÕES
+// =========================
 
-function openMenu() {
-    sidebar.classList.add("open");
-    overlay.classList.add("show");
-}
-
-function closeMenu() {
-    sidebar.classList.remove("open");
-    overlay.classList.remove("show");
-}
-
-menuButton.addEventListener("click", openMenu);
-
-overlay.addEventListener("click", closeMenu);
+app.use(cors());
+app.use(express.json());
 
 
-/* =========================
-   LINKS DO MENU
-========================= */
+// =========================
+// CONEXÃO COM MYSQL
+// =========================
 
-const navigationLinks = document.querySelectorAll(".nav-link");
+const conexao = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "2009",
+    database: "dev_cursos"
+});
 
-navigationLinks.forEach(link => {
+conexao.connect((erro) => {
 
-    link.addEventListener("click", () => {
+    if (erro) {
+        console.error("Erro ao conectar ao MySQL:");
+        console.error(erro.message);
+        return;
+    }
 
-        navigationLinks.forEach(item => {
-            item.classList.remove("active");
+    console.log("MySQL conectado com sucesso!");
+});
+
+
+// =========================
+// ROTA PRINCIPAL
+// =========================
+
+app.get("/", (req, res) => {
+    res.send("Backend da DevCursos+ funcionando!");
+});
+
+
+// =========================
+// CADASTRO
+// =========================
+
+app.post("/cadastro", async (req, res) => {
+
+    const { nome, email, senha } = req.body;
+
+    // Verifica se todos os campos foram enviados
+    if (!nome || !email || !senha) {
+        return res.status(400).json({
+            mensagem: "Preencha todos os campos."
+        });
+    }
+
+    try {
+
+        // Cria o hash da senha
+        const senhaHash = await bcrypt.hash(senha, 10);
+
+        const sql = `
+            INSERT INTO usuarios (nome, email, senha)
+            VALUES (?, ?, ?)
+        `;
+
+        conexao.query(
+            sql,
+            [nome, email, senhaHash],
+            (erro, resultado) => {
+
+                if (erro) {
+
+                    // E-mail já cadastrado
+                    if (erro.code === "ER_DUP_ENTRY") {
+                        return res.status(409).json({
+                            mensagem: "Este e-mail já está cadastrado."
+                        });
+                    }
+
+                    console.error(erro);
+
+                    return res.status(500).json({
+                        mensagem: "Erro ao cadastrar usuário."
+                    });
+                }
+
+                res.status(201).json({
+                    mensagem: "Usuário cadastrado com sucesso!"
+                });
+            }
+        );
+
+    } catch (erro) {
+
+        console.error(erro);
+
+        res.status(500).json({
+            mensagem: "Erro ao processar a senha."
+        });
+    }
+});
+
+
+// =========================
+// LOGIN
+// =========================
+
+app.post("/login", async (req, res) => {
+
+    const { email, senha } = req.body;
+
+    if (!email || !senha) {
+
+        return res.status(400).json({
+            mensagem: "Preencha o e-mail e a senha."
         });
 
-        link.classList.add("active");
-
-        closeMenu();
-    });
-
-});
+    }
 
 
-/* =========================
-   FILTROS
-========================= */
-
-let selectedCategory = "todos";
-
-filters.forEach(filter => {
-
-    filter.addEventListener("click", () => {
-
-        filters.forEach(item => {
-            item.classList.remove("active");
-        });
-
-        filter.classList.add("active");
-
-        selectedCategory = filter.dataset.category;
-
-        filterCourses();
-
-    });
-
-});
+    const sql = `
+        SELECT * FROM usuarios
+        WHERE email = ?
+    `;
 
 
-/* =========================
-   BUSCA
-========================= */
+    conexao.query(
+        sql,
+        [email],
+        async (erro, resultados) => {
 
-searchInput.addEventListener("input", () => {
+            if (erro) {
 
-    filterCourses();
+                console.error(erro);
 
-});
+                return res.status(500).json({
+                    mensagem: "Erro ao consultar o banco de dados."
+                });
+
+            }
 
 
-function filterCourses() {
+            if (resultados.length === 0) {
 
-    const searchTerm = searchInput.value
-        .toLowerCase()
-        .trim();
+                return res.status(401).json({
+                    mensagem: "E-mail ou senha incorretos."
+                });
 
-    let visibleCourses = 0;
+            }
 
-    courses.forEach(course => {
 
-        const category = course.dataset.category;
+            const usuario = resultados[0];
 
-        const title = course
-            .querySelector("h3")
-            .textContent
-            .toLowerCase();
 
-        const categoryText = course
-            .querySelector(".category")
-            .textContent
-            .toLowerCase();
+            const senhaCorreta = await bcrypt.compare(
+                senha,
+                usuario.senha
+            );
 
-        const matchesCategory =
-            selectedCategory === "todos" ||
-            category === selectedCategory;
 
-        const matchesSearch =
-            title.includes(searchTerm) ||
-            categoryText.includes(searchTerm);
+            if (!senhaCorreta) {
 
-        if (matchesCategory && matchesSearch) {
+                return res.status(401).json({
+                    mensagem: "E-mail ou senha incorretos."
+                });
 
-            course.style.display = "";
+            }
 
-            visibleCourses++;
 
-        } else {
+            res.json({
+                mensagem: "Login realizado com sucesso!",
 
-            course.style.display = "none";
+                usuario: {
+                    id: usuario.id,
+                    nome: usuario.nome,
+                    email: usuario.email
+                }
+            });
 
         }
-
-    });
-
-    if (visibleCourses === 0) {
-        noResults.style.display = "block";
-    } else {
-        noResults.style.display = "none";
-    }
-
-}
-
-
-/* =========================
-   FAVORITOS
-========================= */
-
-favoriteButtons.forEach(button => {
-
-    button.addEventListener("click", event => {
-
-        event.preventDefault();
-        event.stopPropagation();
-
-        button.classList.toggle("active");
-
-        const icon = button.querySelector("svg");
-
-        if (button.classList.contains("active")) {
-
-            icon.setAttribute("fill", "currentColor");
-
-        } else {
-
-            icon.setAttribute("fill", "none");
-
-        }
-
-    });
-
-});
-
-
-/* =========================
-   MODAL DE CURSO
-========================= */
-
-detailsButtons.forEach(button => {
-
-    button.addEventListener("click", () => {
-
-        const courseName = button.dataset.course;
-
-        modalTitle.textContent = courseName;
-
-        modal.classList.add("show");
-
-        document.body.style.overflow = "hidden";
-
-    });
-
-});
-
-
-function closeModal() {
-
-    modal.classList.remove("show");
-
-    document.body.style.overflow = "";
-
-}
-
-
-modalClose.addEventListener("click", closeModal);
-
-
-modal.addEventListener("click", event => {
-
-    if (event.target === modal) {
-        closeModal();
-    }
-
-});
-
-
-/* ESC FECHA MODAL */
-
-document.addEventListener("keydown", event => {
-
-    if (event.key === "Escape") {
-        closeModal();
-        closeMenu();
-    }
-
-});
-
-
-/* =========================
-   CONTINUAR CURSO
-========================= */
-
-continueButton.addEventListener("click", () => {
-
-    document
-        .getElementById("cursos")
-        .scrollIntoView({
-            behavior: "smooth"
-        });
-
-});
-
-
-/* =========================
-   BOTÕES DE CONTINUAR
-========================= */
-
-const smallButton = document.querySelector(".small-button");
-
-smallButton.addEventListener("click", () => {
-
-    alert(
-        "Abrindo a aula 24: Flexbox e Grid CSS..."
     );
 
 });
 
+// =========================
+// Servidor
 
-/* =========================
-   BOTÃO COMEÇAR CURSO
-========================= */
+app.listen(3000, () => {
 
-const modalButton = document.querySelector(".modal-button");
-
-modalButton.addEventListener("click", () => {
-
-    alert(
-        "Curso iniciado! Boa jornada de aprendizado 🚀"
-    );
-
-    closeModal();
-
-});
-
-
-/* =========================
-   CENTRAL DE AJUDA
-========================= */
-
-const helpButton = document.querySelector(".help-box button");
-
-helpButton.addEventListener("click", () => {
-
-    alert(
-        "Olá! Nossa equipe de suporte está disponível para ajudar você."
+    console.log(
+        "Servidor rodando em http://localhost:3000"
     );
 
 });
-
-
-/* =========================
-   INICIALIZAÇÃO
-========================= */
-
-filterCourses();
