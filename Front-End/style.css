@@ -80,7 +80,7 @@ body {
     height: 38px;
 
     background: var(--primary);
-    color: rgb(133, 115, 173);
+    color: rgb(139, 99, 224);
 
     border-radius: 10px;
 
@@ -323,7 +323,7 @@ body {
 
     position: relative;
 
-    color: #52525b;
+    color: hsl(266, 29%, 54%);
 }
 
 .icon-button svg {
@@ -399,8 +399,8 @@ body {
     background:
         radial-gradient(
             circle at 80% 20%,
-            rgba(167, 139, 250, .45),
-            transparent 25%
+            rgb(167, 139, 250),
+            transparent 100%
         ),
         linear-gradient(
             120deg,

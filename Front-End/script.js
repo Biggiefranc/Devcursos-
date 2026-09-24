@@ -1,6 +1,4 @@
-/* =========================
-   ELEMENTOS
-========================= */
+/* ELEMENTOS*/
 
 const menuButton = document.getElementById("menuButton");
 const sidebar = document.getElementById("sidebar");
@@ -21,24 +19,6 @@ const favoriteButtons = document.querySelectorAll(".favorite");
 
 const continueButton = document.getElementById("continueButton");
 
-
-/* =========================
-   MENU MOBILE
-========================= */
-
-function openMenu() {
-    sidebar.classList.add("open");
-    overlay.classList.add("show");
-}
-
-function closeMenu() {
-    sidebar.classList.remove("open");
-    overlay.classList.remove("show");
-}
-
-menuButton.addEventListener("click", openMenu);
-
-overlay.addEventListener("click", closeMenu);
 
 
 /* =========================
@@ -152,9 +132,7 @@ function filterCourses() {
 }
 
 
-/* =========================
-   FAVORITOS
-========================= */
+/* FAVORITOS*/
 
 favoriteButtons.forEach(button => {
 
@@ -182,9 +160,7 @@ favoriteButtons.forEach(button => {
 });
 
 
-/* =========================
-   MODAL DE CURSO
-========================= */
+/*  Modal de Curso*/
 
 detailsButtons.forEach(button => {
 
@@ -236,9 +212,7 @@ document.addEventListener("keydown", event => {
 });
 
 
-/* =========================
-   CONTINUAR CURSO
-========================= */
+/* Continuar Curso */
 
 continueButton.addEventListener("click", () => {
 
@@ -251,16 +225,14 @@ continueButton.addEventListener("click", () => {
 });
 
 
-/* =========================
-   BOTÕES DE CONTINUAR
-========================= */
+/* BOTÕES DE CONTINUAR*/
 
 const smallButton = document.querySelector(".small-button");
 
 smallButton.addEventListener("click", () => {
 
     alert(
-        "Abrindo a aula 24: Flexbox e Grid CSS..."
+        "Abrindo a aula 2: Estrutura de um projeto web"
     );
 
 });
@@ -275,7 +247,7 @@ const modalButton = document.querySelector(".modal-button");
 modalButton.addEventListener("click", () => {
 
     alert(
-        "Curso iniciado! Boa jornada de aprendizado 🚀"
+        "Curso iniciado 🚀"
     );
 
     closeModal();
@@ -292,14 +264,9 @@ const helpButton = document.querySelector(".help-box button");
 helpButton.addEventListener("click", () => {
 
     alert(
-        "Olá! Nossa equipe de suporte está disponível para ajudar você."
+        "Central de Ajuda"
     );
 
 });
 
 
-/* =========================
-   INICIALIZAÇÃO
-========================= */
-
-filterCourses();
