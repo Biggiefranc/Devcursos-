@@ -1,3 +1,175 @@
+if (localStorage.getItem("devcursosLoggedIn") !=="true") {
+    window.location.href = "login.html";
+}
+
+/* =========================
+   DADOS DO USUÁRIO
+========================= */
+
+const usuarioSalvo =
+    localStorage.getItem("devcursosUsuario");
+
+const headerUserName =
+    document.getElementById("headerUserName");
+
+const headerUserAvatar =
+    document.getElementById("headerUserAvatar");
+
+
+if (usuarioSalvo) {
+
+    const usuario =
+        JSON.parse(usuarioSalvo);
+
+    if (headerUserName) {
+        headerUserName.textContent =
+            usuario.nome;
+    }
+
+    if (headerUserAvatar) {
+        const partesNome =
+            usuario.nome.trim().split(" ");
+
+        const primeiraInicial =
+            partesNome[0]?.charAt(0).toUpperCase() || "";
+
+        const ultimaInicial =
+            partesNome.length > 1
+                ? partesNome[partesNome.length - 1]
+                    .charAt(0)
+                    .toUpperCase()
+                : "";
+
+        headerUserAvatar.textContent =
+            primeiraInicial + ultimaInicial;
+    }
+}
+
+/* =========================
+   MENU DO PERFIL E LOGOUT
+   Adicione este bloco depois do código
+   que carrega os dados do usuário.
+========================= */
+
+const profileButton =
+    document.getElementById("profileButton");
+
+const profileMenu =
+    document.getElementById("profileMenu");
+
+const logoutButton =
+    document.getElementById("logoutButton");
+
+
+/* Abrir e fechar o menu */
+
+profileButton.addEventListener("click", (event) => {
+
+    event.stopPropagation();
+
+    profileMenu.classList.toggle("show");
+
+});
+
+
+/* Fechar o menu ao clicar fora */
+
+document.addEventListener("click", () => {
+
+    profileMenu.classList.remove("show");
+
+});
+
+
+/* Fazer logout */
+
+logoutButton.addEventListener("click", (event) => {
+
+    event.stopPropagation();
+
+
+    /* Remove o estado de login */
+
+    localStorage.removeItem(
+        "devcursosLoggedIn"
+    );
+
+
+    /* Remove os dados do usuário */
+
+    localStorage.removeItem(
+        "devcursosUsuario"
+    );
+
+
+    /* Volta para a tela de login */
+
+    window.location.href =
+        "login.html";
+
+});
+
+const welcomeMessage =
+    document.getElementById("welcomeMessage");
+
+const userName =
+    document.getElementById("userName");
+
+const userAvatar =
+    document.getElementById("userAvatar");
+
+
+if (usuarioSalvo) {
+
+    const usuario =
+        JSON.parse(usuarioSalvo);
+
+
+    /* Nome no título */
+
+    if (welcomeMessage) {
+
+        welcomeMessage.textContent =
+            `Olá, ${usuario.nome}! 🖖`;
+
+    }
+
+
+    /* Nome na sidebar */
+
+    if (userName) {
+
+        userName.textContent =
+            usuario.nome;
+
+    }
+
+
+    /* Iniciais do usuário */
+
+    if (userAvatar) {
+
+        const partesNome =
+            usuario.nome.trim().split(" ");
+
+        const primeiraInicial =
+            partesNome[0]?.charAt(0).toUpperCase() || "";
+
+        const ultimaInicial =
+            partesNome.length > 1
+                ? partesNome[partesNome.length - 1]
+                    .charAt(0)
+                    .toUpperCase()
+                : "";
+
+        userAvatar.textContent =
+            primeiraInicial + ultimaInicial;
+
+    }
+
+}
+
+
 /* =========================
    ELEMENTOS
 ========================= */

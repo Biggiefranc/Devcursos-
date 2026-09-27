@@ -20,12 +20,14 @@
     --text-light: #56568b;
     --border: #7878f05d;
 
-    --green: #10b981;
-    --orange: #f59e0b;
-    --blue: #3b82f6;
+    --input-background: #edf3fb;
 
-    --sidebar-width: 250px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
+
+
 
 html {
     scroll-behavior: smooth;
@@ -1073,6 +1075,7 @@ body {
 
     z-index: 3000;
 
+    -webkit-backdrop-filter: blur(4px);
     backdrop-filter: blur(4px);
 }
 

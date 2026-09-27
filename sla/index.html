@@ -68,25 +68,13 @@
 
         </nav>
 
-        <div class="sidebar-bottom">
-            <div class="help-box">
-                <div class="help-icon">
-                    <i data-lucide="headphones"></i>
-                </div>
-
-                <strong>Precisa de ajuda?</strong>
-                <p>Fale com nosso suporte.</p>
-
-                <button>
-                    Central de ajuda
-                </button>
-            </div>
+        
 
             <div class="user-mini">
-                <div class="avatar">JS</div>
+                <div class="avatar" id="userAvatar">US</div>
 
                 <div>
-                    <strong>Lucas Nazario</strong>
+                    <strong id="userName">Usuário</strong>
                     <small>Aluno Premium</small>
                 </div>
 
@@ -103,7 +91,7 @@
         <!-- HEADER -->
         <header class="header">
 
-            <button class="mobile-menu" id="menuButton">
+            <button type="button" class="mobile-menu" id="menuButton" aria-label="Abrir menu">
                 <i data-lucide="menu"></i>
             </button>
 
@@ -118,23 +106,33 @@
 
             <div class="header-actions">
 
-                <button class="icon-button">
+                <button type="button" class="icon-button" aria-label="Notificações">
                     <i data-lucide="bell"></i>
                     <span class="notification"></span>
                 </button>
 
-                <div class="profile">
-                    <div class="avatar">JS</div>
+               <!-- LOGOUT: substitua o bloco .profile atual por este -->
+<div class="profile" id="profileButton">
 
-                    <div class="profile-info">
-                        <strong>Lucas nazario</strong>
-                        <small>Aluno</small>
-                    </div>
+    <div class="avatar" id="headerUserAvatar">US</div>
 
-                    <i data-lucide="chevron-down"></i>
-                </div>
+    <div class="profile-info">
+        <strong id="headerUserName">Usuário</strong>
+        <small>Aluno</small>
+    </div>
 
-            </div>
+    <i data-lucide="chevron-down"></i>
+
+    <!-- MENU DE PERFIL -->
+    <div class="profile-menu" id="profileMenu">
+
+        <button id="logoutButton">
+            Sair
+        </button>
+
+    </div>
+
+</div>
 
         </header>
 
@@ -151,8 +149,8 @@
                         Continue aprendendo
                     </span>
 
-                    <h1>
-                        Olá, Lucas! 🖖
+                    <h1 id="welcomeMessage">
+                            Olá! 🖖
                     </h1>
 
                     <p>
@@ -264,7 +262,7 @@
 
                             <div class="progress-top">
                                 <span>Progresso</span>
-                                <strong>68%</strong>
+                                <strong>90%</strong>
                             </div>
 
                             <div class="progress">
@@ -281,7 +279,7 @@
                             </span>
 
                             <button class="small-button">
-                                Continuar
+                                Começar
                                 <i data-lucide="arrow-right"></i>
                             </button>
 
@@ -345,9 +343,9 @@
     <div class="course-cover javascript">
       <img src="photoss/javascript.jpg" alt="Desenvolvimento de Jogos com JavaScript">
 
-      <button class="favorite">
-        <i data-lucide="heart"></i>
-      </button>
+            <button type="button" class="favorite" aria-label="Adicionar aos favoritos" title="Adicionar aos favoritos">
+                <i data-lucide="star" aria-hidden="true"></i>
+            </button>
     </div>
 
     <div class="course-card-body">
@@ -379,8 +377,8 @@
                         <div class="course-cover design">
                             <span>UI/UX</span>
 
-                            <button class="favorite">
-                                <i data-lucide="heart"></i>
+                            <button type="button" class="favorite" aria-label="Favoritar curso">
+                                <i data-lucide="star" aria-hidden="true"></i>
                             </button>
                         </div>
 
@@ -432,8 +430,8 @@
                         <div class="course-cover marketing">
                             <span>MARKETING</span>
 
-                            <button class="favorite">
-                                <i data-lucide="heart"></i>
+                            <button type="button" class="favorite" aria-label="Adicionar aos favoritos" title="Adicionar aos favoritos">
+                                <i data-lucide="star"></i>
                             </button>
                         </div>
 
@@ -485,8 +483,8 @@
                         <div class="course-cover business">
                             <span>BUSINESS</span>
 
-                            <button class="favorite">
-                                <i data-lucide="heart"></i>
+                            <button type="button" class="favorite" aria-label="Favoritar curso" title="Favoritar">
+                                <i data-lucide="star" aria-hidden="true"></i>
                             </button>
                         </div>
 
@@ -550,7 +548,7 @@
 
         <div class="modal-content">
 
-            <button class="modal-close" id="modalClose">
+            <button class="modal-close" id="modalClose" type="button" title="Fechar modal">
                 <i data-lucide="x"></i>
             </button>
 
