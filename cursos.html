@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Introdução a Python | Dev Cursos+</title>
+<style>
+:root{
+  --bg:#400b94d0; --text:#f5f0ff; --muted:#cdbdf0;
+  --purple:#c79bff; --link:#9fd0ff; --card:#2a0866; --border:#6a3fc0;
+  --hover:#ffffff22; --page:#ffffff; --page-text:#1f1633;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{background:#1a0540}
+body{
+  margin:0; min-height:100vh; color:var(--text);
+  font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  background:var(--bg);
+}
+
+/* Barra superior */
+.topbar{
+  display:flex; align-items:center; justify-content:space-between;
+  height:72px; padding:0 32px; position:relative;
+  border-bottom:1px solid var(--border);
+}
+.brand{
+  display:flex; align-items:center; gap:12px;
+  font-size:1.6rem; font-weight:700; text-decoration:none; color:var(--text);
+}
+.brand .name span{color:var(--purple)}
+.logo{width:42px; height:38px}
+.back{color:var(--link); text-decoration:none; font-weight:600}
+.back:hover{text-decoration:underline}
+
+/* Layout */
+.layout{display:grid; grid-template-columns:340px 1fr; min-height:calc(100vh - 72px)}
+
+/* Barra lateral */
+.sidebar{
+  background:var(--card); border-right:1px solid var(--border);
+  padding:20px 16px; overflow-y:auto;
+  height:calc(100vh - 72px); position:sticky; top:0; align-self:start;
+}
+.sidebar h2{font-size:1.05rem; margin:4px 8px 16px; color:var(--muted); font-weight:600}
+.modulo{margin-bottom:8px}
+.modulo-btn{
+  width:100%; display:flex; justify-content:space-between; align-items:center;
+  background:none; border:0; color:var(--text); cursor:pointer;
+  padding:12px; border-radius:8px; font:inherit; font-weight:700; text-align:left;
+}
+.modulo-btn:hover{background:var(--hover)}
+.modulo-btn .seta{transition:transform .2s; color:var(--purple)}
+.modulo.aberto .seta{transform:rotate(90deg)}
+.aulas{display:none; margin:2px 0 6px 10px}
+.modulo.aberto .aulas{display:block}
+.aula-btn{
+  width:100%; display:flex; gap:10px; align-items:flex-start;
+  background:none; border:0; color:var(--muted); cursor:pointer;
+  padding:9px 12px; border-radius:8px; font:inherit; font-size:.95rem; text-align:left;
+}
+.aula-btn:hover{background:var(--hover); color:var(--text)}
+.aula-btn.ativa{background:#7a1fff; color:#fff}
+.check{
+  flex-shrink:0; width:18px; height:18px; margin-top:2px;
+  border:2px solid var(--border); border-radius:50%;
+  display:grid; place-items:center; font-size:11px; line-height:1;
+}
+.aula-btn.concluida .check{background:#3ecf8e; border-color:#3ecf8e; color:#06361f}
+button:focus-visible,a:focus-visible{outline:3px solid var(--purple); outline-offset:2px}
+
+/* Página da aula */
+.conteudo{padding:40px 48px}
+.pagina{
+  background:var(--page); color:var(--page-text);
+  max-width:860px; padding:48px 56px; border-radius:6px;
+  box-shadow:0 10px 40px rgba(0,0,0,.35);
+}
+.pagina .trilha{font-size:.9rem; color:#6b5a8f; margin:0 0 8px}
+.pagina h1{font-size:2.1rem; margin:0 0 24px; line-height:1.25}
+.pagina h3{margin:28px 0 8px; font-size:1.25rem}
+.pagina p, .pagina li{font-size:1.08rem; line-height:1.75; max-width:70ch}
+.pagina code{background:#efe9fb; padding:2px 6px; border-radius:4px; font-size:.95em}
+.pagina pre{
+  background:#1d1233; color:#efe9fb; padding:18px 20px; border-radius:8px;
+  overflow-x:auto; font-size:.95rem; line-height:1.6;
+}
+.pagina pre code{background:none; padding:0}
+.nav{display:flex; justify-content:space-between; gap:12px; max-width:860px; margin-top:20px}
+.nav button{
+  background:#7a1fff; color:#fff; border:0; cursor:pointer;
+  padding:12px 22px; border-radius:8px; font:inherit; font-weight:600;
+}
+.nav button:hover{background:#9340ff}
+.nav button:disabled{opacity:.35; cursor:default}
+.nav .concluir{background:#3ecf8e; color:#06361f}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="index.html">
+    <svg class="logo" viewBox="0 0 48 44" aria-hidden="true">
+      <rect x="2" y="2" width="44" height="30" rx="5" fill="#7a1fff" stroke="#b98aff" stroke-width="1.5"/>
+      <rect x="20" y="32" width="8" height="6" fill="#7a1fff"/>
+      <rect x="12" y="38" width="24" height="4" rx="2" fill="#7a1fff"/>
+      <g fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 10.5 12 17l7 6.5"/><path d="M26.5 9.5 21.5 24.5"/><path d="M29 10.5 36 17l-7 6.5"/>
+      </g>
+    </svg>
+    <span class="name">Dev <span>Cursos</span>+</span>
+  </a>
+  <a class="back" href="prototipo.html">← Voltar ao curso</a>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h2 id="tituloCurso"></h2>
+    <nav id="menu"></nav>
+  </aside>
+
+  <main class="conteudo">
+    <article class="pagina" id="pagina"></article>
+    <div class="nav">
+      <button id="btnAnterior">← Anterior</button>
+      <button id="btnConcluir" class="concluir">Marcar como concluída</button>
+      <button id="btnProxima">Próxima →</button>
+    </div>
+  </main>
+</div>
+
+<script>
+/* ============================================================
+   EDITE AQUI: seus módulos, aulas e textos.
+   - Cada módulo tem um "nome" e uma lista de "aulas".
+   - Cada aula tem "titulo" e "texto" (aceita HTML: <p>, <h3>,
+     <ul>, <li>, <code>, <pre><code>...).
+   ============================================================ */
+const curso = {
+  titulo: "Introdução a Phython",
+  modulos: [
+    {
+      nome: "Módulo 1 - Primeiros passos",
+      aulas: [
+        {
+          titulo: "O que é Python",
+          texto: `
+            <p>Python é uma linguagem de programação muito usada para criar sistemas, aplicativos e scripts.</p>
+            <h3>Por que aprender Python?</h3>
+            <ul>
+              <li>Roda em vários sistemas operacionais.</li>
+              <li>Tem muito material e uma comunidade grande.</li>
+              <li>É usada em muitas vagas de emprego.</li>
+            </ul>`
+        },
+        {
+          titulo: "Instalando o Python",
+          texto: `
+            <p>Para programar em Python você precisa do <strong>Python</strong> instalado no seu computador.</p>
+            <p>Escreva aqui o passo a passo da instalação.</p>`
+        }
+      ]
+    },
+    {
+      nome: "Módulo 2 - Aprendendo a I-D-E-N-T-A-Ç-Ã-O",
+      aulas: [
+        {
+          titulo: "Entendendo como a identcação funciona no Python",
+          texto: `<p>é um recuo no início da linha de código usado de forma obrigatória para definir blocos de instruções.</p>`
+        },
+        {
+          titulo: "Exemplo de identação",
+          texto: `<p>idade = 17
+
+if idade >= 17:
+    # Este bloco está indentado (pertence ao if)
+    print("Menor de idade")
+    print("Não pode dirigir")
+
+# Este comando está fora do if (sem indentação)
+print("Fim do programa").</p>`
+        }
+      ]
+    },
+    {
+      nome: "Módulo 3 - Seu primeiro programa",
+      aulas: [
+        {
+          titulo: "Hello, world!",
+          texto: `
+            <p>Vamos criar o primeiro programa em Python:</p>
+            <pre><code>print("Hello, world!")</code></pre>
+            <p>Ao executar, o texto <code>Hello, world!</code> aparece no console.</p>`
+        }
+      ]
+    }
+  ]
+};
+/* ===================== FIM DA ÁREA DE EDIÇÃO ===================== */
+
+// Lista plana de aulas (para anterior/próxima)
+const todas = [];
+curso.modulos.forEach((m, mi) => m.aulas.forEach((a, ai) => todas.push({ mi, ai, modulo: m.nome, ...a })));
+
+let atual = 0;
+let feitas = new Set();
+try { feitas = new Set(JSON.parse(localStorage.getItem('devcursos-feitas') || '[]')); } catch (e) {}
+
+const salvar = () => { try { localStorage.setItem('devcursos-feitas', JSON.stringify([...feitas])); } catch (e) {} };
+const chave = i => todas[i].mi + '-' + todas[i].ai;
+
+function montarMenu(){
+  document.getElementById('tituloCurso').textContent = curso.titulo;
+  const menu = document.getElementById('menu');
+  menu.innerHTML = '';
+  let idx = 0;
+  curso.modulos.forEach((m, mi) => {
+    const box = document.createElement('div');
+    box.className = 'modulo' + (mi === todas[atual].mi ? ' aberto' : '');
+    const btn = document.createElement('button');
+    btn.className = 'modulo-btn';
+    btn.innerHTML = `<span>${m.nome}</span><span class="seta">▶</span>`;
+    btn.onclick = () => box.classList.toggle('aberto');
+    const lista = document.createElement('div');
+    lista.className = 'aulas';
+    m.aulas.forEach(a => {
+      const i = idx++;
+      const b = document.createElement('button');
+      b.className = 'aula-btn' + (i === atual ? ' ativa' : '') + (feitas.has(chave(i)) ? ' concluida' : '');
+      b.innerHTML = `<span class="check">${feitas.has(chave(i)) ? '✓' : ''}</span><span>${a.titulo}</span>`;
+      b.onclick = () => abrir(i);
+      lista.appendChild(b);
+    });
+    box.append(btn, lista);
+    menu.appendChild(box);
+  });
+}
+
+function abrir(i){
+  atual = i;
+  const a = todas[i];
+  document.getElementById('pagina').innerHTML =
+    `<p class="trilha">${a.modulo}</p><h1>${a.titulo}</h1>${a.texto}`;
+  document.getElementById('btnAnterior').disabled = i === 0;
+  document.getElementById('btnProxima').disabled = i === todas.length - 1;
+  document.getElementById('btnConcluir').textContent =
+    feitas.has(chave(i)) ? 'Desmarcar conclusão' : 'Marcar como concluída';
+  history.replaceState(null, '', '#aula-' + (i + 1));
+  montarMenu();
+  window.scrollTo(0, 0);
+}
+
+document.getElementById('btnAnterior').onclick = () => abrir(atual - 1);
+document.getElementById('btnProxima').onclick = () => abrir(atual + 1);
+document.getElementById('btnConcluir').onclick = () => {
+  const k = chave(atual);
+  feitas.has(k) ? feitas.delete(k) : feitas.add(k);
+  salvar();
+  abrir(atual);
+};
+
+// Abre a aula do link (#aula-3) ou a primeira
+const n = parseInt((location.hash.match(/aula-(\d+)/) || [])[1], 10);
+abrir(n >= 1 && n <= todas.length ? n - 1 : 0);
+</script>
+</body>
+</html>

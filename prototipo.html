@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dev Cursos+</title>
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#400b94d0; --text:#f5f0ff; --muted:#cdbdf0;
+  --purple:rgb(143, 65, 246); --link:#9fd0ff; --card:#2a0866; --border:#6a3fc0; --hover:#ffffff22;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px); background:#1a0540}
+body{
+  margin:0; min-height:100vh; color:var(--text);
+  font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  background:var(--bg);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0; min-height:100vh; color:var(--text);
+  font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  background-color:var(--bg);
+  background-image:radial-gradient(var(--dot) 1.5px,transparent 1.5px);
+  background-size:32px 32px;
+}
+/* Barra superior */
+.topbar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:18px 48px; position:relative;
+}
+.icon-btn{
+  background:none; border:0; color:var(--text); cursor:pointer;
+  width:48px; height:48px; border-radius:50%;
+  display:grid; place-items:center;
+}
+.icon-btn:hover{background:var(--hover)}
+.icon-btn:focus-visible,.menu a:focus-visible,.link:focus-visible{outline:3px solid var(--purple); outline-offset:2px}
+.icon-btn svg{width:32px; height:32px; stroke:currentColor; fill:none; stroke-width:2.2; stroke-linecap:round}
+.brand{
+  position:absolute; left:50%; transform:translateX(-50%);
+  font-size:1.9rem; font-weight:700; letter-spacing:.5px; text-decoration:none; color:var(--text);
+}
+.brand span{color:var(--purple)}
+.actions{display:flex; align-items:center; gap:8px}
+
+/* Menu do perfil */
+.profile{position:relative}
+.menu{
+  position:absolute; right:0; top:58px; min-width:230px; padding:10px;
+  background:var(--card); border:1px solid var(--border); border-radius:14px;
+  box-shadow:0 10px 30px rgba(0,0,0,.18);
+  display:none; z-index:10;
+}
+.menu.open{display:block}
+.menu .hello{margin:6px 10px 10px; font-size:.85rem; color:var(--muted)}
+.menu a{
+  display:block; padding:11px 12px; border-radius:8px;
+  color:var(--text); text-decoration:none; font-weight:600;
+}
+.menu a:hover{background:var(--hover)}
+.menu a.primary{color:var(--purple)}
+
+/* Menu lateral */
+.drawer{
+  position:fixed; top:0; left:0; bottom:0; width:280px; padding:24px;
+  background:var(--card); border-right:1px solid var(--border);
+  transform:translateX(-100%); transition:transform .25s; z-index:20;
+}
+.drawer.open{transform:none}
+.drawer h2{margin:8px 0 20px; font-size:1.3rem}
+.drawer h2 span{color:var(--purple)}
+.drawer a{display:block; padding:12px; border-radius:8px; color:var(--text); text-decoration:none}
+.drawer a:hover{background:var(--hover)}
+.scrim{position:fixed; inset:0; background:rgba(0,0,0,.35); display:none; z-index:15}
+.scrim.open{display:block}
+
+/* Conteúdo */
+main{max-width:980px; padding:48px; margin:0}
+h1{font-size:2.3rem; font-weight:500; margin:0 0 8px; line-height:1.25}
+.desc{font-size:1.1rem; color:var(--muted); margin:0 0 28px; max-width:75ch}
+.rating{display:flex; align-items:center; gap:10px; font-size:1.1rem; margin-bottom:14px}
+.stars{color:var(--muted); letter-spacing:3px}
+.meta{font-size:1.5rem; line-height:1.7; margin:0}
+.link{color:var(--link); text-decoration:none}
+.link:hover{text-decoration:underline}
+.java{
+  margin-top:40px; width:92px; height:92px; background:#fff; border-radius:6px;
+  display:grid; place-items:center; border:1px solid var(--border);
+}
+@media (prefers-reduced-motion:reduce){.drawer{transition:none}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <button class="icon-btn" id="menuBtn" aria-label="Abrir menu">
+    <svg viewBox="0 0 32 32"><path d="M3 7h26M3 16h26M3 25h26"/></svg>
+  </button>
+
+  <a class="brand" href="#">Dev<span>Cursos</span>+</a>
+<header class="topbar">
+ 
+
+  
+</header>
+
+  <div class="actions">
+    <div class="profile">
+      <button class="icon-btn" id="profileBtn" aria-label="Perfil" aria-haspopup="true" aria-expanded="false">
+        <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="13"/><circle cx="16" cy="13" r="4.5"/><path d="M7 26c1.5-5 5-7 9-7s7.5 2 9 7"/></svg>
+      </button>
+      <div class="menu" id="profileMenu" role="menu">
+        <p class="hello">Olá, "Usuario" </p>
+        <a href="login.html" class="primary" role="menuitem">Faça login</a>
+        <a href="cadastro.html" role="menuitem">Cadastre-se</a>
+      
+      </div>
+    </div>
+  </div>
+</header>
+
+<aside class="drawer" id="drawer" aria-label="Menu principal">
+  <h2>Dev <span>Cursos</span>+</h2>
+  <a href="prototipo.html">Início</a>
+  <a href="catalogo.html">Catálogo</a>
+    <a href="cursos.html">Meus cursos</a>
+  <a href="sobre.html">Sobre</a>
+</aside>
+<div class="scrim" id="scrim"></div>
+
+<main>
+  <h1>Com DevCursos, Aprenda a Codar, Desenvolver Jogos e Muito Mais!</h1>
+  <p class="desc">Aprenda a Progamar conhecendo os principais conceitos da linguagem e desenvolvendo seus primeiros programas.</p>
+
+
+<p class="meta"><a class="link" href="login.html">Entrar</a></p>
+  <p class="meta">Não tem cadastro no DevCursos? <a class="link" href="cadastro.html">Cadastre-se</a></p>
+
+
+
+  
+    </svg>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const pBtn = $('profileBtn'), pMenu = $('profileMenu');
+pBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  const open = pMenu.classList.toggle('open');
+  pBtn.setAttribute('aria-expanded', open);
+});
+document.addEventListener('click', () => { pMenu.classList.remove('open'); pBtn.setAttribute('aria-expanded', false); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { pMenu.classList.remove('open'); closeDrawer(); } });
+
+const drawer = $('drawer'), scrim = $('scrim');
+function closeDrawer(){ drawer.classList.remove('open'); scrim.classList.remove('open'); }
+$('menuBtn').addEventListener('click', () => { drawer.classList.add('open'); scrim.classList.add('open'); });
+scrim.addEventListener('click', closeDrawer);
+</script>
+</body>
+</html>
