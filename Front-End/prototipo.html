@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>DevCursos+</title>
+
+    <style>
+      :root {
+        box-sizing: border-box;
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+        --bg: #400b94d0;
+        --text: #f5f0ff;
+        --muted: #cdbdf0;
+        --purple: rgb(143, 65, 246);
+        --link: #9fd0ff;
+        --card: #2a0866;
+        --border: #6a3fc0;
+        --hover: #ffffff22;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: inherit;
+      }
+
+      html {
+        scroll-padding-top: env(safe-area-inset-top, 0px);
+        background: #1a0540;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--text);
+        font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        background: var(--bg);
+      }
+
+      .header {
+        background: var(--card);
+        border-bottom: 1px solid var(--border);
+        position: relative;
+        z-index: 5;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 12px 32px;
+      }
+
+      .brand {
+        font-size: 1.7rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-decoration: none;
+        color: var(--text);
+        white-space: nowrap;
+      }
+
+      .brand span {
+        color: var(--purple);
+      }
+
+      .nav-link {
+        color: var(--text);
+        text-decoration: none;
+        font-size: 0.9rem;
+        white-space: nowrap;
+        padding: 8px 4px;
+      }
+
+      .nav-link:hover {
+        color: var(--purple);
+      }
+      /* Barra de busca */
+
+      .search {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        height: 46px;
+        padding: 0 18px;
+        margin: 0;
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        background: #ffffff14;
+        color: var(--muted);
+      }
+
+      .search:focus-within {
+        border-color: var(--purple);
+        background: #ffffff22;
+      }
+
+      .search svg {
+        width: 18px;
+        height: 18px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        flex: none;
+      }
+
+      .search input {
+        flex: 1;
+        min-width: 0;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        color: var(--text);
+        font-size: 0.95rem;
+        font-family: inherit;
+      }
+
+      .search input::placeholder {
+        color: var(--muted);
+      }
+      /* Botões de ícone */
+
+      .icon-btn {
+        background: none;
+        border: 0;
+        color: var(--text);
+        cursor: pointer;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        flex: none;
+      }
+
+      .icon-btn:hover {
+        background: var(--hover);
+      }
+
+      .icon-btn:focus-visible,
+      .menu a:focus-visible,
+      .link:focus-visible,
+      .nav-link:focus-visible {
+        outline: 3px solid var(--purple);
+        outline-offset: 2px;
+      }
+
+      .icon-btn svg {
+        width: 24px;
+        height: 24px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2.2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .icon-btn.big svg {
+        width: 32px;
+        height: 32px;
+      }
+
+      .actions {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      #menuBtn {
+        display: none;
+      }
+      /* Categorias (segunda linha) */
+
+      .categories {
+        display: flex;
+        justify-content: center;
+        gap: 28px;
+        padding: 10px 32px;
+        border-top: 1px solid var(--border);
+      }
+
+      .categories a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
+
+      .categories a:hover {
+        color: var(--text);
+      }
+      /* Menu do perfil */
+
+      .profile {
+        position: relative;
+      }
+
+      .menu {
+        position: absolute;
+        right: 0;
+        top: 54px;
+        min-width: 230px;
+        padding: 10px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+        display: none;
+        z-index: 10;
+      }
+
+      .menu.open {
+        display: block;
+      }
+
+      .menu .hello {
+        margin: 6px 10px 10px;
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+
+      .menu a {
+        display: block;
+        padding: 11px 12px;
+        border-radius: 8px;
+        color: var(--text);
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .menu a:hover {
+        background: var(--hover);
+      }
+
+      .menu a.primary {
+        color: var(--purple);
+      }
+
+      .drawer {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 280px;
+        padding: 24px;
+        background: var(--card);
+        border-right: 1px solid var(--border);
+        transform: translateX(-100%);
+        transition: transform 0.25s;
+        z-index: 20;
+      }
+
+      .drawer.open {
+        transform: none;
+      }
+
+      .drawer h2 {
+        margin: 8px 0 20px;
+        font-size: 1.3rem;
+      }
+
+      .drawer h2 span {
+        color: var(--purple);
+      }
+
+      .drawer a {
+        display: block;
+        padding: 12px;
+        border-radius: 8px;
+        color: var(--text);
+        text-decoration: none;
+      }
+
+      .drawer a:hover {
+        background: var(--hover);
+      }
+
+      .scrim {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.35);
+        display: none;
+        z-index: 15;
+      }
+
+      .scrim.open {
+        display: block;
+      }
+      /* Conteúdo */
+
+      main {
+        max-width: 980px;
+        padding: 48px;
+        margin: 0;
+      }
+
+      h1 {
+        font-size: 2.3rem;
+        font-weight: 500;
+        margin: 0 0 8px;
+        line-height: 1.25;
+      }
+
+      .desc {
+        font-size: 1.1rem;
+        color: var(--muted);
+        margin: 0 0 28px;
+        max-width: 75ch;
+      }
+
+      .meta {
+        font-size: 1.5rem;
+        line-height: 1.7;
+        margin: 0;
+      }
+
+      .link {
+        color: var(--link);
+        text-decoration: none;
+      }
+
+      .link:hover {
+        text-decoration: underline;
+      }
+      /* Telas menores: esconde links e categorias, mostra o hambúrguer */
+
+      @media (max-width: 900px) {
+        .topbar {
+          padding: 10px 16px;
+          gap: 10px;
+        }
+        .nav-link,
+        .categories,
+        .hide-sm {
+          display: none;
+        }
+        #menuBtn {
+          display: grid;
+        }
+        .brand {
+          font-size: 1.4rem;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .drawer {
+          transition: none;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="header">
+      <div class="topbar">
+        <button class="icon-btn big" id="menuBtn" aria-label="Abrir menu">
+          <svg viewBox="0 0 32 32"><path d="M3 7h26M3 16h26M3 25h26" /></svg>
+        </button>
+
+        <a class="brand" href="prototipo.html">Dev<span>Cursos</span>+</a>
+
+        <a class="nav-link" href="catalogo.html">Catálogo</a>
+
+        <form class="search" role="search" onsubmit="return false;">
+          <svg viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="7" />
+            <path d="M21 21l-4.3-4.3" />
+          </svg>
+          <input
+            type="search"
+            placeholder="Pesquisar por qualquer coisa"
+            aria-label="Pesquisar"
+          />
+        </form>
+
+        <a class="nav-link" href="cursos.html">Meu aprendizado</a>
+
+        <div class="actions">
+          <button class="icon-btn hide-sm" aria-label="Favoritos">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M12 20s-7-4.4-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.6-9 9-9 9z"
+              />
+            </svg>
+          </button>
+
+          <button class="icon-btn hide-sm" aria-label="Notificações">
+            <svg viewBox="0 0 24 24">
+              <path d="M6 17V11a6 6 0 0 1 12 0v6l2 2H4z" />
+              <path d="M10 21h4" />
+            </svg>
+          </button>
+
+          <div class="profile">
+            <button
+              class="icon-btn big"
+              id="profileBtn"
+              aria-label="Perfil"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              <svg viewBox="0 0 32 32">
+                <circle cx="16" cy="16" r="13" />
+                <circle cx="16" cy="13" r="4.5" />
+                <path d="M7 26c1.5-5 5-7 9-7s7.5 2 9 7" />
+              </svg>
+            </button>
+            <div class="menu" id="profileMenu" role="menu">
+              <p class="hello">Olá,</p>
+              <a href="login.html" class="primary" role="menuitem"
+                >Faça login</a
+              >
+              <a href="cadastro.html" role="menuitem">Cadastre-se</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <nav class="categories" aria-label="Categorias">
+        <a href="desenvolvimento.html">Desenvolvimento</a>
+        <a href="bancodados.html">Banco de dados</a>
+      </nav>
+    </header>
+
+    <aside class="drawer" id="drawer" aria-label="Menu principal">
+      <h2>Dev <span>Cursos</span>+</h2>
+      <a href="prototipo.html">Início</a>
+      <a href="catalogo.html">Catálogo</a>
+      <a href="cursos.html">Meus cursos</a>
+      <a href="sobre.html">Sobre</a>
+    </aside>
+    <div class="scrim" id="scrim"></div>
+
+    <main>
+      <h1>Com DevCursos, Aprenda a Codar, Desenvolver Jogos e Muito Mais!</h1>
+      <p class="desc">
+        Aprenda a Progamar conhecendo os principais conceitos da linguagem e
+        desenvolvendo seus primeiros programas.
+      </p>
+
+      <p class="meta"><a class="link" href="login.html">Entrar</a></p>
+      <p class="meta">
+        Não tem cadastro no DevCursos?
+        <a class="link" href="cadastro.html">Cadastre-se</a>
+      </p>
+    </main>
+
+    <script src="auth.js"></script>
+    <script>
+      const $ = (id) => document.getElementById(id);
+      const pBtn = $("profileBtn"),
+        pMenu = $("profileMenu");
+      pBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const open = pMenu.classList.toggle("open");
+        pBtn.setAttribute("aria-expanded", open);
+      });
+      document.addEventListener("click", () => {
+        pMenu.classList.remove("open");
+        pBtn.setAttribute("aria-expanded", false);
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          pMenu.classList.remove("open");
+          closeDrawer();
+        }
+      });
+
+      const drawer = $("drawer"),
+        scrim = $("scrim");
+
+      function closeDrawer() {
+        drawer.classList.remove("open");
+        scrim.classList.remove("open");
+      }
+      $("menuBtn").addEventListener("click", () => {
+        drawer.classList.add("open");
+        scrim.classList.add("open");
+      });
+      scrim.addEventListener("click", closeDrawer);
+    </script>
+  </body>
+</html>
