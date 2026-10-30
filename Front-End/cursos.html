@@ -1,137 +1,335 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Introdução a Python | Dev Cursos+</title>
-<style>
-:root{
-  --bg:#400b94d0; --text:#f5f0ff; --muted:#cdbdf0;
-  --purple:#c79bff; --link:#9fd0ff; --card:#2a0866; --border:#6a3fc0;
-  --hover:#ffffff22; --page:#ffffff; --page-text:#1f1633;
-}
-*,*::before,*::after{box-sizing:border-box}
-html{background:#1a0540}
-body{
-  margin:0; min-height:100vh; color:var(--text);
-  font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-  background:var(--bg);
-}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Introdução a Python | Dev Cursos+</title>
+  <style>
+    :root {
+      --bg: #400b94d0;
+      --text: #f5f0ff;
+      --muted: #cdbdf0;
+      --purple: #c79bff;
+      --link: #9fd0ff;
+      --card: #2a0866;
+      --border: #6a3fc0;
+      --hover: #ffffff22;
+      --page: #ffffff;
+      --page-text: #1f1633;
+    }
 
-/* Barra superior */
-.topbar{
-  display:flex; align-items:center; justify-content:space-between;
-  height:72px; padding:0 32px; position:relative;
-  border-bottom:1px solid var(--border);
-}
-.brand{
-  display:flex; align-items:center; gap:12px;
-  font-size:1.6rem; font-weight:700; text-decoration:none; color:var(--text);
-}
-.brand .name span{color:var(--purple)}
-.logo{width:42px; height:38px}
-.back{color:var(--link); text-decoration:none; font-weight:600}
-.back:hover{text-decoration:underline}
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box
+    }
 
-/* Layout */
-.layout{display:grid; grid-template-columns:340px 1fr; min-height:calc(100vh - 72px)}
+    html {
+      background: #1a0540
+    }
 
-/* Barra lateral */
-.sidebar{
-  background:var(--card); border-right:1px solid var(--border);
-  padding:20px 16px; overflow-y:auto;
-  height:calc(100vh - 72px); position:sticky; top:0; align-self:start;
-}
-.sidebar h2{font-size:1.05rem; margin:4px 8px 16px; color:var(--muted); font-weight:600}
-.modulo{margin-bottom:8px}
-.modulo-btn{
-  width:100%; display:flex; justify-content:space-between; align-items:center;
-  background:none; border:0; color:var(--text); cursor:pointer;
-  padding:12px; border-radius:8px; font:inherit; font-weight:700; text-align:left;
-}
-.modulo-btn:hover{background:var(--hover)}
-.modulo-btn .seta{transition:transform .2s; color:var(--purple)}
-.modulo.aberto .seta{transform:rotate(90deg)}
-.aulas{display:none; margin:2px 0 6px 10px}
-.modulo.aberto .aulas{display:block}
-.aula-btn{
-  width:100%; display:flex; gap:10px; align-items:flex-start;
-  background:none; border:0; color:var(--muted); cursor:pointer;
-  padding:9px 12px; border-radius:8px; font:inherit; font-size:.95rem; text-align:left;
-}
-.aula-btn:hover{background:var(--hover); color:var(--text)}
-.aula-btn.ativa{background:#7a1fff; color:#fff}
-.check{
-  flex-shrink:0; width:18px; height:18px; margin-top:2px;
-  border:2px solid var(--border); border-radius:50%;
-  display:grid; place-items:center; font-size:11px; line-height:1;
-}
-.aula-btn.concluida .check{background:#3ecf8e; border-color:#3ecf8e; color:#06361f}
-button:focus-visible,a:focus-visible{outline:3px solid var(--purple); outline-offset:2px}
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+    }
 
-/* Página da aula */
-.conteudo{padding:40px 48px}
-.pagina{
-  background:var(--page); color:var(--page-text);
-  max-width:860px; padding:48px 56px; border-radius:6px;
-  box-shadow:0 10px 40px rgba(0,0,0,.35);
-}
-.pagina .trilha{font-size:.9rem; color:#6b5a8f; margin:0 0 8px}
-.pagina h1{font-size:2.1rem; margin:0 0 24px; line-height:1.25}
-.pagina h3{margin:28px 0 8px; font-size:1.25rem}
-.pagina p, .pagina li{font-size:1.08rem; line-height:1.75; max-width:70ch}
-.pagina code{background:#efe9fb; padding:2px 6px; border-radius:4px; font-size:.95em}
-.pagina pre{
-  background:#1d1233; color:#efe9fb; padding:18px 20px; border-radius:8px;
-  overflow-x:auto; font-size:.95rem; line-height:1.6;
-}
-.pagina pre code{background:none; padding:0}
-.nav{display:flex; justify-content:space-between; gap:12px; max-width:860px; margin-top:20px}
-.nav button{
-  background:#7a1fff; color:#fff; border:0; cursor:pointer;
-  padding:12px 22px; border-radius:8px; font:inherit; font-weight:600;
-}
-.nav button:hover{background:#9340ff}
-.nav button:disabled{opacity:.35; cursor:default}
-.nav .concluir{background:#3ecf8e; color:#06361f}
-</style>
+    /* Barra superior */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+      padding: 0 32px;
+      position: relative;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.6rem;
+      font-weight: 700;
+      text-decoration: none;
+      color: var(--text);
+    }
+
+    .brand .name span {
+      color: var(--purple)
+    }
+
+    .logo {
+      width: 42px;
+      height: 38px
+    }
+
+    .back {
+      color: var(--link);
+      text-decoration: none;
+      font-weight: 600
+    }
+
+    .back:hover {
+      text-decoration: underline
+    }
+
+    /* Layout */
+    .layout {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      min-height: calc(100vh - 72px)
+    }
+
+    /* Barra lateral */
+    .sidebar {
+      background: var(--card);
+      border-right: 1px solid var(--border);
+      padding: 20px 16px;
+      overflow-y: auto;
+      height: calc(100vh - 72px);
+      position: sticky;
+      top: 0;
+      align-self: start;
+    }
+
+    .sidebar h2 {
+      font-size: 1.05rem;
+      margin: 4px 8px 16px;
+      color: var(--muted);
+      font-weight: 600
+    }
+
+    .modulo {
+      margin-bottom: 8px
+    }
+
+    .modulo-btn {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: none;
+      border: 0;
+      color: var(--text);
+      cursor: pointer;
+      padding: 12px;
+      border-radius: 8px;
+      font: inherit;
+      font-weight: 700;
+      text-align: left;
+    }
+
+    .modulo-btn:hover {
+      background: var(--hover)
+    }
+
+    .modulo-btn .seta {
+      transition: transform .2s;
+      color: var(--purple)
+    }
+
+    .modulo.aberto .seta {
+      transform: rotate(90deg)
+    }
+
+    .aulas {
+      display: none;
+      margin: 2px 0 6px 10px
+    }
+
+    .modulo.aberto .aulas {
+      display: block
+    }
+
+    .aula-btn {
+      width: 100%;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      background: none;
+      border: 0;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font: inherit;
+      font-size: .95rem;
+      text-align: left;
+    }
+
+    .aula-btn:hover {
+      background: var(--hover);
+      color: var(--text)
+    }
+
+    .aula-btn.ativa {
+      background: #7a1fff;
+      color: #fff
+    }
+
+    .check {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      border: 2px solid var(--border);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      line-height: 1;
+    }
+
+    .aula-btn.concluida .check {
+      background: #3ecf8e;
+      border-color: #3ecf8e;
+      color: #06361f
+    }
+
+    button:focus-visible,
+    a:focus-visible {
+      outline: 3px solid var(--purple);
+      outline-offset: 2px
+    }
+
+    /* Página da aula */
+    .conteudo {
+      padding: 40px 48px
+    }
+
+    .pagina {
+      background: var(--page);
+      color: var(--page-text);
+      max-width: 860px;
+      padding: 48px 56px;
+      border-radius: 6px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, .35);
+    }
+
+    .pagina .trilha {
+      font-size: .9rem;
+      color: #6b5a8f;
+      margin: 0 0 8px
+    }
+
+    .pagina h1 {
+      font-size: 2.1rem;
+      margin: 0 0 24px;
+      line-height: 1.25
+    }
+
+    .pagina h3 {
+      margin: 28px 0 8px;
+      font-size: 1.25rem
+    }
+
+    .pagina p,
+    .pagina li {
+      font-size: 1.08rem;
+      line-height: 1.75;
+      max-width: 70ch
+    }
+
+    .pagina code {
+      background: #efe9fb;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: .95em
+    }
+
+    .pagina pre {
+      background: #1d1233;
+      color: #efe9fb;
+      padding: 18px 20px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: .95rem;
+      line-height: 1.6;
+    }
+
+    .pagina pre code {
+      background: none;
+      padding: 0
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      max-width: 860px;
+      margin-top: 20px
+    }
+
+    .nav button {
+      background: #7a1fff;
+      color: #fff;
+      border: 0;
+      cursor: pointer;
+      padding: 12px 22px;
+      border-radius: 8px;
+      font: inherit;
+      font-weight: 600;
+    }
+
+    .nav button:hover {
+      background: #9340ff
+    }
+
+    .nav button:disabled {
+      opacity: .35;
+      cursor: default
+    }
+
+    .nav .concluir {
+      background: #3ecf8e;
+      color: #06361f
+    }
+  </style>
 </head>
+
 <body>
 
-<header class="topbar">
-  <a class="brand" href="index.html">
-    <svg class="logo" viewBox="0 0 48 44" aria-hidden="true">
-      <rect x="2" y="2" width="44" height="30" rx="5" fill="#7a1fff" stroke="#b98aff" stroke-width="1.5"/>
-      <rect x="20" y="32" width="8" height="6" fill="#7a1fff"/>
-      <rect x="12" y="38" width="24" height="4" rx="2" fill="#7a1fff"/>
-      <g fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M19 10.5 12 17l7 6.5"/><path d="M26.5 9.5 21.5 24.5"/><path d="M29 10.5 36 17l-7 6.5"/>
-      </g>
-    </svg>
-    <span class="name">Dev <span>Cursos</span>+</span>
-  </a>
-  <a class="back" href="prototipo.html">← Voltar ao curso</a>
-</header>
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <svg class="logo" viewBox="0 0 48 44" aria-hidden="true">
+        <rect x="2" y="2" width="44" height="30" rx="5" fill="#7a1fff" stroke="#b98aff" stroke-width="1.5" />
+        <rect x="20" y="32" width="8" height="6" fill="#7a1fff" />
+        <rect x="12" y="38" width="24" height="4" rx="2" fill="#7a1fff" />
+        <g fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 10.5 12 17l7 6.5" />
+          <path d="M26.5 9.5 21.5 24.5" />
+          <path d="M29 10.5 36 17l-7 6.5" />
+        </g>
+      </svg>
+      <span class="name">Dev <span>Cursos</span>+</span>
+    </a>
+    <a class="back" href="visualizarcurso.html">← Voltar ao curso</a>
+  </header>
 
-<div class="layout">
-  <aside class="sidebar">
-    <h2 id="tituloCurso"></h2>
-    <nav id="menu"></nav>
-  </aside>
+  <div class="layout">
+    <aside class="sidebar">
+      <h2 id="tituloCurso"></h2>
+      <nav id="menu"></nav>
+    </aside>
 
-  <main class="conteudo">
-    <article class="pagina" id="pagina"></article>
-    <div class="nav">
-      <button id="btnAnterior">← Anterior</button>
-      <button id="btnConcluir" class="concluir">Marcar como concluída</button>
-      <button id="btnProxima">Próxima →</button>
-    </div>
-  </main>
-</div>
+    <main class="conteudo">
+      <article class="pagina" id="pagina"></article>
+      <div class="nav">
+        <button id="btnAnterior">← Anterior</button>
+        <button id="btnConcluir" class="concluir">Marcar como concluída</button>
+        <button id="btnProxima">Próxima →</button>
+      </div>
+    </main>
+  </div>
 
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
-<script src="auth.js" defer></script>
-<script src="cursos.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
+  <script src="auth.js" defer></script>
+  <script src="cursos.js" defer></script>
 </body>
+
 </html>

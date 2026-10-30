@@ -593,6 +593,77 @@ app.get("/aulas/:id", (req, res) => {
 
 
 // =========================
+// PROGRESSO DAS AULAS (persistido por usuário no MySQL)
+// =========================
+
+// A tabela também é criada previamente pelo administrador do MySQL.
+// A API consulta e atualiza os registros.
+
+// Lista as aulas concluídas pelo usuário autenticado em um curso.
+app.get('/cursos/:id/progresso', autenticar, (req, res) => {
+    const cursoId = Number(req.params.id);
+    if (!Number.isInteger(cursoId) || cursoId <= 0) {
+        return res.status(400).json({ mensagem: 'ID do curso inválido.' });
+    }
+    const sql = `
+        SELECT pa.aula_id
+        FROM progresso_aulas pa
+        INNER JOIN aulas a ON a.id = pa.aula_id
+        INNER JOIN modulos m ON m.id = a.modulo_id
+        WHERE pa.usuario_id = ? AND m.curso_id = ? AND pa.concluida = 1
+    `;
+    conexao.query(sql, [req.usuarioId, cursoId], (erro, resultados) => {
+        if (erro) {
+            console.error('Erro ao consultar progresso:', erro.message);
+            return res.status(500).json({ mensagem: 'Não foi possível consultar seu progresso.' });
+        }
+        res.json({ aulasConcluidas: resultados.map(item => Number(item.aula_id)) });
+    });
+});
+
+// Marca ou desmarca uma aula como concluída para o usuário autenticado.
+app.put('/aulas/:id/conclusao', autenticar, (req, res) => {
+    const aulaId = Number(req.params.id);
+    const concluida = req.body?.concluida;
+    if (!Number.isInteger(aulaId) || aulaId <= 0 || typeof concluida !== 'boolean') {
+        return res.status(400).json({ mensagem: 'Informe uma aula válida e o estado de conclusão.' });
+    }
+    conexao.query('SELECT id FROM aulas WHERE id = ?', [aulaId], (erro, aulas) => {
+        if (erro) {
+            console.error('Erro ao validar aula:', erro.message);
+            return res.status(500).json({ mensagem: 'Não foi possível validar a aula.' });
+        }
+        if (!aulas.length) return res.status(404).json({ mensagem: 'Aula não encontrada.' });
+        if (!concluida) {
+            return conexao.query(
+                'DELETE FROM progresso_aulas WHERE usuario_id = ? AND aula_id = ?',
+                [req.usuarioId, aulaId],
+                (erroDelete) => {
+                    if (erroDelete) {
+                        console.error('Erro ao remover conclusão:', erroDelete.message);
+                        return res.status(500).json({ mensagem: 'Não foi possível atualizar seu progresso.' });
+                    }
+                    res.json({ aulaId, concluida: false });
+                }
+            );
+        }
+        conexao.query(
+            `INSERT INTO progresso_aulas (usuario_id, aula_id, concluida)
+             VALUES (?, ?, 1)
+             ON DUPLICATE KEY UPDATE concluida = 1, atualizada_em = CURRENT_TIMESTAMP`,
+            [req.usuarioId, aulaId],
+            (erroSalvar) => {
+                if (erroSalvar) {
+                    console.error('Erro ao salvar conclusão:', erroSalvar.message);
+                    return res.status(500).json({ mensagem: 'Não foi possível salvar seu progresso.' });
+                }
+                res.json({ aulaId, concluida: true });
+            }
+        );
+    });
+});
+
+// =========================
 // SERVIDOR
 // =========================
 

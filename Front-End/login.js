@@ -154,7 +154,7 @@ localStorage.setItem(
         */
 
         window.location.href =
-            "catalogo.html";
+            "menudashbord.html";
 
 
     } catch (erro) {

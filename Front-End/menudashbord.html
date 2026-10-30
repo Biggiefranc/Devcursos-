@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DevCursos+ | Cursos</title>
+  <link rel="stylesheet" href="cursos-ui.css">
+</head>
+
+<body>
+  <header class="topbar">
+    <a class="brand" href="menudashbord.html">Dev<span>Cursos</span>+</a>
+    <a class="top-link" href="menudashbord.html">Início</a>
+    <form class="search" role="search" onsubmit="return false">
+      <span aria-hidden="true">⌕</span>
+      <input id="courseSearch" type="search" placeholder="Pesquisar cursos" aria-label="Pesquisar cursos">
+    </form>
+    <a class="top-link" href="sobre.html">Sobre</a>
+    <div class="account" id="accountArea"><a href="login.html" id="accountLink">Entrar</a><span class="avatar"
+        aria-hidden="true">♙</span></div>
+  </header>
+
+  <main>
+    <section class="intro">
+      <h1 id="greeting" hidden></h1>
+      <h1>Explore os cursos de seu interesse</h1>
+      <p class="sub">Escolha uma área, encontre um curso e comece a aprender no seu ritmo.</p>
+    </section>
+    <h2 class="section-title">Categorias</h2>
+    <nav id="filters" class="filters" aria-label="Filtrar cursos por categoria"></nav>
+    <h2 class="section-title">Cursos disponíveis</h2>
+    <section id="courses" class="course-grid" aria-live="polite">
+      <p class="notice">Carregando cursos...</p>
+    </section>
+  </main>
+  <script src="menudashbord.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DevCursos+ | Recuperar senha</title>
+  <link rel="stylesheet" href="login.css">
+  <style>
+    /* Complemento local: mantém o cartão, cores e composição da tela de login. */
+    .recovery-note {
+      margin-top: 16px;
+      color: #71717a;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .recovery-status {
+      display: none;
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 8px;
+      background: #f3e8ff;
+      color: #4c1d95;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .recovery-status.show {
+      display: block;
+    }
+
+    .back-login {
+      display: inline-block;
+      margin-top: 20px;
+      color: #6d28d9;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .back-login:hover {
+      text-decoration: underline;
+    }
+
+    @media(max-width:800px) {
+      .login-page {
+        grid-template-columns: 1fr;
+      }
+
+      .visual-section {
+        display: none;
+      }
+
+      .login-card {
+        margin: 24px auto;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="login-page">
+    <div class="background-decoration decoration-1"></div>
+    <div class="background-decoration decoration-2"></div>
+    <div class="background-decoration decoration-3"></div>
+    <section class="login-card">
+      <div class="logo">
+        <div class="logo-icon"><i data-lucide="graduation-cap"></i></div>
+        <span>DevCursos<span>+</span></span>
+      </div>
+      <h1>Recuperar senha</h1>
+      <p class="subtitle">Informe o e-mail associado à sua conta para iniciar a recuperação.</p>
+      <form id="recoveryForm">
+        <div class="form-group">
+          <label for="email">E-mail</label>
+          <div class="input-wrapper"><input type="email" id="email" name="email" placeholder="seu@email.com"
+              autocomplete="email" required></div>
+        </div>
+        <button class="login-button" type="submit">Solicitar recuperação</button>
+      </form>
+      <p id="recoveryStatus" class="recovery-status" role="status"></p>
+      <p class="recovery-note">A recuperação por e-mail precisa ser habilitada no servidor para enviar um link seguro.
+      </p>
+      <a class="back-login" href="login.html">← Voltar para entrar</a>
+    </section>
+    <section class="visual-section">
+      <div class="visual-content">
+        <div class="visual-icon"><i data-lucide="key-round"></i></div>
+        <h2>Retome seus estudos.<br>Continue evoluindo.</h2>
+        <p>Recupere o acesso à sua conta DevCursos+.</p>
+      </div>
+    </section>
+  </main>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    if (window.lucide) lucide.createIcons();
+    document.getElementById("recoveryForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const status = document.getElementById("recoveryStatus");
+      status.textContent = "A tela está pronta, mas o servidor ainda não possui uma rota de recuperação de senha. Nenhum e-mail foi enviado.";
+      status.classList.add("show");
+    });
+  </script>
+</body>
+
+</html>

@@ -42,26 +42,69 @@ function chave(i) {
     return String(todas[i].id);
 }
 
-function carregarConclusoes() {
+function tokenAtual() {
+    return localStorage.getItem("devcursosToken") || "";
+}
+
+function carregarConclusoesLocais() {
     try {
         feitas = new Set(
-            JSON.parse(localStorage.getItem("devcursos-feitas") || "[]")
-                .map(String)
+            JSON.parse(localStorage.getItem("devcursos-feitas") || "[]").map(String)
         );
     } catch {
         feitas = new Set();
     }
 }
 
-function salvarConclusoes() {
+function salvarConclusoesLocais() {
     try {
-        localStorage.setItem(
-            "devcursos-feitas",
-            JSON.stringify([...feitas])
-        );
+        localStorage.setItem("devcursos-feitas", JSON.stringify([...feitas]));
     } catch (erro) {
-        console.error("Não foi possível salvar as conclusões:", erro);
+        console.error("Não foi possível salvar as conclusões locais:", erro);
     }
+}
+
+async function carregarConclusoes() {
+    const token = tokenAtual();
+    if (!token) {
+        carregarConclusoesLocais();
+        return;
+    }
+    try {
+        const resposta = await fetch(
+            `${API_BASE}/cursos/${encodeURIComponent(cursoId)}/progresso`,
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        const dados = await resposta.json().catch(() => ({}));
+        if (resposta.status === 401) {
+            localStorage.removeItem("devcursosToken");
+            localStorage.removeItem("devcursosLoggedIn");
+            localStorage.removeItem("devcursosUsuario");
+            throw new Error("Sua sessão expirou. Entre novamente para sincronizar o progresso.");
+        }
+        if (!resposta.ok) throw new Error(dados.mensagem || "Falha ao carregar progresso.");
+        feitas = new Set((dados.aulasConcluidas || []).map(String));
+        // Espelha no navegador como cache de leitura, sem ser a fonte principal.
+        salvarConclusoesLocais();
+    } catch (erro) {
+        console.error("Não foi possível sincronizar o progresso com a API:", erro);
+        carregarConclusoesLocais();
+    }
+}
+
+async function salvarConclusaoDaAula(aulaId, concluida) {
+    const token = tokenAtual();
+    if (!token) return;
+    const resposta = await fetch(`${API_BASE}/aulas/${encodeURIComponent(aulaId)}/conclusao`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ concluida })
+    });
+    const dados = await resposta.json().catch(() => ({}));
+    if (!resposta.ok) throw new Error(dados.mensagem || "Não foi possível salvar seu progresso.");
 }
 
 // Converte Markdown básico em HTML, escapando HTML fornecido pelo conteúdo.
@@ -122,8 +165,8 @@ function montarMenu() {
             const botaoAula = criarElemento(
                 "button",
                 "aula-btn" +
-                    (i === atual ? " ativa" : "") +
-                    (concluida ? " concluida" : "")
+                (i === atual ? " ativa" : "") +
+                (concluida ? " concluida" : "")
             );
 
             botaoAula.type = "button";
@@ -204,17 +247,22 @@ function abrir(i) {
 btnAnterior.addEventListener("click", () => abrir(atual - 1));
 btnProxima.addEventListener("click", () => abrir(atual + 1));
 
-btnConcluir.addEventListener("click", () => {
-    const id = chave(atual);
-
-    if (feitas.has(id)) {
-        feitas.delete(id);
-    } else {
-        feitas.add(id);
+btnConcluir.addEventListener("click", async () => {
+    const aulaId = chave(atual);
+    const antes = feitas.has(aulaId);
+    const concluida = !antes;
+    btnConcluir.disabled = true;
+    try {
+        await salvarConclusaoDaAula(aulaId, concluida);
+        if (concluida) feitas.add(aulaId); else feitas.delete(aulaId);
+        salvarConclusoesLocais();
+        abrir(atual);
+    } catch (erro) {
+        console.error(erro);
+        alert(`${erro.message} Verifique se a API e o banco estão funcionando.`);
+    } finally {
+        btnConcluir.disabled = false;
     }
-
-    salvarConclusoes();
-    abrir(atual);
 });
 
 async function iniciarCurso() {
@@ -226,8 +274,6 @@ async function iniciarCurso() {
         btnConcluir.disabled = true;
         return;
     }
-
-    carregarConclusoes();
 
     try {
         const [dadosCurso, modulos] = await Promise.all([
@@ -246,34 +292,34 @@ async function iniciarCurso() {
             return;
         }
 
-        
-curso.modulos = await Promise.all(
-    modulos.map(async modulo => {
-        const aulasLista = await buscarJson(
-            `${API_BASE}/modulos/${encodeURIComponent(modulo.id)}/aulas`
-        );
 
-        const lista = Array.isArray(aulasLista) ? aulasLista : [];
+        curso.modulos = await Promise.all(
+            modulos.map(async modulo => {
+                const aulasLista = await buscarJson(
+                    `${API_BASE}/modulos/${encodeURIComponent(modulo.id)}/aulas`
+                );
 
-        const aulasComConteudo = await Promise.all(
-            lista.map(async aula => {
-                const detalhes = await buscarJson(
-                    `${API_BASE}/aulas/${encodeURIComponent(aula.id)}`
+                const lista = Array.isArray(aulasLista) ? aulasLista : [];
+
+                const aulasComConteudo = await Promise.all(
+                    lista.map(async aula => {
+                        const detalhes = await buscarJson(
+                            `${API_BASE}/aulas/${encodeURIComponent(aula.id)}`
+                        );
+
+                        return {
+                            ...aula,
+                            ...detalhes
+                        };
+                    })
                 );
 
                 return {
-                    ...aula,
-                    ...detalhes
+                    ...modulo,
+                    aulas: aulasComConteudo
                 };
             })
         );
-
-        return {
-            ...modulo,
-            aulas: aulasComConteudo
-        };
-    })
-);
 
 
         todas = [];
@@ -295,6 +341,8 @@ curso.modulos = await Promise.all(
             btnConcluir.disabled = true;
             return;
         }
+
+        await carregarConclusoes();
 
         const hash = decodeURIComponent(
             (window.location.hash.match(/aula-(.+)/) || [])[1] || ""

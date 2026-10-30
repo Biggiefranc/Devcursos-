@@ -428,7 +428,6 @@ body {
 
     margin-bottom: 22px;
 
-    backdrop-filter:blur(8px);
 }
 
 .visual-icon svg {
@@ -475,7 +474,7 @@ body {
     box-shadow:
         0 25px 70px rgba(0, 0, 0, 0.25);
 
-    backdrop-filter: blur(12px);
+    
 
     transform: rotate(-3deg);
 }
@@ -607,7 +606,7 @@ body {
     .login-card {
         width: calc(100% - 30px);
 
-        min-height: auto;
+        min-height: 0;
 
         padding: 32px 24px;
 
