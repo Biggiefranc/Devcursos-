@@ -1,335 +1,128 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Introdução a Python | Dev Cursos+</title>
-  <style>
-    :root {
-      --bg: #400b94d0;
-      --text: #f5f0ff;
-      --muted: #cdbdf0;
-      --purple: #c79bff;
-      --link: #9fd0ff;
-      --card: #2a0866;
-      --border: #6a3fc0;
-      --hover: #ffffff22;
-      --page: #ffffff;
-      --page-text: #1f1633;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Visualizar curso | Dev Cursos+</title>
 
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box
-    }
+<!-- tema: aplica o escolhido no menu inicial, antes de desenhar a página -->
+<script>
+  try { document.documentElement.dataset.tema = localStorage.getItem('devcursos-tema') || 'sistema'; }
+  catch (e) {}
+</script>
+<link rel="stylesheet" href="tema.css">
 
-    html {
-      background: #1a0540
-    }
+<style>
+/* ===== Layout e componentes. Cores só via variáveis de tema.css ===== */
+.layout{display:grid;grid-template-columns:290px minmax(0,1fr);min-height:calc(100vh - 68px);max-width:1600px;margin:0 auto}
+.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:22px 14px;height:calc(100vh - 68px);position:sticky;top:68px;align-self:start;overflow-y:auto}
+.sidebar h2{font-size:.88rem;margin:0 10px 18px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.prog{margin:0 10px 20px}
+.prog-barra{height:8px;background:var(--track);border-radius:99px;overflow:hidden}
+.prog-barra div{height:100%;width:0;background:var(--green);border-radius:99px;transition:width .3s}
+.prog p{margin:8px 0 0;font-size:.82rem;color:var(--muted);font-weight:650}
+.btn-reiniciar{margin-top:12px;width:100%;background:var(--surface);color:var(--red-text);border:1px solid var(--red);border-radius:8px;padding:9px 12px;font:inherit;font-size:.82rem;font-weight:650;cursor:pointer}
+.btn-reiniciar:hover{background:var(--red-bg)}
+.modulo{margin-bottom:7px}
+.modulo-btn{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--surface-2);border:1px solid transparent;color:var(--text);cursor:pointer;padding:12px 11px;border-radius:9px;font:inherit;font-size:.88rem;font-weight:700;text-align:left}
+.modulo-btn:hover{background:var(--hover)}
+.modulo-btn .seta{transition:transform .2s;color:var(--purple);font-size:.75rem}
+.modulo.aberto .modulo-btn{background:var(--hover);border-color:var(--border-2);color:var(--accent)}
+.modulo.aberto .seta{transform:rotate(90deg)}
+.aulas{display:none;margin:6px 0 12px 7px;padding-left:9px;border-left:2px solid var(--border)}
+.modulo.aberto .aulas{display:block}
+.aula-btn{width:100%;display:flex;gap:9px;align-items:flex-start;background:none;border:0;color:var(--muted);cursor:pointer;padding:10px 9px;border-radius:7px;font:inherit;font-size:.83rem;line-height:1.4;text-align:left}
+.aula-btn:hover{background:var(--surface-2);color:var(--accent)}
+.aula-btn.ativa{background:var(--hover);color:var(--accent);font-weight:700;box-shadow:inset 3px 0 var(--purple)}
+.check{flex-shrink:0;width:17px;height:17px;margin-top:1px;border:1.5px solid var(--border-2);border-radius:50%;display:grid;place-items:center;font-size:10px;line-height:1;color:transparent}
+.aula-btn.concluida .check{background:var(--green);border-color:var(--green);color:#fff}
+button:focus-visible,a:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      color: var(--text);
-      font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background: var(--bg);
-    }
+.conteudo{padding:32px clamp(20px,4vw,58px) 80px;min-width:0}
+.conteudo:before{content:"ÁREA DE APRENDIZAGEM";display:block;color:var(--muted);font-size:.75rem;font-weight:750;letter-spacing:.12em;margin:2px 0 18px}
 
-    /* Barra superior */
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 72px;
-      padding: 0 32px;
-      position: relative;
-      border-bottom: 1px solid var(--border);
-    }
+/* cabeçalho de módulo */
+.modulo-head{max-width:980px;margin:44px 0 16px;font-size:1.05rem;color:var(--accent);letter-spacing:-.01em;padding-bottom:10px;border-bottom:2px solid var(--border-2)}
+.modulo-head:first-child{margin-top:0}
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 1.6rem;
-      font-weight: 700;
-      text-decoration: none;
-      color: var(--text);
-    }
+/* cada aula e a prova são um card */
+.aula-secao{background:var(--surface);color:var(--text);max-width:980px;min-height:260px;scroll-margin-top:90px;padding:clamp(28px,5vw,56px);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);margin-bottom:24px}
+.aula-secao .trilha{font-size:.83rem;color:var(--purple);margin:0 0 10px;font-weight:750;letter-spacing:.02em}
+.aula-secao h1{font-size:clamp(1.8rem,3vw,2.45rem);letter-spacing:-.045em;margin:0 0 28px;line-height:1.2;color:var(--text)}
+.aula-secao > p:not(.trilha){font-size:1.02rem;line-height:1.8;color:var(--text-2)}
 
-    .brand .name span {
-      color: var(--purple)
-    }
+/* conteúdo vindo do banco (markdown) */
+.corpo-aula h2,.corpo-aula h3{color:var(--text)}
+.corpo-aula h3{margin:30px 0 9px;font-size:1.2rem}
+.corpo-aula p,.corpo-aula li{font-size:1.02rem;line-height:1.8;max-width:75ch;color:var(--text-2)}
+.corpo-aula ul,.corpo-aula ol{padding-left:24px}
+.corpo-aula a{color:var(--link)}
+.corpo-aula code{background:var(--code-bg);color:var(--code-text);padding:3px 6px;border-radius:5px;font-size:.93em}
+.corpo-aula pre{background:var(--pre-bg);color:var(--pre-text);padding:20px 22px;border-radius:10px;overflow-x:auto;font-size:.93rem;line-height:1.65;border:1px solid var(--pre-border)}
+.corpo-aula pre code{background:none;color:inherit;padding:0}
 
-    .logo {
-      width: 42px;
-      height: 38px
-    }
+/* prova */
+.cubos{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 22px}
+.cubo{display:inline-grid;place-items:center;min-width:46px;height:46px;padding:0 8px;border-radius:10px;border:1.5px dashed var(--border-2);color:var(--muted);font-weight:700;font-size:.95rem}
+.cubo.respondido{background:var(--purple);border:1.5px solid var(--purple);color:#fff}
+.quiz-q{margin:22px 0;padding:18px 20px;border:1px solid var(--border);border-radius:12px;background:var(--surface-2)}
+.quiz-q h3{margin:0 0 10px;font-size:1.05rem;color:var(--text)}
+.quiz-op{display:block;width:100%;text-align:left;margin:8px 0;padding:11px 14px;border:1px solid var(--border-2);border-radius:9px;background:var(--surface);font:inherit;font-size:.95rem;color:var(--text);cursor:pointer}
+.quiz-op:hover:not(:disabled){background:var(--hover);border-color:var(--purple)}
+.quiz-op:disabled{cursor:default;opacity:.65}
+.quiz-op.escolhida{opacity:1;border-color:var(--purple);background:var(--hover);font-weight:650}
+.placar{margin-top:22px;padding:18px 20px;border-radius:12px;background:var(--placar-bg);color:var(--placar-text)}
+.placar p{margin:0 0 12px;font-weight:700;font-size:1.02rem}
+.btn-refazer{background:var(--surface);color:var(--accent);border:1px solid var(--border-2);cursor:pointer;padding:10px 16px;border-radius:9px;font:inherit;font-size:.9rem;font-weight:700}
+.btn-refazer:hover{background:var(--hover)}
 
-    .back {
-      color: var(--link);
-      text-decoration: none;
-      font-weight: 600
-    }
-
-    .back:hover {
-      text-decoration: underline
-    }
-
-    /* Layout */
-    .layout {
-      display: grid;
-      grid-template-columns: 340px 1fr;
-      min-height: calc(100vh - 72px)
-    }
-
-    /* Barra lateral */
-    .sidebar {
-      background: var(--card);
-      border-right: 1px solid var(--border);
-      padding: 20px 16px;
-      overflow-y: auto;
-      height: calc(100vh - 72px);
-      position: sticky;
-      top: 0;
-      align-self: start;
-    }
-
-    .sidebar h2 {
-      font-size: 1.05rem;
-      margin: 4px 8px 16px;
-      color: var(--muted);
-      font-weight: 600
-    }
-
-    .modulo {
-      margin-bottom: 8px
-    }
-
-    .modulo-btn {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: none;
-      border: 0;
-      color: var(--text);
-      cursor: pointer;
-      padding: 12px;
-      border-radius: 8px;
-      font: inherit;
-      font-weight: 700;
-      text-align: left;
-    }
-
-    .modulo-btn:hover {
-      background: var(--hover)
-    }
-
-    .modulo-btn .seta {
-      transition: transform .2s;
-      color: var(--purple)
-    }
-
-    .modulo.aberto .seta {
-      transform: rotate(90deg)
-    }
-
-    .aulas {
-      display: none;
-      margin: 2px 0 6px 10px
-    }
-
-    .modulo.aberto .aulas {
-      display: block
-    }
-
-    .aula-btn {
-      width: 100%;
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-      background: none;
-      border: 0;
-      color: var(--muted);
-      cursor: pointer;
-      padding: 9px 12px;
-      border-radius: 8px;
-      font: inherit;
-      font-size: .95rem;
-      text-align: left;
-    }
-
-    .aula-btn:hover {
-      background: var(--hover);
-      color: var(--text)
-    }
-
-    .aula-btn.ativa {
-      background: #7a1fff;
-      color: #fff
-    }
-
-    .check {
-      flex-shrink: 0;
-      width: 18px;
-      height: 18px;
-      margin-top: 2px;
-      border: 2px solid var(--border);
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      font-size: 11px;
-      line-height: 1;
-    }
-
-    .aula-btn.concluida .check {
-      background: #3ecf8e;
-      border-color: #3ecf8e;
-      color: #06361f
-    }
-
-    button:focus-visible,
-    a:focus-visible {
-      outline: 3px solid var(--purple);
-      outline-offset: 2px
-    }
-
-    /* Página da aula */
-    .conteudo {
-      padding: 40px 48px
-    }
-
-    .pagina {
-      background: var(--page);
-      color: var(--page-text);
-      max-width: 860px;
-      padding: 48px 56px;
-      border-radius: 6px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, .35);
-    }
-
-    .pagina .trilha {
-      font-size: .9rem;
-      color: #6b5a8f;
-      margin: 0 0 8px
-    }
-
-    .pagina h1 {
-      font-size: 2.1rem;
-      margin: 0 0 24px;
-      line-height: 1.25
-    }
-
-    .pagina h3 {
-      margin: 28px 0 8px;
-      font-size: 1.25rem
-    }
-
-    .pagina p,
-    .pagina li {
-      font-size: 1.08rem;
-      line-height: 1.75;
-      max-width: 70ch
-    }
-
-    .pagina code {
-      background: #efe9fb;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: .95em
-    }
-
-    .pagina pre {
-      background: #1d1233;
-      color: #efe9fb;
-      padding: 18px 20px;
-      border-radius: 8px;
-      overflow-x: auto;
-      font-size: .95rem;
-      line-height: 1.6;
-    }
-
-    .pagina pre code {
-      background: none;
-      padding: 0
-    }
-
-    .nav {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      max-width: 860px;
-      margin-top: 20px
-    }
-
-    .nav button {
-      background: #7a1fff;
-      color: #fff;
-      border: 0;
-      cursor: pointer;
-      padding: 12px 22px;
-      border-radius: 8px;
-      font: inherit;
-      font-weight: 600;
-    }
-
-    .nav button:hover {
-      background: #9340ff
-    }
-
-    .nav button:disabled {
-      opacity: .35;
-      cursor: default
-    }
-
-    .nav .concluir {
-      background: #3ecf8e;
-      color: #06361f
-    }
-  </style>
+@media(max-width:760px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{position:relative;top:auto;height:auto;max-height:360px;border-right:0;border-bottom:1px solid var(--border);padding:16px 12px}
+  .conteudo{padding:22px 14px 50px}.conteudo:before{margin-bottom:13px}
+  .aula-secao{padding:25px 22px;min-height:0}.aula-secao h1{margin-bottom:20px}
+  .quiz-q{padding:16px}
+}
+</style>
 </head>
 
 <body>
 
-  <header class="topbar">
-    <a class="brand" href="index.html">
-      <svg class="logo" viewBox="0 0 48 44" aria-hidden="true">
-        <rect x="2" y="2" width="44" height="30" rx="5" fill="#7a1fff" stroke="#b98aff" stroke-width="1.5" />
-        <rect x="20" y="32" width="8" height="6" fill="#7a1fff" />
-        <rect x="12" y="38" width="24" height="4" rx="2" fill="#7a1fff" />
-        <g fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M19 10.5 12 17l7 6.5" />
-          <path d="M26.5 9.5 21.5 24.5" />
-          <path d="M29 10.5 36 17l-7 6.5" />
-        </g>
-      </svg>
-      <span class="name">Dev <span>Cursos</span>+</span>
-    </a>
-    <a class="back" href="visualizarcurso.html">← Voltar ao curso</a>
-  </header>
+<header class="topbar">
+  <a class="brand" href="index.html">
+    <svg class="logo" viewBox="0 0 48 44" aria-hidden="true">
+      <rect x="2" y="2" width="44" height="30" rx="5" fill="#7a1fff" stroke="#b98aff" stroke-width="1.5"/>
+      <rect x="20" y="32" width="8" height="6" fill="#7a1fff"/>
+      <rect x="12" y="38" width="24" height="4" rx="2" fill="#7a1fff"/>
+      <g fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 10.5 12 17l7 6.5"/><path d="M26.5 9.5 21.5 24.5"/><path d="M29 10.5 36 17l-7 6.5"/>
+      </g>
+    </svg>
+    <span class="name">Dev <span>Cursos</span>+</span>
+  </a>
+  <a class="back" href="visualizarcurso.html">← Voltar ao curso</a>
+</header>
 
-  <div class="layout">
-    <aside class="sidebar">
-      <h2 id="tituloCurso"></h2>
-      <nav id="menu"></nav>
-    </aside>
+<div class="layout">
+  <aside class="sidebar">
+    <h2 id="tituloCurso"></h2>
+    <div class="prog">
+      <div class="prog-barra"><div id="barraProg"></div></div>
+      <p id="textoProg"></p>
+      <button id="btnReiniciar" class="btn-reiniciar">Reiniciar progresso</button>
+    </div>
+    <nav id="menu"></nav>
+  </aside>
 
-    <main class="conteudo">
-      <article class="pagina" id="pagina"></article>
-      <div class="nav">
-        <button id="btnAnterior">← Anterior</button>
-        <button id="btnConcluir" class="concluir">Marcar como concluída</button>
-        <button id="btnProxima">Próxima →</button>
-      </div>
-    </main>
-  </div>
+  <main class="conteudo">
+    <div id="pagina"></div>
+  </main>
+</div>
 
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
-  <script src="auth.js" defer></script>
-  <script src="cursos.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
+<script src="auth.js" defer></script>
+<script src="cursos.js" defer></script>
+<script src="tema.js"></script>
 </body>
-
 </html>

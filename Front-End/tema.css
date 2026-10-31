@@ -1,0 +1,95 @@
+/* =====================================================
+   Dev Cursos+ — tema compartilhado
+   Todas as telas carregam este arquivo. Cores SEMPRE via variáveis.
+   Tema controlado por <html data-tema="sistema|claro|escuro">.
+   ===================================================== */
+ 
+/* ===== TEMA CLARO (padrão) ===== */
+:root{
+  --bg:#f7f4fd; --surface:#ffffff; --surface-2:#f3eefc;
+  --text:#21183b; --text-2:#514763; --muted:#756b8e;
+  --purple:#7a1fff; --accent:#5b21b6; --link:#6d28d9;
+  --border:#e6e1f0; --border-2:#e4d8ff; --hover:#f1ebff;
+  --green:#39b54a; --green-bg:#e8f8ea; --green-text:#1d5e26;
+  --red:#e0686b; --red-bg:#fdeeee; --red-text:#8a1f1f;
+  --code-bg:#f0eaff; --code-text:#5b21b6;
+  --pre-bg:#201634; --pre-text:#f4edff; --pre-border:#392a50;
+  --track:#ece6f7; --focus:#b79aff;
+  --shadow:0 8px 28px rgba(41,22,78,.055); --shadow-top:0 2px 8px #24134a08;
+  --placar-bg:#f1ebff; --placar-text:#3b1d74;
+  --menu-shadow:0 12px 32px rgba(41,22,78,.14);
+  color-scheme:light;
+}
+ 
+/* ===== TEMA ESCURO (preto-roxeado + ultravioleta) ===== */
+:root[data-tema="escuro"]{
+  --bg:#150f24; --surface:#1f1734; --surface-2:#271d42;
+  --text:#efe9ff; --text-2:#cfc4ec; --muted:#a79bc6;
+  --purple:#a77bff; --accent:#d2b8ff; --link:#c4a6ff;
+  --border:#33284f; --border-2:#4a3a6e; --hover:#2c2150;
+  --green:#4fd364; --green-bg:#173a22; --green-text:#a8f0b5;
+  --red:#e0686b; --red-bg:#3d1a1f; --red-text:#ffb3b3;
+  --code-bg:#2f2350; --code-text:#d2b8ff;
+  --pre-bg:#0d0817; --pre-text:#f4edff; --pre-border:#33284f;
+  --track:#2c2150; --focus:#a77bff;
+  --shadow:0 8px 28px rgba(0,0,0,.35); --shadow-top:0 2px 8px rgba(0,0,0,.3);
+  --placar-bg:#2c2150; --placar-text:#e6dcff;
+  --menu-shadow:0 12px 32px rgba(0,0,0,.5);
+  color-scheme:dark;
+}
+/* "Padrão do sistema": segue o aparelho quando o usuário não escolheu claro */
+@media (prefers-color-scheme: dark){
+  :root:not([data-tema="claro"]){
+    --bg:#150f24; --surface:#1f1734; --surface-2:#271d42;
+    --text:#efe9ff; --text-2:#cfc4ec; --muted:#a79bc6;
+    --purple:#a77bff; --accent:#d2b8ff; --link:#c4a6ff;
+    --border:#33284f; --border-2:#4a3a6e; --hover:#2c2150;
+    --green:#4fd364; --green-bg:#173a22; --green-text:#a8f0b5;
+    --red:#e0686b; --red-bg:#3d1a1f; --red-text:#ffb3b3;
+    --code-bg:#2f2350; --code-text:#d2b8ff;
+    --pre-bg:#0d0817; --pre-text:#f4edff; --pre-border:#33284f;
+    --track:#2c2150; --focus:#a77bff;
+    --shadow:0 8px 28px rgba(0,0,0,.35); --shadow-top:0 2px 8px rgba(0,0,0,.3);
+    --placar-bg:#2c2150; --placar-text:#e6dcff;
+    --menu-shadow:0 12px 32px rgba(0,0,0,.5);
+    color-scheme:dark;
+  }
+}
+ 
+/* ===== Base ===== */
+*,*::before,*::after{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;min-height:100vh;color:var(--text);background:var(--bg);font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif}
+button:focus-visible,a:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+ 
+/* ===== Topo (identidade) ===== */
+.topbar{height:68px;padding:0 28px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--surface);border-bottom:1px solid var(--border);box-shadow:var(--shadow-top);position:sticky;top:0;z-index:20}
+.brand{display:flex;align-items:center;gap:11px;font-size:1.35rem;font-weight:750;text-decoration:none;color:var(--text);letter-spacing:-.4px}
+.brand .name span{color:var(--purple)}
+.logo{width:38px;height:35px}
+.topbar-acoes{display:flex;align-items:center;gap:10px}
+.back{color:var(--link);text-decoration:none;font-weight:650;font-size:.92rem;padding:10px 14px;border:1px solid var(--border-2);border-radius:8px;background:var(--surface-2)}
+.back:hover{background:var(--hover)}
+ 
+/* ===== Menu de tema ===== */
+.tema-menu{position:relative}
+.tema-trigger{display:flex;align-items:center;gap:8px;background:var(--surface-2);color:var(--accent);border:1px solid var(--border-2);border-radius:8px;padding:10px 14px;font:inherit;font-size:.92rem;font-weight:650;cursor:pointer}
+.tema-trigger:hover{background:var(--hover)}
+.tema-trigger .icone{font-size:1rem;line-height:1}
+.tema-lista{position:absolute;right:0;top:calc(100% + 8px);min-width:220px;padding:6px;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--menu-shadow);display:flex;flex-direction:column;gap:2px;z-index:30}
+.tema-lista[hidden]{display:none}
+.tema-lista button{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;background:none;border:0;border-radius:8px;padding:10px 12px;font:inherit;font-size:.92rem;color:var(--text);cursor:pointer;text-align:left}
+.tema-lista button:hover{background:var(--hover)}
+.tema-lista button[aria-checked="true"]{color:var(--purple);font-weight:700}
+.tema-lista .marca{font-size:.9rem;opacity:0}
+.tema-lista button[aria-checked="true"] .marca{opacity:1}
+ 
+@media(max-width:760px){
+  .topbar{height:62px;padding:0 15px}
+  .brand{font-size:1.12rem;gap:8px}
+  .logo{width:32px;height:30px}
+  .back{font-size:.8rem;padding:8px}
+  .tema-trigger{padding:8px 10px;font-size:.8rem}
+  .tema-trigger .texto{display:none}
+}
+ 

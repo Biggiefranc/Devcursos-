@@ -4,8 +4,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DevCursos+ | Cursos</title>
-  <link rel="stylesheet" href="cursos-ui.css">
+  <title>DevCursos+ | Menu Inicial</title>
+  <link rel="stylesheet" href="componentes-ux.css">
+   <link rel="stylesheet" href="tema.css">
 </head>
 
 <body>
@@ -16,7 +17,7 @@
       <span aria-hidden="true">⌕</span>
       <input id="courseSearch" type="search" placeholder="Pesquisar cursos" aria-label="Pesquisar cursos">
     </form>
-    <a class="top-link" href="sobre.html">Sobre</a>
+    <a class="top-link" href="Favoritados.html">Favoritos</a>
     <div class="account" id="accountArea"><a href="login.html" id="accountLink">Entrar</a><span class="avatar"
         aria-hidden="true">♙</span></div>
   </header>
@@ -34,7 +35,15 @@
       <p class="notice">Carregando cursos...</p>
     </section>
   </main>
-  <script src="menudashbord.js"></script>
-</body>
+<head>
+  ...
+  <script>try{document.documentElement.dataset.tema=localStorage.getItem('devcursos-tema')||'sistema'}catch(e){}</script>
+  <link rel="stylesheet" href="tema.css">
+</head>
 
+
+</body>
+<script src="menudashbord.js"></script>
+  <script src="tema.css"></script>
+  <script src="tema.js"></script>
 </html>
