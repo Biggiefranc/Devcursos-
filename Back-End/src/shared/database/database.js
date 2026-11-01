@@ -1,0 +1,35 @@
+const mysql = require("mysql2/promise");
+const {
+    DB_HOST,
+    DB_USER, 
+    DB_PASSWORD, 
+    DB_NAME 
+} = require("../../config/env");
+
+const pool = mysql.createPool({
+    host: DB_HOST,
+    user: DB_USER,
+    password: DB_PASSWORD,
+    database: DB_NAME,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
+});
+
+// Testa a conexão com o banco de dados
+async function testarConexao() {
+    const conexao = await pool.getConnection();
+
+    try {
+        await conexao.execute("SELECT 1 AS conectado");
+        console.log("Conexão com o banco de dados estabelecida com sucesso!");
+    } finally {
+        conexao.release(); // Encerrar a conexão após o teste
+    }
+}
+
+// Testa a conexão ao iniciar a aplicação
+module.exports = {
+    pool,
+    testarConexao
+};
