@@ -3,6 +3,7 @@ const cors = require("cors");
 
 const usersRoutes = require("./modules/users/users.routes");
 const cursosRoutes = require("./modules/courses/cursos.routes");
+const progressRoutes = require("./modules/progress/progress.routes");
 
 const { pool } = require("./shared/database/database");
 const tratarErros = require("./shared/middlewares/tratarErros");
@@ -42,6 +43,7 @@ app.get("/health", async (req, res) => {
 // Rotas dos módulos.
 app.use(usersRoutes);
 app.use(cursosRoutes);
+app.use(progressRoutes);
 
 // Rota para endereços inexistentes.
 app.use((req, res) => {
