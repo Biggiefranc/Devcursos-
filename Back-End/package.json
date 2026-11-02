@@ -2,11 +2,11 @@
   "name": "dev-cursos-node",
   "version": "1.0.0",
   "description": "",
-  "main": "servidor.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"O ambiente de testes está configurado. Parabéns!\" && exit 0",
-    "start": "node servidor.js",
-    "dev": "nodemon servidor.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "keywords": [],
   "author": "",
