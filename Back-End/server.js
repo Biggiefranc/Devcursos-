@@ -1,7 +1,7 @@
-const app = require("./app");
+const app = require("./src/app");
 
-const { PORT } = require("./config/env");
-const { testarConexao } = require("./shared/database/database");
+const { PORT } = require("./src/config/env");
+const { testarConexao } = require("./src/shared/database/database");
 
 // Inicia o servidor HTTP.
 const servidor = app.listen(PORT, () => {
