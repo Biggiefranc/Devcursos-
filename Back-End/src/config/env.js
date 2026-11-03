@@ -8,7 +8,7 @@ require("dotenv").config({
 
 // Porta temporária do novo servidor.
 // O servidor antigo continua utilizando a porta 3000.
-const PORT = Number(process.env.API_PORT || 3001);
+const PORT = Number(process.env.API_PORT || 3000);
 
 // Configurações do MySQL.
 const DB_HOST = process.env.DB_HOST;

@@ -1,7 +1,7 @@
-const app = require("./src/app");
+const app = require("./app");
 
-const { PORT } = require("./src/config/env");
-const { testarConexao } = require("./src/shared/database/database");
+const { PORT } = require("./config/env");
+const { testarConexao } = require("./shared/database/database");
 
 // Inicia o servidor HTTP.
 const servidor = app.listen(PORT, () => {
@@ -26,3 +26,4 @@ testarConexao()
 servidor.on("error", (erro) => {
     console.error("Erro ao iniciar o servidor:", erro.message);
 });
+
