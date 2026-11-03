@@ -1,5 +1,8 @@
+import { auth } from "./firebase/firebase-config";
+import { onAuthStateChanged } from "firebase/auth";
+import { requisicaoAPI, encerrarSessao } from "./services/api";
+
 (() => {
-  const API = "http://localhost:3000";
   const params = new URLSearchParams(location.search);
   const id = params.get("curso");
   const root = document.getElementById("courseDetail");
@@ -26,17 +29,10 @@
     if (s.includes("web") || s.includes("html") || s.includes("javascript")) return `<svg viewBox="0 0 80 80" aria-hidden="true"><rect x="10" y="15" width="60" height="48" rx="4"/><path d="M10 27h60M27 39l-8 7 8 7m26-14 8 7-8 7m-7-16-8 18"/></svg>`;
     return `<svg viewBox="0 0 80 80" aria-hidden="true"><path d="M14 25 40 12l26 13-26 13-26-13Z"/><path d="M23 31v18c10 9 24 9 34 0V31M66 26v20"/><circle cx="66" cy="50" r="4"/></svg>`;
   }
-  async function get(url, options = {}) {
-    const r = await fetch(url, options);
-    const d = await r.json().catch(() => null);
-    if (!r.ok) throw new Error(d?.mensagem || "Erro ao consultar o curso.");
-    return d;
+  async function get(path) {
+    return requisicaoAPI(path);
   }
-  function token() { return localStorage.getItem("devcursosToken") || ""; }
-  function authHeaders() {
-    return token() ? { Authorization: `Bearer ${token()}` } : {};
-  }
-  function isLogged() { return Boolean(token() && user); }
+  function isLogged() { return Boolean(auth.currentUser && user); }
   function getFavorites() {
     try { return JSON.parse(localStorage.getItem(favoriteKey) || "[]").map(String); }
     catch { return []; }
@@ -48,29 +44,28 @@
   }
   async function updateAccount() {
     if (!accountLink) return;
-    const currentToken = token();
-    if (!currentToken) {
+    if (!auth.currentUser) {
       accountLink.textContent = "Entrar";
       accountLink.href = "login.html";
       return;
     }
     try {
-      const data = await get(`${API}/me`, { headers: { Authorization: `Bearer ${currentToken}` } });
+      const data = await get("/me");
       if (!data?.usuario) throw new Error("Sessão inválida");
       user = data.usuario;
       localStorage.setItem("devcursosUsuario", JSON.stringify(user));
       accountLink.textContent = displayName(user);
       accountLink.href = "#";
-      accountLink.onclick = event => {
+      accountLink.onclick = async event => {
         event.preventDefault();
         if (confirm("Deseja sair da sua conta?")) {
-          ["devcursosToken", "devcursosLoggedIn", "devcursosUsuario"].forEach(k => localStorage.removeItem(k));
+          await encerrarSessao();
           location.href = "menudashbord.html";
         }
       };
     } catch {
       user = null;
-      ["devcursosToken", "devcursosLoggedIn", "devcursosUsuario"].forEach(k => localStorage.removeItem(k));
+      if (auth.currentUser) await encerrarSessao();
       accountLink.textContent = "Entrar";
       accountLink.href = "login.html";
       accountLink.onclick = null;
@@ -78,11 +73,9 @@
   }
   async function loadProgress(courseId) {
     completed = new Set();
-    if (!token() || !user) return;
+    if (!auth.currentUser || !user) return;
     try {
-      const data = await get(`${API}/cursos/${encodeURIComponent(courseId)}/progresso`, {
-        headers: authHeaders()
-      });
+      const data = await get(`/cursos/${encodeURIComponent(courseId)}/progresso`);
       completed = new Set((data.aulasConcluidas || []).map(String));
     } catch (error) {
       console.error("Não foi possível carregar o progresso salvo:", error);
@@ -140,16 +133,22 @@
       root.innerHTML = `<p class="notice">Abra o catálogo pelo Live Server para manter a sessão e carregar o curso corretamente: <a href="http://127.0.0.1:5500/Front-End/menudashbord.html">abrir DevCursos+</a>.</p>`;
       return;
     }
+    await new Promise(resolve => {
+      const unsubscribe = onAuthStateChanged(auth, () => {
+        unsubscribe();
+        resolve();
+      });
+    });
     await updateAccount();
     if (!id) {
       root.innerHTML = `<p class="notice">Selecione um curso no <a href="menudashbord.html">catálogo</a> para visualizar os módulos e o progresso.</p>`;
       return;
     }
     try {
-      const course = await get(`${API}/cursos/${encodeURIComponent(id)}`);
-      const modulesData = await get(`${API}/cursos/${encodeURIComponent(id)}/modulos`);
+      const course = await get(`/cursos/${encodeURIComponent(id)}`);
+      const modulesData = await get(`/cursos/${encodeURIComponent(id)}/modulos`);
       const modules = await Promise.all((Array.isArray(modulesData) ? modulesData : []).map(async m => {
-        const lessons = await get(`${API}/modulos/${encodeURIComponent(m.id)}/aulas`);
+        const lessons = await get(`/modulos/${encodeURIComponent(m.id)}/aulas`);
         return { ...m, aulas: Array.isArray(lessons) ? lessons : [] };
       }));
       await loadProgress(course.id);

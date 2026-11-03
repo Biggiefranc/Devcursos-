@@ -68,113 +68,25 @@ function validarNome(nome) {
     return nomeNormalizado;
 }
 
-// Sincroniza a identidade Firebase com o perfil armazenado no MySQL.
-
+// Cria um perfil novo ou recupera o perfil já associado ao UID Firebase.
 async function sincronizarPerfil({ firebaseUser, nome }) {
     const identidade = validarIdentidade(firebaseUser);
 
-    // 1. Verifica se o usuário já está vinculado.
+    if (!identidade.emailVerified) {
+        throw criarErro(
+            403,
+            "EMAIL_NAO_VERIFICADO",
+            "Verifique seu e-mail antes de concluir o cadastro."
+        );
+    }
+
     const usuarioVinculado =
         await usersRepository.buscarPorFirebaseUid(identidade.uid);
 
     if (usuarioVinculado) {
-        return {
-            usuario: usuarioVinculado,
-            acao: "ja_vinculado"
-        };
+        return { usuario: usuarioVinculado, acao: "ja_vinculado" };
     }
 
-    // 2. Procura uma conta antiga pelo e-mail.
-    const usuarioAntigo =
-        await usersRepository.buscarPorEmail(identidade.email);
-
-    // Só executa a lógica de vinculação se encontrar uma conta antiga.
-    if (usuarioAntigo) {
-
-        // Verifica se a conta já foi vinculada a este mesmo UID.
-        if (usuarioAntigo.firebase_uid === identidade.uid) {
-            return {
-                usuario: usuarioAntigo,
-                acao: "ja_vinculado"
-            };
-        }
-
-        // Impede que uma conta seja associada a outro UID.
-        if (usuarioAntigo.firebase_uid) {
-            throw criarErro(
-                409,
-                "CONTA_JA_VINCULADA",
-                "Este e-mail já está associado a outra conta Firebase."
-            );
-        }
-
-        // Exige e-mail confirmado para vincular uma conta antiga.
-        if (!identidade.emailVerified) {
-            throw criarErro(
-                403,
-                "EMAIL_NAO_VERIFICADO",
-                "Verifique seu e-mail antes de vincular sua conta antiga."
-            );
-        }
-
-        try {
-            const vinculado =
-                await usersRepository.vincularFirebaseUid(
-                    usuarioAntigo.id,
-                    identidade.uid
-                );
-
-            // Outra requisição pode ter feito o vínculo primeiro.
-            if (!vinculado) {
-                const usuarioAtual =
-                    await usersRepository.buscarPorFirebaseUid(
-                        identidade.uid
-                    );
-
-                if (usuarioAtual) {
-                    return {
-                        usuario: usuarioAtual,
-                        acao: "ja_vinculado"
-                    };
-                }
-
-                throw criarErro(
-                    409,
-                    "CONFLITO_DE_VINCULO",
-                    "Não foi possível vincular esta conta ao perfil existente."
-                );
-            }
-
-            const usuarioAtual =
-                await usersRepository.buscarPorFirebaseUid(
-                    identidade.uid
-                );
-
-            if (!usuarioAtual) {
-                throw new Error(
-                    "O perfil foi vinculado, mas não pôde ser recuperado."
-                );
-            }
-
-            return {
-                usuario: usuarioAtual,
-                acao: "vinculado"
-            };
-
-        } catch (erro) {
-            if (erro.code === "ER_DUP_ENTRY") {
-                throw criarErro(
-                    409,
-                    "CONFLITO_DE_VINCULO",
-                    "Esta conta Firebase já está vinculada a outro perfil."
-                );
-            }
-
-            throw erro;
-        }
-    }
-
-    // 3. Não existe perfil anterior: cria um novo.
     const nomeNormalizado = validarNome(nome);
 
     try {
@@ -185,44 +97,29 @@ async function sincronizarPerfil({ firebaseUser, nome }) {
         });
 
         if (!novoUsuario) {
-            throw new Error(
-                "Não foi possível recuperar o perfil criado."
-            );
+            throw new Error("O perfil foi criado, mas não pôde ser recuperado.");
         }
 
-        return {
-            usuario: novoUsuario,
-            acao: "criado"
-        };
-
+        return { usuario: novoUsuario, acao: "criado" };
     } catch (erro) {
-
-        // Trata duas requisições simultâneas tentando criar a mesma conta.
+        // Trata requisições simultâneas: o UID único impede perfis duplicados.
         if (erro.code === "ER_DUP_ENTRY") {
             const usuarioAtual =
-                await usersRepository.buscarPorFirebaseUid(
-                    identidade.uid
-                );
+                await usersRepository.buscarPorFirebaseUid(identidade.uid);
 
             if (usuarioAtual) {
-                return {
-                    usuario: usuarioAtual,
-                    acao: "ja_vinculado"
-                };
+                return { usuario: usuarioAtual, acao: "ja_vinculado" };
             }
 
             throw criarErro(
                 409,
-                "CONTA_JA_EXISTENTE",
-                "Já existe um perfil cadastrado com este e-mail."
+                "EMAIL_JA_CADASTRADO",
+                "Este e-mail já possui um perfil no DevCursos+."
             );
         }
-
         throw erro;
     }
 }
-
-
 
 // Recupera o perfil MySQL do usuário autenticado.
 async function buscarPerfil(firebaseUid) {

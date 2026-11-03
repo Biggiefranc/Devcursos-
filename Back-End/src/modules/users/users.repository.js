@@ -25,20 +25,6 @@ async function buscarPorFirebaseUid(firebaseUid) {
     return usuarios[0] || null;
 }
 
-// Busca um usuário pelo endereço de e-mail.
-async function buscarPorEmail(email) {
-    const sql = `
-        SELECT ${CAMPOS_USUARIO}
-        FROM usuarios
-        WHERE email = ?
-        LIMIT 1
-    `;
-
-    const [usuarios] = await pool.execute(sql, [email]);
-
-    return usuarios[0] || null;
-}
-
 // Busca um usuário pelo identificador interno do MySQL.
 async function buscarPorId(usuarioId) {
     const sql = `
@@ -70,27 +56,8 @@ async function criar({ firebaseUid, nome, email }) {
     return buscarPorId(resultado.insertId);
 }
 
-// Vincula uma conta antiga do MySQL ao Firebase.
-async function vincularFirebaseUid(usuarioId, firebaseUid) {
-    const sql = `
-        UPDATE usuarios
-        SET firebase_uid = ?
-        WHERE id = ?
-          AND firebase_uid IS NULL
-    `;
-
-    const [resultado] = await pool.execute(sql, [
-        firebaseUid,
-        usuarioId
-    ]);
-
-    return resultado.affectedRows === 1;
-}
-
 module.exports = {
     buscarPorFirebaseUid,
-    buscarPorEmail,
     buscarPorId,
-    criar,
-    vincularFirebaseUid
+    criar
 };

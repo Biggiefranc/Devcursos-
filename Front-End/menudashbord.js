@@ -1,3 +1,7 @@
+import { auth } from "./firebase/firebase-config";
+import { onAuthStateChanged } from "firebase/auth";
+import { requisicaoAPI, encerrarSessao } from "./services/api";
+
 (() => {
   const API = "http://localhost:3000";
   const container = document.getElementById("courses");
@@ -36,16 +40,15 @@
     return nome.split(/[ ._-]+/).filter(Boolean)[0] || "";
   }
   async function setGreeting() {
-    const token = localStorage.getItem("devcursosToken");
-    if (!token) {
+    const usuarioFirebase = auth.currentUser;
+    if (!usuarioFirebase) {
       greeting.hidden = true;
       if (accountLink) { accountLink.textContent = "Entrar"; accountLink.href = "login.html"; }
       return;
     }
     try {
-      const response = await fetch(`${API}/me`, { headers: { Authorization: `Bearer ${token}` } });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok || !data.usuario) throw new Error("Sessão inválida");
+      const data = await requisicaoAPI("/me");
+      if (!data.usuario) throw new Error("Perfil não encontrado");
       const user = data.usuario;
       localStorage.setItem("devcursosUsuario", JSON.stringify(user));
       const nome = primeiroNome(user);
@@ -58,10 +61,10 @@
       if (accountLink) {
         accountLink.textContent = nome || "Minha conta";
         accountLink.href = "#";
-        accountLink.onclick = (event) => {
+        accountLink.onclick = async (event) => {
           event.preventDefault();
           if (confirm("Deseja sair da sua conta?")) {
-            ["devcursosToken", "devcursosLoggedIn", "devcursosUsuario"].forEach(key => localStorage.removeItem(key));
+            await encerrarSessao();
             window.location.reload();
           }
         };
@@ -69,9 +72,7 @@
     } catch (error) {
       // Se a API não estiver acessível, não afirmar que há uma sessão válida.
       greeting.hidden = true;
-      localStorage.removeItem("devcursosToken");
-      localStorage.removeItem("devcursosLoggedIn");
-      localStorage.removeItem("devcursosUsuario");
+      if (auth.currentUser) await encerrarSessao();
       if (accountLink) { accountLink.textContent = "Entrar"; accountLink.href = "login.html"; }
     }
   }
@@ -110,7 +111,13 @@
     });
   }
   async function init() {
-    setGreeting();
+    await new Promise(resolve => {
+      const unsubscribe = onAuthStateChanged(auth, () => {
+        unsubscribe();
+        resolve();
+      });
+    });
+    await setGreeting();
     search.addEventListener("input", render);
     try {
       const response = await fetch(`${API}/cursos`);

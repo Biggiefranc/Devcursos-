@@ -1,186 +1,73 @@
-/* =========================
-   ELEMENTOS
-========================= */
+import { signInWithEmailAndPassword, sendEmailVerification, signOut } from "firebase/auth";
+import { auth } from "./firebase/firebase-config";
+import { configurarPersistencia, sincronizarPerfil } from "./services/api";
 
-const loginForm =
-    document.getElementById("loginForm");
+const loginForm = document.getElementById("loginForm");
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+const passwordButton = document.getElementById("passwordButton");
+const loginError = document.getElementById("loginError");
+const rememberInput = document.getElementById("remember");
 
-const emailInput =
-    document.getElementById("email");
-
-const passwordInput =
-    document.getElementById("password");
-
-const passwordButton =
-    document.getElementById("passwordButton");
-
-const loginError =
-    document.getElementById("loginError");
-
-const rememberInput =
-    document.getElementById("remember");
-
-
-/* =========================
-   MOSTRAR / OCULTAR SENHA
-========================= */
-
-passwordButton.addEventListener("click", () => {
-
-    const senhaOculta =
-        passwordInput.type === "password";
-
-
-    if (senhaOculta) {
-
-        passwordInput.type = "text";
-
-        passwordButton.innerHTML =
-            '<i data-lucide="eye-off"></i>';
-
-    } else {
-
-        passwordInput.type = "password";
-
-        passwordButton.innerHTML =
-            '<i data-lucide="eye"></i>';
-
-    }
-
-
-    lucide.createIcons();
-
+passwordButton?.addEventListener("click", () => {
+    const mostrar = passwordInput.type === "password";
+    passwordInput.type = mostrar ? "text" : "password";
+    passwordButton.innerHTML = mostrar
+        ? '<i data-lucide="eye-off"></i>'
+        : '<i data-lucide="eye"></i>';
+    window.lucide?.createIcons();
 });
-
-
-/* =========================
-   LOGIN
-========================= */
 
 loginForm.addEventListener("submit", async (event) => {
-
     event.preventDefault();
-
-
-    const email =
-        emailInput.value.trim();
-
-    const senha =
-        passwordInput.value;
-
-
     loginError.textContent = "";
 
-
     try {
-
-        const resposta = await fetch(
-            "http://localhost:3000/login",
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify({
-                    email: email,
-                    senha: senha
-                })
-            }
+        await configurarPersistencia(rememberInput.checked);
+        const credencial = await signInWithEmailAndPassword(
+            auth,
+            emailInput.value.trim(),
+            passwordInput.value
         );
 
-
-        const dados =
-            await resposta.json();
-
-
-        if (!resposta.ok) {
-
-            loginError.textContent =
-                dados.mensagem;
-
-            return;
+        if (!credencial.user.emailVerified) {
+            await sendEmailVerification(credencial.user);
+            await signOut(auth);
+            throw new Error("Seu e-mail ainda não foi verificado. Enviamos um novo link de confirmação.");
         }
 
-
-        /*
-            LOGIN REALIZADO
-        */
-
-        localStorage.setItem(
-    "devcursosToken",
-    dados.token
-);
-
-localStorage.setItem(
-    "devcursosLoggedIn",
-    "true"
-);
-
-        /*
-            Salva os dados básicos
-            do usuário
-        */
-
-        localStorage.setItem(
-            "devcursosUsuario",
-            JSON.stringify(dados.usuario)
+        await sincronizarPerfil(
+            credencial.user.displayName ||
+            credencial.user.email.split("@")[0]
         );
-
-
-        /*
-            Lembrar o e-mail
-        */
 
         if (rememberInput.checked) {
-
-            localStorage.setItem(
-                "devcursosEmail",
-                email
-            );
-
+            localStorage.setItem("devcursosEmail", emailInput.value.trim());
         } else {
-
-            localStorage.removeItem(
-                "devcursosEmail"
-            );
-
+            localStorage.removeItem("devcursosEmail");
         }
 
-
-        /*
-            Vai para o dashboard
-        */
-
-        window.location.href =
-            "menudashbord.html";
-
-
+        window.location.href = "menudashbord.html";
     } catch (erro) {
-
-        console.error(erro);
-
-        loginError.textContent =
-            "Não foi possível conectar ao servidor.";
-
+        console.error("Falha no login:", erro);
+        loginError.textContent = mensagemFirebase(erro);
     }
-
 });
 
+function mensagemFirebase(erro) {
+    const mensagens = {
+        "auth/invalid-credential": "E-mail ou senha incorretos.",
+        "auth/user-not-found": "Não existe uma conta com esse e-mail.",
+        "auth/wrong-password": "Senha incorreta.",
+        "auth/invalid-email": "Informe um e-mail válido.",
+        "auth/too-many-requests": "Muitas tentativas. Aguarde e tente novamente.",
+        "auth/network-request-failed": "Falha de conexão. Verifique sua internet."
+    };
+    return mensagens[erro.code] || erro.message || "Não foi possível entrar.";
+}
 
-/* =========================
-   RECUPERAR E-MAIL
-========================= */
-
-const emailSalvo =
-    localStorage.getItem("devcursosEmail");
-
-
+const emailSalvo = localStorage.getItem("devcursosEmail");
 if (emailSalvo) {
-
     emailInput.value = emailSalvo;
-
     rememberInput.checked = true;
-
 }

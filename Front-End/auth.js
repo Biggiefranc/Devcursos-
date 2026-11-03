@@ -1,47 +1,23 @@
-(() => {
-    const token = localStorage.getItem("devcursosToken");
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "./firebase/firebase-config";
+import { requisicaoAPI, encerrarSessao } from "./services/api";
 
-    function encerrarSessao() {
-        localStorage.removeItem("devcursosToken");
-        localStorage.removeItem("devcursosLoggedIn");
-        localStorage.removeItem("devcursosUsuario");
-
-        const paginaLogin = window.location.pathname.endsWith("/login.html");
-
-        if (!paginaLogin) {
-            window.location.replace("login.html");
-        }
-    }
-
-    if (!token) {
-        encerrarSessao();
+// Protege somente páginas que carregam este script.
+onAuthStateChanged(auth, async (usuario) => {
+    if (!usuario) {
+        window.location.replace("login.html");
         return;
     }
 
-    fetch("http://localhost:3000/me", {
-        method: "GET",
-        headers: {
-            Authorization: `Bearer ${token}`
+    try {
+        await requisicaoAPI("/me");
+    } catch (erro) {
+        console.error("Não foi possível validar o perfil:", erro);
+        if (erro.status === 401) {
+            await encerrarSessao();
+            window.location.replace("login.html");
+        } else if (erro.status === 404) {
+            window.location.replace("login.html");
         }
-    })
-        .then(async resposta => {
-            if (!resposta.ok) {
-                encerrarSessao();
-                return;
-            }
-
-            const dados = await resposta.json();
-
-            if (dados.usuario) {
-                localStorage.setItem(
-                    "devcursosUsuario",
-                    JSON.stringify(dados.usuario)
-                );
-            }
-        })
-        .catch(() => {
-            console.error(
-                "Não foi possível validar a sessão. Verifique se o backend está ativo."
-            );
-        });
-})();
+    }
+});

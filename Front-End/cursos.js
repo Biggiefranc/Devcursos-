@@ -1,4 +1,6 @@
-const API_BASE = "http://localhost:3000";
+import { auth } from "./firebase/firebase-config";
+import { onAuthStateChanged } from "firebase/auth";
+import { API_URL, requisicaoAPI, encerrarSessao } from "./services/api";
 
 /* ===================== PROVA FINAL =====================
    Por enquanto as questões ficam aqui no código.
@@ -58,7 +60,7 @@ function criarElemento(tag, classe, texto) {
 }
 
 function tokenAtual() {
-    return localStorage.getItem("devcursosToken") || "";
+    return auth.currentUser;
 }
 
 function carregarConclusoesLocais() {
@@ -83,37 +85,26 @@ async function carregarConclusoes() {
         return;
     }
     try {
-        const resposta = await fetch(
-            `${API_BASE}/cursos/${encodeURIComponent(cursoId)}/progresso`,
-            { headers: { Authorization: `Bearer ${tokenAtual()}` } }
+        const dados = await requisicaoAPI(
+            `/cursos/${encodeURIComponent(cursoId)}/progresso`
         );
-        const dados = await resposta.json().catch(() => ({}));
-        if (resposta.status === 401) {
-            localStorage.removeItem("devcursosToken");
-            localStorage.removeItem("devcursosLoggedIn");
-            localStorage.removeItem("devcursosUsuario");
-            throw new Error("Sua sessão expirou. Entre novamente para sincronizar o progresso.");
-        }
-        if (!resposta.ok) throw new Error(dados.mensagem || "Falha ao carregar progresso.");
         feitas = new Set((dados.aulasConcluidas || []).map(String));
         salvarConclusoesLocais();
     } catch (erro) {
+        if (erro.status === 401) {
+            await encerrarSessao();
+            throw new Error("Sua sessão expirou. Entre novamente.");
+        }
         console.error("Não foi possível sincronizar o progresso com a API:", erro);
-        carregarConclusoesLocais();
+        throw erro;
     }
 }
 
 async function salvarConclusaoDaAula(aulaId, concluida) {
-    const resposta = await fetch(`${API_BASE}/aulas/${encodeURIComponent(aulaId)}/conclusao`, {
+    await requisicaoAPI(`/aulas/${encodeURIComponent(aulaId)}/conclusao`, {
         method: "PUT",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${tokenAtual()}`
-        },
         body: JSON.stringify({ concluida })
     });
-    const dados = await resposta.json().catch(() => ({}));
-    if (!resposta.ok) throw new Error(dados.mensagem || "Não foi possível salvar seu progresso.");
 }
 
 /* ----- Prova: estado salvo no navegador (cache até o banco existir) ----- */
@@ -409,8 +400,8 @@ async function iniciarCurso() {
 
     try {
         const [dadosCurso, modulos] = await Promise.all([
-            buscarJson(`${API_BASE}/cursos/${encodeURIComponent(cursoId)}`),
-            buscarJson(`${API_BASE}/cursos/${encodeURIComponent(cursoId)}/modulos`)
+            buscarJson(`${API_URL}/cursos/${encodeURIComponent(cursoId)}`),
+            buscarJson(`${API_URL}/cursos/${encodeURIComponent(cursoId)}/modulos`)
         ]);
 
         curso = { ...dadosCurso, modulos: [] };
@@ -423,12 +414,12 @@ async function iniciarCurso() {
 
         curso.modulos = await Promise.all(
             modulos.map(async modulo => {
-                const aulasLista = await buscarJson(`${API_BASE}/modulos/${encodeURIComponent(modulo.id)}/aulas`);
+                const aulasLista = await buscarJson(`${API_URL}/modulos/${encodeURIComponent(modulo.id)}/aulas`);
                 const lista = Array.isArray(aulasLista) ? aulasLista : [];
 
                 const aulas = await Promise.all(
                     lista.map(async aula => {
-                        const detalhes = await buscarJson(`${API_BASE}/aulas/${encodeURIComponent(aula.id)}`);
+                        const detalhes = await buscarJson(`${API_URL}/aulas/${encodeURIComponent(aula.id)}`);
                         return { ...aula, ...detalhes };
                     })
                 );
@@ -466,4 +457,11 @@ async function iniciarCurso() {
     }
 }
 
-iniciarCurso();
+const aguardarAuth = new Promise(resolve => {
+    const unsubscribe = onAuthStateChanged(auth, usuario => {
+        unsubscribe();
+        resolve(usuario);
+    });
+});
+
+aguardarAuth.then(() => iniciarCurso());
