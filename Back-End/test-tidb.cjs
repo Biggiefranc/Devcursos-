@@ -14,7 +14,7 @@ async function main() {
   try {
     console.log("Conectado ao TiDB!");
 
-    await connection.query("CREATE DATABASE IF NOT EXISTS devcursos");
+    await connection.query("CREATE DATABASE IF NOT EXISTS dev_cursos");
 
     const [rows] = await connection.query("SHOW DATABASES");
     console.log("Bancos disponíveis:", rows.map(row => row.Database));
