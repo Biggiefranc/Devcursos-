@@ -110,6 +110,21 @@ import { requisicaoAPI, encerrarSessao } from "./services/api";
       card.append(artBox, title, meta, desc, link); container.appendChild(card);
     });
   }
+function aplicarUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const norm = s => String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase().replace(/[^a-z0-9]+/g, "");
+
+  const busca = params.get("busca");
+  if (busca) search.value = busca;
+
+  const cat = params.get("categoria");
+  if (cat) {
+    const achada = courses.map(c => c.categoria).find(c => c && norm(c) === norm(cat));
+    if (achada) selectedCategory = achada;
+  }
+}
+
   async function init() {
     await new Promise(resolve => {
       const unsubscribe = onAuthStateChanged(auth, () => {
@@ -130,4 +145,7 @@ import { requisicaoAPI, encerrarSessao } from "./services/api";
     }
   }
   init();
+aplicarUrl();
+categories(); render();
+
 })();

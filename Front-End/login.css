@@ -1,703 +1,499 @@
-/* =========================
-   RESET
-========================= */
+/* ==========================================================
+   CADASTRO - DevCursos+
+   Esquerda: formulário | Direita: painel animado
+   Carregue DEPOIS do login.css
+   ========================================================== */
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
+/* ---------- 1. CORES (mude aqui e muda a página toda) ---------- */
 :root {
-    --primary: #6d28d9;
-    --primary-dark: #5b21b6;
-    --purple: #8b5cf6;
-    --primary-light: #f3e8ff;
+    --bg: #150f24;
+    --surface: #1f1734;
+    --surface-2: #271d42;
+    --text: #efe9ff;
+    --text-2: #cfc4ec;
+    --muted: #a79bc6;
+    --purple: #a77bff;
+    --accent: #d2b8ff;
+    --link: #c4a6ff;
+    --border: #33284f;
+    --border-2: #4a3a6e;
+    --hover: #2c2150;
+    --green: #4fd364;
+    --green-bg: #173a22;
+    --green-text: #a8f0b5;
+    --red: #e0686b;
+    --red-bg: #3d1a1f;
+    --red-text: #ffb3b3;
+    --code-bg: #2f2350;
+    --code-text: #d2b8ff;
+    --pre-bg: #0d0817;
+    --pre-text: #f4edff;
+    --pre-border: #33284f;
+    --track: #2c2150;
+    --focus: #a77bff;
+    --shadow: 0 8px 28px rgba(0, 0, 0, .35);
+    --shadow-top: 0 2px 8px rgba(0, 0, 0, .3);
+    --placar-bg: #2c2150;
+    --placar-text: #e6dcff;
+    --menu-shadow: 0 12px 32px rgba(0, 0, 0, .5);
 
-    --white: #ffffff;
+    /* botão azul (igual ao da Alura) */
+    --blue: #0b2bd6;
+    --blue-hover: #1a3be8;
 
-    --text: #18181b;
-    --text-light: #71717a;
-
-    --border: #e4e4e7;
-
-    --input-background: #edf3fb;
+    color-scheme: dark;
 }
 
-html,
-body {
-    min-height: 100%;
-}
-
-body {
-    font-family: "Inter", sans-serif;
-    background: #5b21b6;
-    color: var(--text);
-}
-
-
-/* =========================
-   PÁGINA
-========================= */
-
-.login-page {
-    min-height: 100vh;
-
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-
-    position: relative;
-    overflow: hidden;
-
-    background:
-        radial-gradient(
-            circle at 80% 15%,
-            rgba(167, 139, 250, 0.35),
-            transparent 25%
-        ),
-        linear-gradient(
-            135deg,
-            #4c1d95,
-            #6d28d9,
-            #7c3aed
-        );
-}
-
-
-/* =========================
-   CARD
-========================= */
-
-.login-card {
-    width: min(100%, 540px);
-
-    min-height: 560px;
-
-    background: var(--white);
-
-    border-radius: 24px;
-
-    padding: 48px 40px;
-
-    align-self: center;
-    justify-self: center;
-
-    position: relative;
-    z-index: 5;
-
-    box-shadow:
-        0 25px 70px rgba(0, 0, 0, 0.18);
-}
-
-
-/* =========================
-   LOGO
-========================= */
-
-.logo {
-    display: flex;
-    align-items: center;
-
-    font-size: 25px;
-    font-weight: 800;
-
-    margin-bottom: 42px;
-}
-
-.logo > span > span {
-    color: var(--primary);
-}
-
-.logo-icon {
-    width: 43px;
-    height: 43px;
-
-    background: var(--primary);
-
-    color: white;
-
-    border-radius: 11px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    margin-right: 11px;
-}
-
-.logo-icon svg {
-    width: 23px;
-    height: 23px;
-}
-
-
-/* =========================
-   TÍTULO
-========================= */
-
-.login-card h1 {
-    font-size: 38px;
-    line-height: 1.2;
-
-    color: #21105c;
-
-    margin-bottom: 8px;
-}
-
-.subtitle {
-    color: var(--text-light);
-
-    font-size: 12px;
-    line-height: 1.7;
-
-    margin-bottom: 30px;
-}
-
-
-/* =========================
-   FORMULÁRIO
-========================= */
-
-.form-group {
-    margin-bottom: 19px;
-}
-
-.form-group label {
-    display: block;
-
-    font-size: 11px;
-    font-weight: 500;
-
-    color: #312e81;
-
-    margin-bottom: 8px;
-}
-
-.input-wrapper {
-    width: 100%;
-    height: 55px;
-
-    display: flex;
-    align-items: center;
-
-    background: var(--input-background);
-
-    border-radius: 30px;
-
-    padding: 0 17px;
-
-    transition: 0.2s;
-
-    border: 2px solid transparent;
-}
-
-.input-wrapper:focus-within {
-    border-color: var(--primary);
-    background: white;
-}
-
-.input-wrapper input {
-    width: 100%;
+html, body {
+    margin: 0;
     height: 100%;
+}
 
-    border: 0;
-    outline: 0;
-
-    background: transparent;
-
-    font-family: inherit;
-    font-size: 13px;
-
+body {
+    font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+    background: var(--bg);
     color: var(--text);
 }
 
-.input-wrapper input::placeholder {
-    color: #9ca3af;
+/* ---------- 2. LAYOUT EM DUAS COLUNAS ---------- */
+main.login-page {
+    display: grid;
+    grid-template-columns: minmax(360px, 36%) 1fr;
+    min-height: 100vh;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    background: var(--bg);
 }
 
-
-/* =========================
-   SENHA
-========================= */
-
-.password-button {
-    width: 35px;
-    height: 35px;
-
+/* ---------- 3. LADO ESQUERDO (formulário) ---------- */
+main.login-page .login-card {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 56px 64px;
     border: 0;
-    background: transparent;
-
-    color: #9ca3af;
-
-    cursor: pointer;
-
+    border-radius: 0;
+    box-shadow: none;
+    background: var(--bg);
+    color: var(--text);
     display: flex;
-    align-items: center;
-    justify-content: center;
-
-    flex-shrink: 0;
-}
-
-.password-button svg {
-    width: 18px;
-}
-
-
-/* =========================
-   LEMBRAR
-========================= */
-
-.login-options {
-    margin-top: 4px;
-    margin-bottom: 14px;
-}
-
-.remember {
-    display: inline-flex;
-    align-items: center;
-
-    gap: 9px;
-
-    cursor: pointer;
-
-    color: #312e81;
-
-    font-size: 11px;
-}
-
-.remember input {
-    display: none;
-}
-
-.checkmark {
-    width: 27px;
-    height: 27px;
-
-    border: 1px solid #c7c7c7;
-
-    border-radius: 50%;
-
-    display: flex;
-    align-items: center;
+    flex-direction: column;
     justify-content: center;
 }
 
-.remember input:checked + .checkmark {
-    border-color: var(--primary);
-    background: var(--primary);
-}
-
-.remember input:checked + .checkmark::after {
-    content: "✓";
-
-    color: white;
-
-    font-size: 13px;
+main.login-page .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 40px;
+    font-size: 20px;
     font-weight: 700;
+    color: var(--text);
 }
 
+main.login-page .logo span span { color: var(--purple); }
 
-/* =========================
-   ERRO
-========================= */
-
-.login-error {
-    min-height: 16px;
-
-    color: #dc2626;
-
-    font-size: 10px;
-    font-weight: 600;
-
-    margin-bottom: 5px;
+main.login-page h1 {
+    margin: 0;
+    font-size: 40px;
+    font-weight: 400;
+    color: var(--text);
 }
 
+main.login-page .subtitle {
+    margin: 8px 0 36px;
+    font-size: 20px;
+    line-height: 1.5;
+    color: var(--muted);
+}
 
-/* =========================
-   BOTÃO
-========================= */
+main.login-page .form-group { margin-bottom: 18px; }
 
-.login-button {
+main.login-page label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+}
+
+main.login-page .req { color: var(--red); }
+
+main.login-page .input-wrapper { position: relative; }
+
+main.login-page input {
+    box-sizing: border-box;
+    width: 100%;
+    height: 48px;
+    padding: 0 48px 0 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 15px;
+    color: var(--text);
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+}
+
+main.login-page input::placeholder { color: var(--muted); opacity: .7; }
+
+main.login-page input:focus {
+    border-color: var(--focus);
+    box-shadow: 0 0 0 3px rgba(167, 123, 255, .2);
+}
+
+main.login-page .toggle-senha {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    background: none;
+    border: 0;
+    padding: 4px;
+    font-size: 16px;
+    line-height: 1;
+    color: var(--muted);
+    cursor: pointer;
+}
+main.login-page .toggle-senha:hover { color: var(--text); }
+
+main.login-page .login-error {
+    min-height: 20px;
+    margin: 4px 0 12px;
+    font-size: 14px;
+    color: var(--red-text);
+}
+
+main.login-page .login-button {
     width: 100%;
     height: 58px;
-
+    background: var(--blue);
     border: 0;
-    border-radius: 30px;
-
-    background: var(--primary);
-
-    color: white;
-
-    font-family: inherit;
-
-    font-size: 14px;
-    font-weight: 600;
-
-    cursor: pointer;
-
-    transition: 0.25s;
-}
-
-.login-button:hover {
-    background: var(--primary-dark);
-
-    transform: translateY(-1px);
-
-    box-shadow:
-        0 10px 25px rgba(109, 40, 217, 0.25);
-}
-
-.login-button:active {
-    transform: translateY(0);
-}
-
-
-/* =========================
-   LINKS
-========================= */
-
-.login-links {
-    display: flex;
-    align-items: center;
-
-    gap: 7px;
-
-    margin-top: 24px;
-
-    font-size: 11px;
-}
-
-.login-links a {
-    color: var(--primary);
-
-    text-decoration: none;
-
+    border-radius: 4px;
+    font-size: 16px;
     font-weight: 500;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    color: #fff;
+    cursor: pointer;
+    transition: background .2s;
 }
+main.login-page .login-button:hover { background: var(--blue-hover); }
 
-.login-links a:hover {
+main.login-page .login-links {
+    margin-top: 32px;
+    text-align: center;
+}
+main.login-page .login-links a {
+    font-size: 14px;
+    color: var(--link);
     text-decoration: underline;
 }
-
-.login-links span {
-    color: #a1a1aa;
-}
+main.login-page .login-links a:hover { color: var(--accent); }
 
 
-/* =========================
-   ÁREA VISUAL
-========================= */
-
-.visual-section {
+/* ==========================================================
+   4. LADO DIREITO (painel animado)
+   ========================================================== */
+.side-panel {
     position: relative;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    padding: 50px;
-
-    color: white;
-
-    z-index: 2;
-}
-
-.visual-content {
-    max-width: 500px;
-
-    margin-top: -40px;
-
-    position: relative;
-
-    z-index: 3;
-}
-
-.visual-icon {
-    width: 70px;
-    height: 70px;
-
-    border-radius: 20px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background: rgba(255, 255, 255, 0.12);
-
-    border: 1px solid rgba(255, 255, 255, 0.2);
-
-    margin-bottom: 22px;
-
-}
-
-.visual-icon svg {
-    width: 34px;
-}
-
-.visual-content h2 {
-    font-size: 42px;
-    line-height: 1.08;
-
-    margin-bottom: 18px;
-}
-
-.visual-content p {
-    max-width: 360px;
-
-    font-size: 13px;
-    line-height: 1.8;
-
-    color: #ede9fe;
-}
-
-
-/* =========================
-   JANELA DE CÓDIGO
-========================= */
-
-.code-window {
-    position: absolute;
-
-    right: 8%;
-    bottom: 8%;
-
-    width: 360px;
-
-    background: rgba(17, 12, 36, 0.65);
-
-    border: 1px solid rgba(255, 255, 255, 0.15);
-
-    border-radius: 15px;
-
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+        radial-gradient(circle at 50% 45%, var(--surface-2) 0%, var(--surface) 38%, var(--bg) 78%);
+}
 
+/* brilho que "respira" atrás de tudo */
+.glow {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 560px; height: 560px;
+    margin: -280px 0 0 -280px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(167,123,255,.28), transparent 65%);
+    animation: respirar 6s ease-in-out infinite;
+}
+
+/* anel girando */
+.ring {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 480px; height: 480px;
+    margin: -240px 0 0 -240px;
+    border-radius: 50%;
+    border: 1px dashed var(--border-2);
+    opacity: .6;
+    animation: girar 40s linear infinite;
+}
+.ring.r2 {
+    width: 640px; height: 640px;
+    margin: -320px 0 0 -320px;
+    opacity: .35;
+    animation-duration: 70s;
+    animation-direction: reverse;
+}
+
+/* estrelinhas piscando */
+.stars {
+    position: absolute;
+    inset: 0;
+}
+.stars::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 3px;
+    border-radius: 50%;
+    background: var(--accent);
     box-shadow:
-        0 25px 70px rgba(0, 0, 0, 0.25);
-
-    
-
-    transform: rotate(-3deg);
+        80px 60px var(--accent),  220px 130px var(--purple), 380px 40px var(--accent),
+        520px 150px var(--purple), 660px 70px var(--accent), 780px 200px var(--purple),
+        140px 320px var(--purple), 300px 450px var(--accent), 460px 380px var(--purple),
+        600px 520px var(--accent), 740px 430px var(--purple), 90px 560px var(--accent),
+        830px 590px var(--accent), 700px 330px var(--accent);
+    animation: piscar 3.5s ease-in-out infinite;
 }
-
-.window-header {
-    height: 33px;
-
-    display: flex;
-    align-items: center;
-
-    gap: 6px;
-
-    padding: 0 13px;
-
-    background: rgba(255, 255, 255, 0.05);
-
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.window-header span {
-    width: 8px;
-    height: 8px;
-
-    border-radius: 50%;
-
-    background: rgba(255, 255, 255, 0.35);
-}
-
-.code-content {
-    padding: 20px;
-
-    font-family: "Courier New", monospace;
-
-    font-size: 12px;
-
-    line-height: 1.8;
-}
-
-.code-purple {
-    color: #c084fc;
-}
-
-.code-green {
-    color: #86efac;
-}
-
-.code-orange {
-    color: #fdba74;
-}
-
-.code-white {
-    color: white;
-}
-
-.indent {
-    padding-left: 16px;
-}
-
-.indent-2 {
-    padding-left: 32px;
-}
-
-
-/* =========================
-   DECORAÇÕES
-========================= */
-
-.background-decoration {
+.stars::after {
+    content: "";
     position: absolute;
-
-    border: 1px solid rgba(255, 255, 255, 0.13);
-
+    top: 0; left: 0;
+    width: 2px; height: 2px;
     border-radius: 50%;
-
-    pointer-events: none;
+    background: var(--text-2);
+    box-shadow:
+        150px 200px var(--text-2), 330px 280px var(--text-2), 440px 90px var(--text-2),
+        560px 260px var(--text-2), 690px 140px var(--text-2), 200px 500px var(--text-2),
+        520px 600px var(--text-2), 800px 360px var(--text-2), 40px 420px var(--text-2);
+    animation: piscar 5s ease-in-out infinite reverse;
 }
 
-.decoration-1 {
-    width: 500px;
-    height: 500px;
-
-    top: -250px;
-    right: -170px;
-}
-
-.decoration-2 {
-    width: 700px;
-    height: 700px;
-
-    bottom: -480px;
-    right: -150px;
-}
-
-.decoration-3 {
-    width: 350px;
-    height: 350px;
-
-    bottom: -150px;
-    left: -150px;
-}
-
-
-/* =========================
-   RESPONSIVO
-========================= */
-
-@media (max-width: 950px) {
-
-    .login-page {
-        grid-template-columns: 1fr;
-    }
-
-    .visual-section {
-        display: none;
-    }
-
-    .login-card {
-        width: min(92%, 520px);
-    }
-}
-
-
-@media (max-width: 600px) {
-
-    .login-page {
-        min-height: 100vh;
-    }
-
-    .login-card {
-        width: calc(100% - 30px);
-
-        min-height: 0;
-
-        padding: 32px 24px;
-
-        border-radius: 20px;
-    }
-
-    .logo {
-        margin-bottom: 32px;
-    }
-
-    .login-card h1 {
-        font-size: 32px;
-    }
-
-    .input-wrapper {
-        height: 52px;
-    }
-
-    .login-button {
-        height: 54px;
-    }
-}
-
-/* =========================
-   MENU DO PERFIL / LOGOUT
-   Adicione este bloco no final do style.css
-========================= */
-
-.profile {
+/* ---------- 4.1 CENTRO: monitor + marca + mensagem ---------- */
+.hero {
     position: relative;
-    cursor: pointer;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px;
 }
 
-.profile-menu {
-    position: absolute;
-
-    top: calc(100% + 10px);
-    right: 0;
-
-    min-width: 130px;
-
-    background: white;
-
-    border: 1px solid var(--border);
-
-    border-radius: 10px;
-
-    padding: 6px;
-
-    box-shadow: 0 10px 30px rgba(24, 24, 27, .12);
-
-    display: none;
-
-    z-index: 2000;
+/* monitor grande */
+.monitor {
+    position: relative;
+    width: 320px;
+    animation: flutuar 5s ease-in-out infinite;
 }
+.monitor .tela {
+    background: var(--pre-bg);
+    border: 6px solid var(--border-2);
+    border-radius: 12px;
+    box-shadow: 0 0 40px rgba(167,123,255,.35), var(--shadow);
+    overflow: hidden;
+}
+.monitor .barra {
+    display: flex;
+    gap: 6px;
+    padding: 8px 10px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+}
+.monitor .barra i {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--red);
+}
+.monitor .barra i:nth-child(2) { background: var(--accent); }
+.monitor .barra i:nth-child(3) { background: var(--green); }
 
-.profile-menu.show {
+.monitor .codigo {
+    padding: 14px 14px 16px;
+    font-family: "Cascadia Code", Consolas, "Courier New", monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--pre-text);
+    min-height: 118px;
+}
+.monitor .linha {
     display: block;
+    width: 0;
+    overflow: hidden;
+    white-space: pre;
+    animation: digitar 9s steps(var(--n)) infinite;
+    animation-delay: var(--d);
+}
+.monitor .k { color: var(--purple); }       /* palavras-chave */
+.monitor .s { color: var(--green-text); }   /* textos */
+.monitor .f { color: var(--accent); }       /* funções */
+
+/* cursor piscando */
+.monitor .cursor {
+    display: inline-block;
+    width: 8px; height: 14px;
+    margin-left: 2px;
+    vertical-align: -2px;
+    background: var(--accent);
+    animation: cursor 1s steps(1) infinite;
 }
 
-.profile-menu button {
-    width: 100%;
+/* pé do monitor */
+.monitor .pescoco {
+    width: 46px; height: 22px;
+    margin: 0 auto;
+    background: linear-gradient(var(--border-2), var(--border));
+}
+.monitor .base {
+    width: 120px; height: 9px;
+    margin: 0 auto;
+    border-radius: 6px 6px 3px 3px;
+    background: var(--border-2);
+}
 
-    border: 0;
-    background: transparent;
-
-    padding: 9px 10px;
-
-    border-radius: 7px;
-
-    color: #ef4444;
-
-    font-family: inherit;
-
-    font-size: 11px;
-    font-weight: 600;
-
-    cursor: pointer;
-
+/* marca */
+.marca {
     display: flex;
     align-items: center;
+    gap: 12px;
+    margin: 26px 0 18px;
+    font-size: 40px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    color: var(--text);
+}
+.marca b { color: var(--purple); font-weight: 700; }
+.marca .chapeu { font-size: 34px; display: inline-block; animation: balancar 3s ease-in-out infinite; }
 
-    gap: 8px;
-
-    text-align: left;
+/* caixa da mensagem (igual à da Alura) */
+.promo {
+    box-sizing: border-box;
+    width: 420px;
+    max-width: 100%;
+    padding: 22px 24px 26px;
+    text-align: center;
+    background: rgba(31, 23, 52, .55);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    backdrop-filter: blur(6px);
+}
+.promo p {
+    margin: 0 0 18px;
+    font-size: 22px;
+    color: var(--text);
+}
+.promo .btn-promo {
+    display: inline-block;
+    padding: 13px 34px;
+    background: transparent;
+    border: 2px solid var(--blue);
+    border-radius: 4px;
+    font: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    color: var(--text);
+    cursor: pointer;
+    transition: background .2s, box-shadow .2s;
+}
+.promo .btn-promo:hover {
+    background: var(--blue);
+    box-shadow: 0 0 18px rgba(11, 43, 214, .6);
 }
 
-.profile-menu button:hover {
-    background: #fef2f2;
+/* ---------- 4.2 ELEMENTOS FLUTUANTES ----------
+   Cada um usa 4 variáveis:
+   --x / --y  = posição (em %)
+   --t        = tamanho
+   --dur      = velocidade (segundos, menor = mais rápido)
+   --delay    = atraso para não ficarem todos sincronizados      */
+.flutua {
+    position: absolute;
+    z-index: 1;
+    left: var(--x);
+    top: var(--y);
+    font-family: "Cascadia Code", Consolas, "Courier New", monospace;
+    font-size: var(--t);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--purple);
+    opacity: .75;
+    text-shadow: 0 0 18px rgba(167,123,255,.6);
+    animation: subir var(--dur) ease-in-out infinite;
+    animation-delay: var(--delay);
+}
+.flutua.claro { color: var(--accent); }
+.flutua.verde { color: var(--green); text-shadow: 0 0 18px rgba(79,211,100,.5); }
+
+/* mini monitores */
+.mini {
+    position: absolute;
+    z-index: 1;
+    left: var(--x);
+    top: var(--y);
+    width: var(--t);
+    height: calc(var(--t) * .68);
+    border: 3px solid var(--border-2);
+    border-radius: 6px;
+    background:
+        linear-gradient(var(--purple), var(--purple)) 14% 22% / 52% 3px no-repeat,
+        linear-gradient(var(--green), var(--green))   14% 44% / 36% 3px no-repeat,
+        linear-gradient(var(--accent), var(--accent)) 26% 66% / 44% 3px no-repeat,
+        var(--pre-bg);
+    box-shadow: 0 0 22px rgba(167,123,255,.35);
+    opacity: .85;
+    animation: subir var(--dur) ease-in-out infinite;
+    animation-delay: var(--delay);
+}
+.mini::after {                      /* pezinho */
+    content: "";
+    position: absolute;
+    left: 50%; bottom: -11px;
+    width: 30%; height: 8px;
+    transform: translateX(-50%);
+    border-radius: 0 0 4px 4px;
+    background: var(--border-2);
 }
 
-.profile-menu button svg {
-    width: 15px;
+/* ---------- 4.3 ANIMAÇÕES ---------- */
+@keyframes digitar {
+    0%       { width: 0; }
+    30%, 88% { width: calc(var(--n) * 1ch); }
+    100%     { width: 0; }
+}
+@keyframes cursor   { 50% { opacity: 0; } }
+@keyframes flutuar  { 50% { transform: translateY(-12px); } }
+@keyframes subir {
+    0%, 100% { transform: translateY(0)     rotate(-4deg); }
+    50%      { transform: translateY(-22px) rotate(5deg); }
+}
+@keyframes girar    { to { transform: rotate(360deg); } }
+@keyframes respirar { 50% { transform: scale(1.15); opacity: .7; } }
+@keyframes piscar   { 50% { opacity: .25; } }
+@keyframes balancar { 50% { transform: rotate(-12deg); } }
+
+/* quem desativou animações no sistema não vê movimento */
+@media (prefers-reduced-motion: reduce) {
+    .side-panel * , .side-panel *::before, .side-panel *::after {
+        animation: none !important;
+    }
+    .monitor .linha { width: calc(var(--n) * 1ch); }
+}
+
+/* ---------- 5. CELULAR / TELA PEQUENA ---------- */
+@media (max-width: 900px) {
+    main.login-page { grid-template-columns: 1fr; }
+    .side-panel { display: none; }
+    main.login-page .login-card { padding: 40px 24px; }
+}
+
+/* telas baixas: encolhe o painel para caber */
+@media (max-height: 700px) {
+    .monitor { width: 270px; }
+    .monitor .codigo { min-height: 100px; }
+    .marca { font-size: 32px; margin: 18px 0 12px; }
+    .promo { padding: 16px 20px 20px; }
+    .promo p { font-size: 19px; margin-bottom: 12px; }
 }

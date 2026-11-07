@@ -3,246 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>DevCursos+ | Entrar</title>
-
-    <link rel="stylesheet" href="login.css">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet"
-    >
-
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="auth.css">
 </head>
 
-<body>
+<body data-page="login">
 
-    <main class="login-page">
+<main class="split">
 
-        <!-- FUNDO DECORATIVO -->
-        <div class="background-decoration decoration-1"></div>
-        <div class="background-decoration decoration-2"></div>
-        <div class="background-decoration decoration-3"></div>
+    <!-- ============ LADO ESQUERDO: formulário ============ -->
+    <section class="form-side">
+        <div class="form-box">
 
+            <div class="logo-mobile">🎓 DevCursos<b>+</b></div>
 
-        <!-- CARD DE LOGIN -->
-        <section class="login-card">
+            <div class="views">
 
-            <!-- LOGO -->
-            <div class="logo">
-                <div class="logo-icon">
-                    <i data-lucide="graduation-cap"></i>
-                </div>
+                <!-- TELA 1: entrar -->
+                <div class="view is-active" id="viewLogin">
 
-                <span>
-                    DevCursos<span>+</span>
-                </span>
-            </div>
+                    <h1>Entrar na conta</h1>
+                    <p class="subtitle">Entre na sua conta e continue aprendendo.</p>
 
+                    <form id="loginForm">
 
-            <!-- TÍTULO -->
-            <h1>Entrar</h1>
+                        <div class="field">
+                            <label for="email">E-mail <span class="req">*</span></label>
+                            <div class="input-wrap">
+                                <input type="email" id="email" autocomplete="email" required>
+                            </div>
+                        </div>
 
-            <p class="subtitle">
-                Acesse sua conta e continue sua jornada de aprendizado.
-            </p>
+                        <div class="field">
+                            <label for="senha">Senha <span class="req">*</span></label>
+                            <div class="input-wrap">
+                                <input type="password" id="senha" autocomplete="current-password" required>
+                                <button type="button" class="toggle-senha" aria-label="Mostrar senha">
+                                <svg class="i-olho" viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                                <svg class="i-olho-off" viewBox="0 0 24 24"><path d="M17.9 17.9A10.9 10.9 0 0 1 12 19C5 19 1 12 1 12a19.8 19.8 0 0 1 5.1-5.9M9.9 5.2A10.4 10.4 0 0 1 12 5c7 0 11 7 11 7a19.9 19.9 0 0 1-3.2 4.2M1 1l22 22"/></svg>
+                            </button>
+                            </div>
+                        </div>
 
-
-            <!-- FORMULÁRIO -->
-            <form id="loginForm">
-
-                <!-- EMAIL -->
-                <div class="form-group">
-
-                    <label for="email">
-                        Email
-                    </label>
-
-                    <div class="input-wrapper">
-
-                        <input
-                            type="email"
-                            id="email"
-                            placeholder="Email"
-                            autocomplete="email"
-                            required
-                        >
-
-                    </div>
-
-                </div>
-
-
-                <!-- SENHA -->
-                <div class="form-group">
-
-                    <label for="password">
-                        Senha
-                    </label>
-
-                    <div class="input-wrapper">
-
-                        <input
-                            type="password"
-                            id="password"
-                            placeholder="Senha"
-                            autocomplete="current-password"
-                            required
-                        >
-
-                        <button
-                            type="button"
-                            class="password-button"
-                            id="passwordButton"
-                            aria-label="Mostrar senha"
-                        >
-                            <i data-lucide="eye"></i>
+                        <p class="msg" id="loginMsg" role="alert"></p>
+                        <button type="button" class="link-btn" id="reenviarLogin" hidden style="margin:-4px 0 14px">
+                            Reenviar e-mail de confirmação
                         </button>
 
+                        <button type="submit" class="btn-primary" id="loginBtn">
+                            <span class="rotulo">Entrar</span>
+                            <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+                        </button>
+
+                    </form>
+
+                    <p class="links">
+                        <a href="cadastro.html">Matricule-se</a>
+                        <span>/</span>
+                        <a href="#" id="abrirRecuperar">Esqueci minha senha</a>
+                    </p>
+
+                </div>
+
+                <!-- TELA 2: recuperar senha -->
+                <div class="view" id="viewRecuperar">
+
+                    <h1>Recuperar senha</h1>
+                    <p class="subtitle">Digite seu e-mail e enviaremos um link para você criar uma nova senha.</p>
+
+                    <form id="recForm">
+
+                        <div class="field">
+                            <label for="recEmail">E-mail <span class="req">*</span></label>
+                            <div class="input-wrap">
+                                <input type="email" id="recEmail" autocomplete="email" required>
+                            </div>
+                        </div>
+
+                        <p class="msg" id="recMsg" role="alert"></p>
+
+                        <button type="submit" class="btn-primary" id="recBtn">
+                            <span class="rotulo">Enviar link</span>
+                        </button>
+
+                    </form>
+
+                    <p class="links">
+                        <button type="button" class="link-btn" id="voltarLogin">Voltar para o login</button>
+                    </p>
+
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ============ LADO DIREITO: painel animado ============ -->
+    <aside class="side-panel">
+
+        <div class="glow"  aria-hidden="true"></div>
+        <div class="ring"  aria-hidden="true"></div>
+        <div class="ring r2" aria-hidden="true"></div>
+        <div class="stars" aria-hidden="true"></div>
+
+        <!-- símbolos flutuando -->
+        <span class="flutua"        style="--x:8%;  --y:10%; --t:56px; --dur:6s; --delay:0s"    aria-hidden="true">&lt;/&gt;</span>
+        <span class="flutua claro"  style="--x:80%; --y:12%; --t:48px; --dur:7s; --delay:-2s"   aria-hidden="true">{ }</span>
+        <span class="flutua verde"  style="--x:6%;  --y:46%; --t:40px; --dur:5s; --delay:-1s"   aria-hidden="true">;</span>
+        <span class="flutua claro"  style="--x:86%; --y:50%; --t:44px; --dur:8s; --delay:-3s"   aria-hidden="true">( )</span>
+        <span class="flutua"        style="--x:14%; --y:80%; --t:46px; --dur:7s; --delay:-4s"   aria-hidden="true">#</span>
+        <span class="flutua verde"  style="--x:76%; --y:82%; --t:52px; --dur:6s; --delay:-2.5s" aria-hidden="true">&lt;/&gt;</span>
+        <span class="flutua claro"  style="--x:62%; --y:5%;  --t:34px; --dur:9s; --delay:-5s"   aria-hidden="true">[ ]</span>
+        <span class="flutua"        style="--x:34%; --y:90%; --t:34px; --dur:8s; --delay:-1.5s" aria-hidden="true">=&gt;</span>
+
+        <!-- mini monitores flutuando -->
+        <div class="mini" style="--x:20%; --y:24%; --t:86px;  --dur:7s;  --delay:-1s" aria-hidden="true"></div>
+        <div class="mini" style="--x:74%; --y:30%; --t:100px; --dur:9s;  --delay:-3s" aria-hidden="true"></div>
+        <div class="mini" style="--x:84%; --y:68%; --t:78px;  --dur:8s;  --delay:-2s" aria-hidden="true"></div>
+        <div class="mini" style="--x:10%; --y:64%; --t:92px;  --dur:10s; --delay:-5s" aria-hidden="true"></div>
+
+        <!-- centro -->
+        <div class="hero">
+
+            <div class="monitor" aria-hidden="true">
+                <div class="tela">
+                    <div class="barra"><i></i><i></i><i></i></div>
+                    <div class="codigo">
+                        <span class="linha" style="--n:21; --d:0s"><span class="k">const</span> aluno = <span class="s">"você"</span>;</span>
+                        <span class="linha" style="--n:21; --d:1s"><span class="k">function</span> <span class="f">aprender</span>() {</span>
+                        <span class="linha" style="--n:20; --d:2s">  <span class="f">codar</span>(<span class="s">"todo dia"</span>);</span>
+                        <span class="linha" style="--n:17; --d:3s">  <span class="k">return</span> sucesso;</span>
+                        <span class="linha" style="--n:3;  --d:4s">}<span class="cursor"></span></span>
                     </div>
-
                 </div>
-
-
-                <!-- LEMBRAR -->
-                <div class="login-options">
-
-                    <label class="remember">
-
-                        <input
-                            type="checkbox"
-                            id="remember"
-                        >
-
-                        <span class="checkmark"></span>
-
-                        <span>
-                            Lembrar-me
-                        </span>
-
-                    </label>
-
-                </div>
-
-
-                <!-- ERRO -->
-                <p
-                    class="login-error"
-                    id="loginError"
-                ></p>
-
-
-                <!-- BOTÃO -->
-                <button
-                    type="submit"
-                    class="login-button"
-                >
-                    Entrar
-                </button>
-
-            </form>
-
-
-            <!-- LINKS -->
-            <div class="login-links">
-
-                <a href="cadastro.html">
-                    Cadastrar
-                </a>
-
-                <span>|</span>
-
-                <a href="recuperarsenha.html">
-                    Esqueci a senha?
-                </a>
-
+                <div class="pescoco"></div>
+                <div class="base"></div>
             </div>
 
-        </section>
-
-
-        <!-- ELEMENTO VISUAL DIREITO -->
-        <section class="visual-section">
-
-            <div class="visual-content">
-
-                <div class="visual-icon">
-                    <i data-lucide="code-2"></i>
-                </div>
-
-                <h2>
-                    Aprenda tecnologia.<br>
-                    Crie seu futuro.
-                </h2>
-
-                <p>
-                    Cursos práticos para desenvolver suas habilidades
-                    em programação, tecnologia e inovação.
-                </p>
-
+            <div class="marca">
+                <span class="chapeu" aria-hidden="true">🎓</span>
+                <span>DevCursos<b>+</b></span>
             </div>
 
-
-            <!-- ILUSTRAÇÃO -->
-            <div class="code-window">
-
-                <div class="window-header">
-
-                    <span></span>
-                    <span></span>
-                    <span></span>
-
-                </div>
-
-                <div class="code-content">
-
-                    <p>
-                        <span class="code-purple">const</span>
-                        devCursos
-                        <span class="code-white">=</span>
-                    </p>
-
-                    <p class="indent">
-                        <span class="code-white">{</span>
-                    </p>
-
-                    <p class="indent-2">
-                        aprender:
-                        <span class="code-green">true</span>,
-                    </p>
-
-                    <p class="indent-2">
-                        evoluir:
-                        <span class="code-green">true</span>,
-                    </p>
-
-                    <p class="indent-2">
-                        futuro:
-                        <span class="code-orange">"melhor"</span>
-                    </p>
-
-                    <p class="indent">
-                        <span class="code-white">};</span>
-                    </p>
-
-                </div>
-
+            <div class="promo">
+                <p>Ainda não estuda com a gente?</p>
+                <a class="btn-promo" href="cadastro.html">Fazer matrícula</a>
             </div>
 
-        </section>
+        </div>
 
-    </main>
+    </aside>
 
+</main>
 
-    <script type="module" src="login.js"></script>
-
-    <script>
-        lucide.createIcons();
-    </script>
-
+<script src="api.js"></script>
+<script src="telas.js"></script>
 </body>
 </html>

@@ -1,0 +1,681 @@
+/* ==========================================================
+   DevCursos+  |  auth.css
+   Estilo compartilhado de: login.html, cadastro.html, verificado.html
+   ========================================================== */
+
+/* ---------- 1. CORES (mude aqui e muda tudo) ---------- */
+:root {
+    --bg: #150f24;
+    --surface: #1f1734;
+    --surface-2: #271d42;
+    --text: #efe9ff;
+    --text-2: #cfc4ec;
+    --muted: #a79bc6;
+    --purple: #a77bff;
+    --accent: #d2b8ff;
+    --link: #c4a6ff;
+    --border: #33284f;
+    --border-2: #4a3a6e;
+    --hover: #2c2150;
+    --green: #4fd364;
+    --green-bg: #173a22;
+    --green-text: #a8f0b5;
+    --red: #e0686b;
+    --red-bg: #3d1a1f;
+    --red-text: #ffb3b3;
+    --pre-bg: #0d0817;
+    --pre-text: #f4edff;
+    --focus: #a77bff;
+    --shadow: 0 8px 28px rgba(0, 0, 0, .35);
+
+    --blue: #0b2bd6;          /* botão azul */
+    --blue-hover: #1a3be8;
+
+    --move: .45s;             /* velocidade da transição entre telas */
+
+    color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; min-height: 100%; }
+
+body {
+    font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+}
+
+/* ==========================================================
+   2. COMPONENTES DE FORMULÁRIO
+   ========================================================== */
+h1 { margin: 0; font-size: 40px; font-weight: 400; color: var(--text); }
+h2 { margin: 0; font-size: 28px; font-weight: 500; color: var(--text); }
+
+.subtitle {
+    margin: 8px 0 32px;
+    font-size: 19px;
+    line-height: 1.5;
+    color: var(--muted);
+}
+
+.field { margin-bottom: 18px; }
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+}
+.req { color: var(--red); }
+
+.input-wrap { position: relative; }
+
+input {
+    width: 100%;
+    height: 48px;
+    padding: 0 48px 0 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font: inherit;
+    font-size: 15px;
+    color: var(--text);
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+}
+input::placeholder { color: var(--muted); opacity: .65; }
+input:focus {
+    border-color: var(--focus);
+    box-shadow: 0 0 0 3px rgba(167, 123, 255, .2);
+}
+/* conserta a cor do autopreenchimento do Chrome */
+input:-webkit-autofill {
+    -webkit-text-fill-color: var(--text);
+    box-shadow: 0 0 0 100px var(--surface) inset;
+}
+
+.hint { margin: 6px 0 0; font-size: 13px; color: var(--muted); }
+
+/* olhinho da senha */
+.toggle-senha {
+    position: absolute;
+    top: 0; right: 0;
+    width: 48px; height: 48px;
+    display: grid;
+    place-items: center;
+    background: none;
+    border: 0;
+    color: var(--muted);
+    cursor: pointer;
+}
+.toggle-senha:hover { color: var(--text); }
+.toggle-senha svg {
+    width: 20px; height: 20px;
+    fill: none; stroke: currentColor;
+    stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+}
+.toggle-senha .i-olho-off { display: none; }
+.toggle-senha.ativo .i-olho { display: none; }
+.toggle-senha.ativo .i-olho-off { display: block; }
+
+/* mensagem de erro / sucesso */
+.msg {
+    min-height: 20px;
+    margin: 4px 0 12px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+.msg.erro { color: var(--red-text); }
+.msg.ok   { color: var(--green-text); }
+
+/* botões */
+.btn-primary, .btn-ghost {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    height: 56px;
+    border-radius: 4px;
+    font: inherit;
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background .2s, border-color .2s, opacity .2s;
+}
+.btn-primary { background: var(--blue); border: 0; color: #fff; }
+.btn-primary:hover { background: var(--blue-hover); }
+.btn-primary svg {
+    width: 16px; height: 16px;
+    fill: none; stroke: currentColor; stroke-width: 2.4;
+    stroke-linecap: round; stroke-linejoin: round;
+}
+
+.btn-ghost {
+    margin-top: 12px;
+    background: transparent;
+    border: 1px solid var(--border-2);
+    color: var(--text);
+}
+.btn-ghost:hover:not(:disabled) { background: var(--hover); }
+.btn-ghost:disabled { opacity: .55; cursor: not-allowed; }
+
+button:disabled { cursor: not-allowed; }
+
+/* bolinha girando dentro do botão enquanto carrega */
+.is-loading .rotulo, .is-loading svg { opacity: 0; }
+.is-loading::after {
+    content: "";
+    position: absolute;
+    width: 22px; height: 22px;
+    border: 3px solid rgba(255, 255, 255, .35);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: girar .7s linear infinite;
+}
+
+/* links */
+.links {
+    margin: 30px 0 0;
+    text-align: center;
+    font-size: 14px;
+    color: var(--muted);
+}
+.links span { margin: 0 8px; }
+a, .link-btn { color: var(--link); }
+.links a, .link-btn {
+    background: none; border: 0; padding: 0;
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.links a:hover, .link-btn:hover { color: var(--accent); }
+
+/* ==========================================================
+   3. TRANSIÇÃO ENTRE TELAS (as ".view")
+   ========================================================== */
+.views { display: grid; }
+
+.view {
+    grid-area: 1 / 1;               /* todas empilhadas no mesmo lugar */
+    align-self: center;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateX(var(--dx, 40px));
+    transition: opacity var(--move) ease, transform var(--move) ease, visibility 0s var(--move);
+}
+.view.is-active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: none;
+    transition: opacity var(--move) ease, transform var(--move) ease, visibility 0s;
+}
+
+/* ==========================================================
+   4. LAYOUT DO LOGIN (dividido em 2)
+   ========================================================== */
+.split {
+    display: grid;
+    grid-template-columns: minmax(360px, 36%) 1fr;
+    min-height: 100vh;
+}
+
+.form-side {
+    display: flex;
+    align-items: center;
+    padding: 48px 64px;
+    background: var(--bg);
+    overflow: hidden;
+}
+.form-box { width: 100%; }
+
+.logo-mobile {
+    display: none;
+    margin-bottom: 28px;
+    font-size: 22px;
+    font-weight: 700;
+}
+.logo-mobile b { color: var(--purple); }
+
+/* ==========================================================
+   5. LAYOUT CENTRALIZADO (cadastro e verificado)
+   ========================================================== */
+.center-page {
+    position: relative;
+    overflow: hidden;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 32px 16px;
+    background:
+        radial-gradient(circle at 50% 45%, var(--surface-2) 0%, var(--surface) 38%, var(--bg) 78%);
+}
+
+.card {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 460px;
+    padding: 28px 38px 28px;
+    background: rgba(31, 23, 52, .88);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow), 0 0 60px rgba(167, 123, 255, .12);
+    backdrop-filter: blur(8px);
+    overflow: hidden;
+}
+
+.card-logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 22px;
+    font-size: 22px;
+    font-weight: 700;
+}
+.card-logo b { color: var(--purple); }
+
+.card h1 { font-size: 30px; font-weight: 500; text-align: center; }
+.card .subtitle { margin: 8px 0 26px; font-size: 16px; text-align: center; }
+
+.center-text { text-align: center; }
+
+/* indicador de passos */
+.steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 26px;
+}
+.step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--muted);
+    transition: color .3s;
+}
+.step b {
+    width: 24px; height: 24px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--border-2);
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 600;
+    transition: background .3s, border-color .3s, color .3s;
+}
+.step.ativo { color: var(--text); }
+.step.ativo b { background: var(--purple); border-color: var(--purple); color: var(--pre-bg); }
+.step.feito b { background: var(--green); border-color: var(--green); color: var(--pre-bg); }
+.step-linha { width: 28px; height: 1px; background: var(--border-2); }
+
+/* e-mail destacado e dica */
+.email-alvo { color: var(--accent); font-weight: 600; word-break: break-all; }
+.dica {
+    margin: 14px 0 0;
+    padding: 12px 14px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--muted);
+    text-align: left;
+}
+
+/* ---------- Envelope animado (tela "confirme seu e-mail") ---------- */
+.envelope {
+    display: block;
+    width: 120px;
+    margin: 0 auto 4px;
+    overflow: visible;
+    animation: flutuar 4s ease-in-out infinite;
+}
+.envelope .e-back  { fill: var(--surface-2); stroke: var(--border-2); stroke-width: 2; }
+.envelope .e-front { fill: var(--hover);     stroke: var(--border-2); stroke-width: 2; stroke-linejoin: round; }
+.envelope .e-flap  { fill: #35286a;          stroke: var(--border-2); stroke-width: 2; stroke-linejoin: round;
+                     transform-origin: 60px 22px; }
+.envelope .e-flap-frente { animation: flapFrente 4.5s ease-in-out infinite; }
+.envelope .e-flap-tras   { fill: #2a1f52; animation: flapTras 4.5s ease-in-out infinite; }
+.envelope .e-carta { animation: cartaSobe 4.5s ease-in-out infinite; }
+.envelope .e-carta rect { fill: var(--text); }
+.envelope .e-carta path { stroke: var(--purple); stroke-width: 3; stroke-linecap: round; fill: none; }
+.envelope .e-arroba {
+    font-size: 15px; font-weight: 700; fill: var(--accent);
+    animation: piscar 2.2s ease-in-out infinite;
+}
+
+/* ---------- Ícones de status (tela verificado) ---------- */
+.status-icon {
+    position: relative;
+    width: 96px; height: 96px;
+    margin: 4px auto 22px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+}
+.status-icon svg {
+    width: 52px; height: 52px;
+    fill: none; stroke-width: 4;
+    stroke-linecap: round; stroke-linejoin: round;
+}
+.status-icon.ok   { background: var(--green-bg); color: var(--green); }
+.status-icon.erro { background: var(--red-bg);   color: var(--red); }
+.status-icon.ok svg, .status-icon.erro svg { stroke: currentColor; }
+.status-icon::before, .status-icon::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    opacity: 0;
+}
+.view.is-active .status-icon::before { animation: onda 2.4s ease-out .3s infinite; }
+.view.is-active .status-icon::after  { animation: onda 2.4s ease-out 1.1s infinite; }
+
+.view.is-active .status-icon.ok svg path {
+    stroke-dasharray: 60;
+    stroke-dashoffset: 60;
+    animation: desenhar .6s ease-out .35s forwards;
+}
+.view.is-active .status-icon.erro { animation: tremer .5s ease .3s; }
+
+.loader {
+    width: 64px; height: 64px;
+    margin: 10px auto 26px;
+    border: 5px solid var(--border-2);
+    border-top-color: var(--purple);
+    border-radius: 50%;
+    animation: girar 1s linear infinite;
+}
+
+/* ==========================================================
+   6. PAINEL DIREITO ANIMADO (login)
+   ========================================================== */
+.side-panel {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+        radial-gradient(circle at 50% 45%, var(--surface-2) 0%, var(--surface) 38%, var(--bg) 78%);
+}
+
+.glow {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 560px; height: 560px;
+    margin: -280px 0 0 -280px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(167,123,255,.28), transparent 65%);
+    animation: respirar 6s ease-in-out infinite;
+}
+.ring {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 480px; height: 480px;
+    margin: -240px 0 0 -240px;
+    border-radius: 50%;
+    border: 1px dashed var(--border-2);
+    opacity: .6;
+    animation: girar 40s linear infinite;
+}
+.ring.r2 {
+    width: 640px; height: 640px;
+    margin: -320px 0 0 -320px;
+    opacity: .35;
+    animation-duration: 70s;
+    animation-direction: reverse;
+}
+.stars { position: absolute; inset: 0; }
+.stars::before {
+    content: "";
+    position: absolute; top: 0; left: 0;
+    width: 3px; height: 3px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow:
+        80px 60px var(--accent),  220px 130px var(--purple), 380px 40px var(--accent),
+        520px 150px var(--purple), 660px 70px var(--accent), 780px 200px var(--purple),
+        140px 320px var(--purple), 300px 450px var(--accent), 460px 380px var(--purple),
+        600px 520px var(--accent), 740px 430px var(--purple), 90px 560px var(--accent),
+        830px 590px var(--accent), 700px 330px var(--accent);
+    animation: piscar 3.5s ease-in-out infinite;
+}
+.stars::after {
+    content: "";
+    position: absolute; top: 0; left: 0;
+    width: 2px; height: 2px;
+    border-radius: 50%;
+    background: var(--text-2);
+    box-shadow:
+        150px 200px var(--text-2), 330px 280px var(--text-2), 440px 90px var(--text-2),
+        560px 260px var(--text-2), 690px 140px var(--text-2), 200px 500px var(--text-2),
+        520px 600px var(--text-2), 800px 360px var(--text-2), 40px 420px var(--text-2);
+    animation: piscar 5s ease-in-out infinite reverse;
+}
+
+.hero {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px;
+}
+
+/* monitor grande */
+.monitor { position: relative; width: 320px; animation: flutuar 5s ease-in-out infinite; }
+.monitor .tela {
+    background: var(--pre-bg);
+    border: 6px solid var(--border-2);
+    border-radius: 12px;
+    box-shadow: 0 0 40px rgba(167,123,255,.35), var(--shadow);
+    overflow: hidden;
+}
+.monitor .barra {
+    display: flex; gap: 6px;
+    padding: 8px 10px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+}
+.monitor .barra i { width: 9px; height: 9px; border-radius: 50%; background: var(--red); }
+.monitor .barra i:nth-child(2) { background: var(--accent); }
+.monitor .barra i:nth-child(3) { background: var(--green); }
+.monitor .codigo {
+    padding: 14px 14px 16px;
+    font-family: "Cascadia Code", Consolas, "Courier New", monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--pre-text);
+    min-height: 118px;
+}
+.monitor .linha {
+    display: block;
+    width: 0;
+    overflow: hidden;
+    white-space: pre;
+    animation: digitar 9s steps(var(--n)) infinite;
+    animation-delay: var(--d);
+}
+.monitor .k { color: var(--purple); }
+.monitor .s { color: var(--green-text); }
+.monitor .f { color: var(--accent); }
+.monitor .cursor {
+    display: inline-block;
+    width: 8px; height: 14px;
+    margin-left: 2px;
+    vertical-align: -2px;
+    background: var(--accent);
+    animation: cursor 1s steps(1) infinite;
+}
+.monitor .pescoco { width: 46px; height: 22px; margin: 0 auto; background: linear-gradient(var(--border-2), var(--border)); }
+.monitor .base { width: 120px; height: 9px; margin: 0 auto; border-radius: 6px 6px 3px 3px; background: var(--border-2); }
+
+.marca {
+    display: flex; align-items: center; gap: 12px;
+    margin: 26px 0 18px;
+    font-size: 40px; font-weight: 700; letter-spacing: .5px;
+}
+.marca b { color: var(--purple); }
+.marca .chapeu { font-size: 34px; display: inline-block; animation: balancar 3s ease-in-out infinite; }
+
+.promo {
+    width: 420px; max-width: 100%;
+    padding: 22px 24px 26px;
+    text-align: center;
+    background: rgba(31, 23, 52, .55);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    backdrop-filter: blur(6px);
+}
+.promo p { margin: 0 0 18px; font-size: 22px; }
+.btn-promo {
+    display: inline-block;
+    padding: 13px 34px;
+    background: transparent;
+    border: 2px solid var(--blue);
+    border-radius: 4px;
+    font: inherit;
+    font-size: 15px; font-weight: 600; letter-spacing: .5px;
+    text-transform: uppercase; text-decoration: none;
+    color: var(--text);
+    cursor: pointer;
+    transition: background .2s, box-shadow .2s;
+}
+.btn-promo:hover { background: var(--blue); box-shadow: 0 0 18px rgba(11,43,214,.6); color: #fff; }
+
+/* símbolos e mini monitores flutuando.
+   --x/--y = posição (%) | --t = tamanho | --dur = velocidade | --delay = atraso */
+.flutua {
+    position: absolute; z-index: 1;
+    left: var(--x); top: var(--y);
+    font-family: "Cascadia Code", Consolas, "Courier New", monospace;
+    font-size: var(--t); font-weight: 700; line-height: 1;
+    color: var(--purple);
+    opacity: .75;
+    text-shadow: 0 0 18px rgba(167,123,255,.6);
+    animation: subir var(--dur) ease-in-out infinite;
+    animation-delay: var(--delay);
+}
+.flutua.claro { color: var(--accent); }
+.flutua.verde { color: var(--green); text-shadow: 0 0 18px rgba(79,211,100,.5); }
+
+.mini {
+    position: absolute; z-index: 1;
+    left: var(--x); top: var(--y);
+    width: var(--t); height: calc(var(--t) * .68);
+    border: 3px solid var(--border-2);
+    border-radius: 6px;
+    background:
+        linear-gradient(var(--purple), var(--purple)) 14% 22% / 52% 3px no-repeat,
+        linear-gradient(var(--green), var(--green))   14% 44% / 36% 3px no-repeat,
+        linear-gradient(var(--accent), var(--accent)) 26% 66% / 44% 3px no-repeat,
+        var(--pre-bg);
+    box-shadow: 0 0 22px rgba(167,123,255,.35);
+    opacity: .85;
+    animation: subir var(--dur) ease-in-out infinite;
+    animation-delay: var(--delay);
+}
+.mini::after {
+    content: "";
+    position: absolute; left: 50%; bottom: -11px;
+    width: 30%; height: 8px;
+    transform: translateX(-50%);
+    border-radius: 0 0 4px 4px;
+    background: var(--border-2);
+}
+
+/* nas páginas centralizadas a decoração fica mais discreta */
+.center-page .flutua, .center-page .mini { opacity: .45; }
+
+/* ==========================================================
+   7. ANIMAÇÕES
+   ========================================================== */
+@keyframes digitar {
+    0%       { width: 0; }
+    30%, 88% { width: calc(var(--n) * 1ch); }
+    100%     { width: 0; }
+}
+@keyframes cursor   { 50% { opacity: 0; } }
+@keyframes flutuar  { 50% { transform: translateY(-12px); } }
+@keyframes subir {
+    0%, 100% { transform: translateY(0) rotate(-4deg); }
+    50%      { transform: translateY(-22px) rotate(5deg); }
+}
+@keyframes girar    { to { transform: rotate(360deg); } }
+@keyframes respirar { 50% { transform: scale(1.15); opacity: .7; } }
+@keyframes piscar   { 50% { opacity: .25; } }
+@keyframes balancar { 50% { transform: rotate(-12deg); } }
+
+/* envelope: a aba abre, a carta sobe, depois tudo fecha de novo */
+@keyframes flapFrente {
+    0%, 12%  { transform: scaleY(1);  opacity: 1; }
+    26%, 74% { transform: scaleY(0);  opacity: 0; }
+    88%, 100%{ transform: scaleY(1);  opacity: 1; }
+}
+@keyframes flapTras {
+    0%, 14%  { transform: scaleY(0);  opacity: 0; }
+    30%, 70% { transform: scaleY(-1); opacity: 1; }
+    86%, 100%{ transform: scaleY(0);  opacity: 0; }
+}
+@keyframes cartaSobe {
+    0%, 28%  { transform: translateY(0); }
+    44%, 62% { transform: translateY(-30px); }
+    80%, 100%{ transform: translateY(0); }
+}
+
+@keyframes desenhar { to { stroke-dashoffset: 0; } }
+@keyframes onda {
+    0%   { transform: scale(1);   opacity: .6; }
+    100% { transform: scale(1.6); opacity: 0; }
+}
+@keyframes tremer {
+    20%, 60% { transform: translateX(-7px); }
+    40%, 80% { transform: translateX(7px); }
+}
+
+/* quem desativou animações no Windows vê tudo parado */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .monitor .linha { width: calc(var(--n) * 1ch); }
+    .status-icon.ok svg path { stroke-dashoffset: 0 !important; }
+}
+
+/* ==========================================================
+   8. TELAS PEQUENAS
+   ========================================================== */
+@media (max-width: 900px) {
+    .split { grid-template-columns: 1fr; }
+    .side-panel { display: none; }
+    .form-side { padding: 40px 24px; }
+    .logo-mobile { display: block; }
+    h1 { font-size: 34px; }
+}
+@media (max-width: 700px) {
+    .center-page .mini { display: none; }
+    .card { padding: 28px 22px 26px; }
+}
+@media (max-height: 700px) {
+    .monitor { width: 270px; }
+    .monitor .codigo { min-height: 100px; }
+    .marca { font-size: 32px; margin: 18px 0 12px; }
+    .promo { padding: 16px 20px 20px; }
+    .promo p { font-size: 19px; margin-bottom: 12px; }
+}
+
+/* tela de confirmação: sem espaço vazio quando não há mensagem */
+#viewConfirma .msg:empty { display: none; }
+#viewConfirma .hint { margin-bottom: 18px !important; }
