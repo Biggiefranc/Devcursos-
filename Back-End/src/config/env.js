@@ -12,8 +12,7 @@ const DB_PORT = Number(process.env.DB_PORT || 4000);
 const DB_SSL = process.env.DB_SSL === "true";
 
 // Configurações do MySQL.
-const DB_HOST = process.env.DB_HOST;
-const DB_USER = process.env.DB_USER;
+const DB_HOST = process.env.DB_HOST;const DB_USER = process.env.DB_USER;
 const DB_PASSWORD = process.env.DB_PASSWORD ?? "";
 const DB_NAME = process.env.DB_NAME;
 
