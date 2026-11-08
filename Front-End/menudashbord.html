@@ -4,46 +4,156 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DevCursos+ | Menu Inicial</title>
-  <link rel="stylesheet" href="componentes-ux.css">
-   <link rel="stylesheet" href="tema.css">
+
+  <title>DevCursos+ | Painel do aluno</title>
+
+  <!-- Define o tema antes de carregar o CSS -->
+  <script>
+    try {
+      document.documentElement.dataset.tema =
+        localStorage.getItem('devcursos-tema') || 'escuro';
+    } catch (e) {
+      document.documentElement.dataset.tema = 'escuro';
+    }
+  </script>
+
+  <!-- Estilos (tema.css ANTES do dashboard.css) -->
+  <link rel="stylesheet" href="tema.css">
+  <link rel="stylesheet" href="menudash.css">
 </head>
 
 <body>
-  <header class="topbar">
-    <a class="brand" href="menudashbord.html">Dev<span>Cursos</span>+</a>
-    <a class="top-link" href="menudashbord.html">Início</a>
-    <form class="search" role="search" onsubmit="return false">
-      <span aria-hidden="true">⌕</span>
-      <input id="courseSearch" type="search" placeholder="Pesquisar cursos" aria-label="Pesquisar cursos">
-    </form>
-    <a class="top-link" href="Favoritados.html">Favoritos</a>
-    <div class="account" id="accountArea"><a href="login.html" id="accountLink">Entrar</a><span class="avatar"
-        aria-hidden="true">♙</span></div>
-  </header>
+  <div class="shell">
 
-  <main>
-    <section class="intro">
-      <h1 id="greeting" hidden></h1>
-      <h1>Explore os cursos de seu interesse</h1>
-      <p class="sub">Escolha uma área, encontre um curso e comece a aprender no seu ritmo.</p>
-    </section>
-    <h2 class="section-title">Categorias</h2>
-    <nav id="filters" class="filters" aria-label="Filtrar cursos por categoria"></nav>
-    <h2 class="section-title">Cursos disponíveis</h2>
-    <section id="courses" class="course-grid" aria-live="polite">
-      <p class="notice">Carregando cursos...</p>
-    </section>
-  </main>
-<head>
-  ...
-  <script>try{document.documentElement.dataset.tema=localStorage.getItem('devcursos-tema')||'sistema'}catch(e){}</script>
-  <link rel="stylesheet" href="tema.css">
-</head>
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
 
+      <a class="brand" href="menudashbord.html" aria-label="DevCursos+ - painel">
+        Dev<span>Cursos</span>+
+      </a>
 
+      <div class="current">
+        <label for="courseSelect">Curso atual</label>
+        <select id="courseSelect"></select>
+        <div class="bar"><div class="bar-fill" id="sidebarBar"></div></div>
+      </div>
+
+      <nav class="menu" id="menu" aria-label="Menu do aluno">
+        <a href="#" class="active" data-view="aprender"><span data-icon="learn"></span>Aprender</a>
+
+        <span class="soon-item" aria-disabled="true" title="Futuramente">
+          <span data-icon="zap"></span>Praticar<small>Futuramente</small>
+        </span>
+        <span class="soon-item" aria-disabled="true" title="Futuramente">
+          <span data-icon="folder"></span>Projetos<small>Futuramente</small>
+        </span>
+
+        <hr>
+
+        <a href="#" data-view="cursos"><span data-icon="grid"></span>Cursos</a>
+
+        <span class="soon-item" aria-disabled="true" title="Futuramente">
+          <span data-icon="trophy"></span>Ranking<small>Futuramente</small>
+        </span>
+        <span class="soon-item" aria-disabled="true" title="Futuramente">
+          <span data-icon="bag"></span>Loja<small>Futuramente</small>
+        </span>
+      </nav>
+
+      <div class="side-bottom">
+        <div class="stats">
+          <div class="stat" title="Moedas"><span data-icon="coin" data-size="18"></span><b id="coins">0</b></div>
+          <div class="stat" title="Sequência de dias"><span data-icon="flame" data-size="18"></span><b id="streak">0 dias</b></div>
+        </div>
+
+        <div class="user">
+          <div class="avatar" id="userAvatar">U</div>
+          <span id="userName">Aluno</span>
+          <button class="logout" id="logoutBtn" type="button" title="Sair da conta">Sair</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ===== CONTEÚDO ===== -->
+    <div class="main">
+
+      <header class="topbar">
+        <button class="menu-toggle" id="menuToggle" type="button" aria-label="Abrir menu" data-icon="menu"></button>
+
+        <form class="search" role="search" id="searchForm">
+          <input id="q" type="search" placeholder="O que você quer aprender?" aria-label="Pesquisar cursos">
+          <button type="submit" aria-label="Buscar">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="7"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
+        </form>
+      </header>
+
+      <main class="page">
+
+        <!-- ===== APRENDER ===== -->
+        <section class="view active" id="view-aprender">
+
+          <div class="learn-head">
+            <span class="icon lg front" id="learnBadge"></span>
+
+            <div class="learn-title">
+              <h1 id="sectionTitle">Aprender</h1>
+              <p id="sectionSub"></p>
+            </div>
+
+            <div class="pager">
+              <button id="prevSection" type="button" aria-label="Seção anterior" data-icon="left"></button>
+              <span id="pagerLabel">SEÇÃO 0 DE 0</span>
+              <button id="nextSection" type="button" aria-label="Próxima seção" data-icon="chev"></button>
+            </div>
+          </div>
+
+          <div class="modules" id="modules"></div>
+
+          <div class="empty" id="learnEmpty" hidden>
+            <img src="hero-codigo.svg" alt="" width="300" height="225">
+            <p>Nenhum conteúdo carregado ainda.</p>
+          </div>
+        </section>
+
+        <!-- ===== CURSOS ===== -->
+        <section class="view" id="view-cursos">
+
+          <div>
+            <h2 class="titulo">Seu <em>progresso</em></h2>
+            <div class="cards" id="progressGrid"></div>
+            <div class="empty slim" id="progressEmpty" hidden>Você ainda não começou nenhum curso.</div>
+          </div>
+
+          <div class="streak">
+            <div>
+              <h2 class="titulo">Sua <em>sequência</em></h2>
+              <p id="streakText">Estude hoje para começar sua sequência!</p>
+            </div>
+            <div class="week" id="week"></div>
+          </div>
+
+          <div>
+            <h2 class="titulo">Todos os <em>cursos</em></h2>
+
+            <div class="search-info" id="searchInfo" hidden></div>
+            <div class="tabs" id="tabs" role="tablist" aria-label="Categorias"></div>
+
+            <div class="cards" id="pathsGrid"></div>
+            <div class="empty slim" id="pathsEmpty" hidden>Nenhum curso nessa categoria ainda.</div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="menudashbord.js"></script>
+  <script src="tema.js"></script>
 </body>
-<script type="module" src="menudashbord.js"></script>
-  <script type="module" src="tema.css"></script>
-  <script type="module" src="tema.js"></script>
 </html>
