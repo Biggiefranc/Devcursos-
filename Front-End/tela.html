@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dev Cursos+ | Tela de aula</title>
+<style>
+  :root {
+    --bg: #232748; --bg-dark: #1a1b35; --card: #2f3363; --line: #3d4180;
+    --text: #f2f3ff; --muted: #a5a8d6; --accent: #a78bfa; --ok: #34d399; --err: #f87171;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--text);
+    height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+  }
+
+  /* ===== Barra de demonstração (remova depois) ===== */
+  .demo-bar {
+    background: #12132b; padding: 8px 16px; display: flex; gap: 8px; align-items: center;
+    flex-wrap: wrap; font-size: 12px; color: var(--muted); border-bottom: 1px dashed var(--line);
+  }
+  .demo-bar button {
+    background: var(--card); color: var(--text); border: 1px solid var(--line);
+    padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 12px;
+  }
+  .demo-bar button.active { background: var(--accent); color: #1a1b35; font-weight: 700; }
+
+  /* ===== Topo ===== */
+  header { display: flex; align-items: center; gap: 16px; padding: 14px 20px; background: #2a2e5a; }
+  .icon-btn { background: none; border: 0; color: var(--text); font-size: 22px; cursor: pointer; padding: 4px 8px; opacity: .85; }
+  .progress { flex: 1; display: flex; gap: 6px; max-width: 700px; margin: 0 auto; }
+  .progress span { flex: 1; height: 6px; border-radius: 6px; background: var(--line); }
+  .progress span.done { background: var(--accent); }
+  .progress span.current { background: #7c6bd6; }
+  .badge { background: linear-gradient(90deg,#7c3aed,#a855f7); font-weight: 700; font-size: 14px; padding: 10px 16px; border-radius: 10px; }
+
+  /* ===== Conteúdo ===== */
+  main { flex: 1; overflow-y: auto; padding: 28px 20px; display: flex; flex-direction: column; align-items: center; gap: 22px; }
+  .meta { color: var(--muted); font-size: 13px; letter-spacing: .5px; text-transform: uppercase; }
+  .instruction { text-align: center; max-width: 560px; font-size: 18px; line-height: 1.6; }
+  .instruction code { background: #3d4180; padding: 2px 8px; border-radius: 6px; font-family: Consolas, monospace; font-size: .9em; }
+
+  .piece { width: 100%; max-width: 1000px; display: none; }
+  .piece.on { display: block; }
+
+  /* Peça: texto */
+  #piece-texto { max-width: 620px; background: var(--card); border-radius: 14px; padding: 24px; line-height: 1.7; color: var(--text); }
+
+  /* Peça: quiz */
+  #piece-quiz { max-width: 560px; display: none; flex-direction: column; gap: 10px; }
+  #piece-quiz.on { display: flex; }
+  .option {
+    background: var(--card); border: 2px solid var(--line); color: var(--text);
+    padding: 14px 18px; border-radius: 12px; font-size: 16px; text-align: left; cursor: pointer;
+  }
+  .option:hover { border-color: var(--accent); }
+  .option.selected { border-color: var(--accent); background: #3a3f80; }
+
+  /* Peça: workspace (editor + preview) */
+  .workspace { display: none; grid-template-columns: 1fr; gap: 16px; }
+  .workspace.on { display: grid; }
+  @media (min-width: 900px) { .workspace.two { grid-template-columns: 1fr 1fr; } }
+  .panel { background: var(--bg-dark); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; min-height: 300px; }
+  .tab-bar { background: var(--card); display: flex; }
+  .tab { padding: 10px 16px; font-size: 13px; font-weight: 700; background: var(--bg-dark); display: flex; align-items: center; gap: 8px; }
+  .tab .dot { width: 14px; height: 14px; border-radius: 3px; background: var(--accent); }
+  .editor { flex: 1; display: flex; min-height: 220px; }
+  .gutter { padding: 14px 10px 14px 14px; text-align: right; color: #5a5e9a; font: 14px/1.6 Consolas, monospace; user-select: none; overflow: hidden; white-space: pre; }
+  textarea { flex: 1; background: transparent; border: 0; outline: 0; resize: none; color: #e6e8ff; font: 14px/1.6 Consolas, monospace; padding: 14px 14px 14px 4px; white-space: pre; overflow: auto; tab-size: 2; }
+  .panel-footer { border-top: 1px solid var(--line); padding: 12px 16px; }
+  .reset { background: none; border: 0; color: var(--text); font-weight: 700; font-size: 14px; cursor: pointer; }
+  .reset:hover { color: var(--accent); }
+  iframe#preview { flex: 1; width: 100%; border: 0; background: #fff; min-height: 220px; }
+
+  /* ===== Rodapé ===== */
+  footer { background: #26294f; border-top: 1px solid var(--line); padding: 14px 24px; display: flex; align-items: center; gap: 16px; }
+  .mascot { width: 52px; height: 52px; flex-shrink: 0; }
+  .feedback { flex: 1; font-size: 15px; min-height: 24px; padding: 10px 14px; border-radius: 12px; }
+  .feedback.ok { background: rgba(52,211,153,.15); color: var(--ok); }
+  .feedback.err { background: rgba(248,113,113,.15); color: var(--err); }
+  .verify { background: var(--accent); color: #1a1b35; border: 0; border-radius: 12px; padding: 14px 28px; font-size: 16px; font-weight: 800; cursor: pointer; }
+  .verify.next { background: var(--ok); }
+  .verify small { opacity: .6; margin-left: 6px; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- ===== Barra de demonstração: só pra você ver os tipos. Pode apagar. ===== -->
+<div class="demo-bar">
+  <span>Demo — simula o tipo que viria do banco:</span>
+  <button data-demo="front">Frontend (código + resultado)</button>
+  <button data-demo="java">Java (código, sem resultado)</button>
+  <button data-demo="quiz">Quiz</button>
+  <button data-demo="texto">Texto</button>
+</div>
+
+<header>
+  <button class="icon-btn" title="Sair">✕</button>
+  <div class="progress" id="progress"></div>
+  <div class="badge">Dev Cursos+</div>
+</header>
+
+<main>
+  <div class="meta" id="meta"></div>
+  <p class="instruction" id="instruction"></p>
+
+  <!-- PEÇA: texto -->
+  <div class="piece" id="piece-texto"></div>
+
+  <!-- PEÇA: quiz -->
+  <div class="piece" id="piece-quiz"></div>
+
+  <!-- PEÇA: editor (+ resultado opcional) -->
+  <div class="piece workspace" id="piece-codigo">
+    <div class="panel">
+      <div class="tab-bar"><div class="tab"><span class="dot"></span><span id="filename">arquivo</span></div></div>
+      <div class="editor">
+        <div class="gutter" id="gutter">1</div>
+        <textarea id="code" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+      </div>
+      <div class="panel-footer"><button class="reset" id="reset">↺ Reiniciar</button></div>
+    </div>
+    <div class="panel" id="preview-panel">
+      <div class="tab-bar"><div class="tab"><span class="dot" style="background:var(--ok);border-radius:50%"></span>Resultado</div></div>
+      <iframe id="preview" sandbox="allow-scripts"></iframe>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <svg class="mascot" viewBox="0 0 64 64" aria-hidden="true">
+    <rect x="12" y="14" width="40" height="34" rx="12" fill="#e9e9ff"/>
+    <rect x="17" y="19" width="30" height="22" rx="8" fill="#1f2347"/>
+    <circle cx="26" cy="30" r="3.2" fill="#38bdf8"/><circle cx="38" cy="30" r="3.2" fill="#38bdf8"/>
+    <path d="M28 36 q4 3 8 0" stroke="#38bdf8" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <rect x="30" y="6" width="4" height="8" rx="2" fill="#e9e9ff"/><circle cx="32" cy="6" r="3" fill="#a78bfa"/>
+    <rect x="20" y="48" width="9" height="10" rx="4" fill="#9aa0d8"/><rect x="35" y="48" width="9" height="10" rx="4" fill="#9aa0d8"/>
+  </svg>
+  <div class="feedback" id="feedback"></div>
+  <button class="verify" id="verify">Verificar <small>Ctrl+⏎</small></button>
+</footer>
+
+<script>
+/* =====================================================================
+   DADOS DE EXEMPLO — no projeto real isso vem do back:
+   const licao = await fetch(`/api/licoes/${id}`).then(r => r.json());
+   Só os campos abaixo importam pra tela. Nenhum conteúdo real aqui.
+   ===================================================================== */
+const DEMOS = {
+  front: {
+    tipo: "codigo", titulo: "Título da lição",
+    instrucao: "Aqui vai o <b>texto da instrução</b> da lição, com <code>código</code> se precisar.",
+    conteudo: { linguagem: "html", arquivo: "index.html", preview: true, codigo_inicial: "<p>Edite aqui e veja o resultado →</p>" }
+  },
+  java: {
+    tipo: "codigo", titulo: "Título da lição",
+    instrucao: "Aqui vai o <b>texto da instrução</b>. Esta lição não tem resultado ao vivo.",
+    conteudo: { linguagem: "java", arquivo: "Main.java", preview: false, codigo_inicial: "// Complete o código aqui\n", resposta: "ok" }
+  },
+  quiz: {
+    tipo: "quiz", titulo: "Título da lição",
+    instrucao: "Aqui vai a <b>pergunta</b> do quiz.",
+    conteudo: { alternativas: ["Alternativa A", "Alternativa B", "Alternativa C"], correta: 1 }
+  },
+  texto: {
+    tipo: "texto", titulo: "Título da lição",
+    instrucao: "",
+    conteudo: { texto: "Aqui vai o texto explicativo da lição. Essa lição não tem editor nem verificação, só leitura e o botão continuar." }
+  }
+};
+
+/* ===================== Estado ===================== */
+const $ = (id) => document.getElementById(id);
+let licao = null, passed = false, escolha = null, totalLicoes = 5, posicao = 1;
+
+/* ===================== Montagem da tela ===================== */
+function mostrarLicao(l) {
+  licao = l; passed = false; escolha = null;
+  setFeedback("", "");
+  setVerifyMode(false);
+
+  // Peças sempre presentes
+  $("meta").textContent = `Lição ${posicao} de ${totalLicoes} · ${l.titulo}`;
+  $("instruction").innerHTML = l.instrucao;
+  $("instruction").style.display = l.instrucao ? "" : "none";
+  $("progress").innerHTML = Array.from({ length: totalLicoes }, (_, i) =>
+    `<span class="${i < posicao - 1 ? "done" : i === posicao - 1 ? "current" : ""}"></span>`).join("");
+
+  // Desliga todas as peças e liga só as da lição
+  ["piece-texto", "piece-quiz", "piece-codigo"].forEach(id => $(id).classList.remove("on"));
+
+  if (l.tipo === "texto")  montarTexto(l.conteudo);
+  if (l.tipo === "quiz")   montarQuiz(l.conteudo);
+  if (l.tipo === "codigo") montarCodigo(l.conteudo);
+
+  // Texto não precisa verificar: o botão já é "Continuar"
+  if (l.tipo === "texto") { passed = true; setVerifyMode(true); }
+}
+
+function montarTexto(c) {
+  $("piece-texto").textContent = c.texto;
+  $("piece-texto").classList.add("on");
+}
+
+function montarQuiz(c) {
+  const box = $("piece-quiz");
+  box.innerHTML = c.alternativas.map((a, i) => `<button class="option" data-i="${i}">${a}</button>`).join("");
+  box.classList.add("on");
+  box.querySelectorAll(".option").forEach(b => b.onclick = () => {
+    box.querySelectorAll(".option").forEach(x => x.classList.remove("selected"));
+    b.classList.add("selected");
+    escolha = Number(b.dataset.i);
+  });
+}
+
+function montarCodigo(c) {
+  const ws = $("piece-codigo");
+  ws.classList.add("on");
+  ws.classList.toggle("two", !!c.preview);                 // 2 colunas só se tiver resultado
+  $("preview-panel").style.display = c.preview ? "" : "none";
+  $("filename").textContent = c.arquivo || "arquivo";
+  $("code").value = c.codigo_inicial || "";
+  atualizarGutter();
+  if (c.preview) $("preview").srcdoc = $("code").value;
+}
+
+function atualizarGutter() {
+  const n = $("code").value.split("\n").length;
+  $("gutter").textContent = Array.from({ length: n }, (_, i) => i + 1).join("\n");
+}
+
+/* ===================== Verificação (placeholder) =====================
+   Aqui entram as regras reais da lição. No esqueleto:
+   - quiz: confere a alternativa escolhida
+   - código: aprova se o aluno escreveu qualquer coisa (troque pelas regras)
+   ===================================================================== */
+function verificar() {
+  if (licao.tipo === "quiz") {
+    if (escolha === null) return { ok: false, msg: "Escolha uma alternativa." };
+    return escolha === licao.conteudo.correta
+      ? { ok: true, msg: "✓ Resposta certa!" }
+      : { ok: false, msg: "✗ Não foi dessa vez. Tente de novo." };
+  }
+  if (licao.tipo === "codigo") {
+    const escreveu = $("code").value.trim().length > 0;
+    return escreveu
+      ? { ok: true, msg: "✓ Muito bem! (verificação de exemplo)" }
+      : { ok: false, msg: "✗ Escreva algo no editor." };
+  }
+  return { ok: true, msg: "" };
+}
+
+function acaoPrincipal() {
+  if (passed) {
+    // Aqui: POST /api/progresso e carregar a próxima lição (licao.proxima_id)
+    posicao = posicao >= totalLicoes ? 1 : posicao + 1;
+    mostrarLicao(licao);       // no real: buscar a próxima do back
+    return;
+  }
+  const r = verificar();
+  setFeedback(r.msg, r.ok ? "ok" : "err");
+  if (r.ok) { passed = true; setVerifyMode(true); }
+}
+
+/* ===================== Helpers e eventos ===================== */
+function setFeedback(msg, tipo) { $("feedback").textContent = msg; $("feedback").className = "feedback " + tipo; }
+function setVerifyMode(next) {
+  $("verify").classList.toggle("next", next);
+  $("verify").innerHTML = (next ? "Continuar" : "Verificar") + " <small>Ctrl+⏎</small>";
+}
+
+$("code").addEventListener("input", () => {
+  atualizarGutter();
+  if (licao && licao.conteudo.preview) $("preview").srcdoc = $("code").value;
+  if (passed && licao.tipo === "codigo") { passed = false; setVerifyMode(false); setFeedback("", ""); }
+});
+$("code").addEventListener("scroll", () => { $("gutter").scrollTop = $("code").scrollTop; });
+$("code").addEventListener("keydown", (e) => {
+  if (e.key === "Tab") {
+    e.preventDefault();
+    const s = e.target.selectionStart;
+    e.target.value = e.target.value.slice(0, s) + "  " + e.target.value.slice(e.target.selectionEnd);
+    e.target.selectionStart = e.target.selectionEnd = s + 2;
+    e.target.dispatchEvent(new Event("input"));
+  }
+});
+$("reset").onclick = () => montarCodigo(licao.conteudo);
+$("verify").onclick = acaoPrincipal;
+document.addEventListener("keydown", (e) => { if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); acaoPrincipal(); } });
+
+// Botões da barra de demonstração
+document.querySelectorAll("[data-demo]").forEach(b => b.onclick = () => {
+  document.querySelectorAll("[data-demo]").forEach(x => x.classList.remove("active"));
+  b.classList.add("active");
+  mostrarLicao(DEMOS[b.dataset.demo]);
+});
+
+// Início
+document.querySelector('[data-demo="front"]').click();
+</script>
+</body>
+</html>

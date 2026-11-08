@@ -6,8 +6,7 @@ import {
 } from "firebase/auth";
 import { auth } from "../firebase/firebase-config";
 
-export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-
+export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 export async function configurarPersistencia(lembrar = true) {
     await setPersistence(
         auth,

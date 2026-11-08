@@ -7,7 +7,7 @@
   <title>DevCursos+ | Aprenda tecnologia na prática</title>
   <meta name="description" content="Cursos de programação, front-end e DevOps para quem quer entrar ou crescer na área de tecnologia.">
 
-  <!-- aplica o tema salvo antes do CSS, pra tela não piscar -->
+
   <script>
     try { document.documentElement.dataset.tema = localStorage.getItem('devcursos-tema') || 'sistema'; } catch (e) {}
   </script>
@@ -50,7 +50,7 @@
           <p class="lead">Estude, pratique e evolua em uma plataforma pensada para quem quer entrar, ou crescer, na área de programação.</p>
           <div class="hero-cta">
             <a class="btn-signup" href="cadastro.html">Começar agora</a>
-            <a class="btn-ghost" href="menudashbord.html">Ver todos os cursos</a>
+            <a class="btn-ghost" href="#areas">Ver todos os cursos</a>
           </div>
         </div>
 
@@ -62,8 +62,8 @@
   </section>
 
   <main class="wrap">
-    <section class="cats" aria-label="Áreas de estudo">
-      <a class="cat prog" href="menudashbord.html?categoria=programacao">
+    <section class="cats" id="areas" aria-label="Áreas de estudo">
+      <a class="cat prog" href="cursos.html?categoria=programacao">
         <span class="icon" aria-hidden="true">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">
@@ -77,7 +77,7 @@
         <span class="go">Ver cursos →</span>
       </a>
 
-      <a class="cat front" href="menudashbord.html?categoria=front-end">
+      <a class="cat front" href="cursos.html?categoria=frontend">
         <span class="icon" aria-hidden="true">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">
@@ -92,7 +92,7 @@
         <span class="go">Ver cursos →</span>
       </a>
 
-      <a class="cat devops" href="menudashbord.html?categoria=devops">
+      <a class="cat devops" href="cursos.html?categoria=devops">
         <span class="icon" aria-hidden="true">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">

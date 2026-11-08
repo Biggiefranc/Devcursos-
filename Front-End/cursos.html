@@ -3,127 +3,216 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Visualizar curso | Dev Cursos+</title>
-
-<!-- tema: aplica o escolhido no menu inicial, antes de desenhar a página -->
-<script>
-  try { document.documentElement.dataset.tema = localStorage.getItem('devcursos-tema') || 'sistema'; }
-  catch (e) {}
-</script>
-<link rel="stylesheet" href="tema.css">
-
+<title>Dev Cursos+ | Cursos</title>
 <style>
-/* ===== Layout e componentes. Cores só via variáveis de tema.css ===== */
-.layout{display:grid;grid-template-columns:290px minmax(0,1fr);min-height:calc(100vh - 68px);max-width:1600px;margin:0 auto}
-.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:22px 14px;height:calc(100vh - 68px);position:sticky;top:68px;align-self:start;overflow-y:auto}
-.sidebar h2{font-size:.88rem;margin:0 10px 18px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em}
-.prog{margin:0 10px 20px}
-.prog-barra{height:8px;background:var(--track);border-radius:99px;overflow:hidden}
-.prog-barra div{height:100%;width:0;background:var(--green);border-radius:99px;transition:width .3s}
-.prog p{margin:8px 0 0;font-size:.82rem;color:var(--muted);font-weight:650}
-.btn-reiniciar{margin-top:12px;width:100%;background:var(--surface);color:var(--red-text);border:1px solid var(--red);border-radius:8px;padding:9px 12px;font:inherit;font-size:.82rem;font-weight:650;cursor:pointer}
-.btn-reiniciar:hover{background:var(--red-bg)}
-.modulo{margin-bottom:7px}
-.modulo-btn{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--surface-2);border:1px solid transparent;color:var(--text);cursor:pointer;padding:12px 11px;border-radius:9px;font:inherit;font-size:.88rem;font-weight:700;text-align:left}
-.modulo-btn:hover{background:var(--hover)}
-.modulo-btn .seta{transition:transform .2s;color:var(--purple);font-size:.75rem}
-.modulo.aberto .modulo-btn{background:var(--hover);border-color:var(--border-2);color:var(--accent)}
-.modulo.aberto .seta{transform:rotate(90deg)}
-.aulas{display:none;margin:6px 0 12px 7px;padding-left:9px;border-left:2px solid var(--border)}
-.modulo.aberto .aulas{display:block}
-.aula-btn{width:100%;display:flex;gap:9px;align-items:flex-start;background:none;border:0;color:var(--muted);cursor:pointer;padding:10px 9px;border-radius:7px;font:inherit;font-size:.83rem;line-height:1.4;text-align:left}
-.aula-btn:hover{background:var(--surface-2);color:var(--accent)}
-.aula-btn.ativa{background:var(--hover);color:var(--accent);font-weight:700;box-shadow:inset 3px 0 var(--purple)}
-.check{flex-shrink:0;width:17px;height:17px;margin-top:1px;border:1.5px solid var(--border-2);border-radius:50%;display:grid;place-items:center;font-size:10px;line-height:1;color:transparent}
-.aula-btn.concluida .check{background:var(--green);border-color:var(--green);color:#fff}
-button:focus-visible,a:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+  :root {
+    --bg: #130e22;
+    --card: #1d1633;
+    --line: #2d2447;
+    --text: #f4f1ff;
+    --muted: #a99fc9;
+    --accent: #a855f7; /* muda conforme a categoria */
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  a { color: inherit; text-decoration: none; }
 
-.conteudo{padding:32px clamp(20px,4vw,58px) 80px;min-width:0}
-.conteudo:before{content:"ÁREA DE APRENDIZAGEM";display:block;color:var(--muted);font-size:.75rem;font-weight:750;letter-spacing:.12em;margin:2px 0 18px}
+  /* ===== Topo ===== */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 32px; border-bottom: 1px solid var(--line);
+  }
+  .logo { font-weight: 800; font-size: 20px; }
+  .logo span { color: var(--accent); }
+  .back { color: var(--muted); font-size: 14px; }
+  .back:hover { color: var(--text); }
 
-/* cabeçalho de módulo */
-.modulo-head{max-width:980px;margin:44px 0 16px;font-size:1.05rem;color:var(--accent);letter-spacing:-.01em;padding-bottom:10px;border-bottom:2px solid var(--border-2)}
-.modulo-head:first-child{margin-top:0}
+  /* ===== Cabeçalho da categoria ===== */
+  .hero {
+    padding: 48px 32px 32px;
+    max-width: 1150px; margin: 0 auto;
+  }
+  .hero .eyebrow { color: var(--muted); font-size: 15px; margin-bottom: 6px; }
+  .hero h1 {
+    font-size: 40px; letter-spacing: 1px; text-transform: uppercase;
+    color: var(--accent);
+  }
+  .hero p { color: var(--muted); margin-top: 10px; max-width: 560px; line-height: 1.6; }
 
-/* cada aula e a prova são um card */
-.aula-secao{background:var(--surface);color:var(--text);max-width:980px;min-height:260px;scroll-margin-top:90px;padding:clamp(28px,5vw,56px);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);margin-bottom:24px}
-.aula-secao .trilha{font-size:.83rem;color:var(--purple);margin:0 0 10px;font-weight:750;letter-spacing:.02em}
-.aula-secao h1{font-size:clamp(1.8rem,3vw,2.45rem);letter-spacing:-.045em;margin:0 0 28px;line-height:1.2;color:var(--text)}
-.aula-secao > p:not(.trilha){font-size:1.02rem;line-height:1.8;color:var(--text-2)}
+  /* ===== Lista ===== */
+  .grid {
+    max-width: 1150px; margin: 0 auto; padding: 8px 32px 64px;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 22px;
+  }
+  .course {
+    background: var(--card); border: 1px solid var(--line); border-radius: 18px;
+    padding: 24px; display: flex; flex-direction: column; gap: 12px;
+    transition: transform .15s, border-color .15s, box-shadow .15s;
+  }
+  .course:hover {
+    transform: translateY(-4px); border-color: var(--accent);
+    box-shadow: 0 12px 30px rgba(0,0,0,.35);
+  }
+  .course .tag {
+    align-self: flex-start; font-size: 12px; font-weight: 700;
+    padding: 4px 10px; border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
+    color: var(--accent);
+  }
+  .course h3 { font-size: 20px; }
+  .course .desc { color: var(--muted); font-size: 14px; line-height: 1.55; flex: 1; }
+  .course .info { display: flex; gap: 14px; color: var(--muted); font-size: 13px; }
 
-/* conteúdo vindo do banco (markdown) */
-.corpo-aula h2,.corpo-aula h3{color:var(--text)}
-.corpo-aula h3{margin:30px 0 9px;font-size:1.2rem}
-.corpo-aula p,.corpo-aula li{font-size:1.02rem;line-height:1.8;max-width:75ch;color:var(--text-2)}
-.corpo-aula ul,.corpo-aula ol{padding-left:24px}
-.corpo-aula a{color:var(--link)}
-.corpo-aula code{background:var(--code-bg);color:var(--code-text);padding:3px 6px;border-radius:5px;font-size:.93em}
-.corpo-aula pre{background:var(--pre-bg);color:var(--pre-text);padding:20px 22px;border-radius:10px;overflow-x:auto;font-size:.93rem;line-height:1.65;border:1px solid var(--pre-border)}
-.corpo-aula pre code{background:none;color:inherit;padding:0}
+  .bar { height: 6px; background: var(--line); border-radius: 6px; overflow: hidden; }
+  .bar > div { height: 100%; background: var(--accent); border-radius: 6px; }
+  .pct { font-size: 12px; color: var(--muted); }
 
-/* prova */
-.cubos{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 22px}
-.cubo{display:inline-grid;place-items:center;min-width:46px;height:46px;padding:0 8px;border-radius:10px;border:1.5px dashed var(--border-2);color:var(--muted);font-weight:700;font-size:.95rem}
-.cubo.respondido{background:var(--purple);border:1.5px solid var(--purple);color:#fff}
-.quiz-q{margin:22px 0;padding:18px 20px;border:1px solid var(--border);border-radius:12px;background:var(--surface-2)}
-.quiz-q h3{margin:0 0 10px;font-size:1.05rem;color:var(--text)}
-.quiz-op{display:block;width:100%;text-align:left;margin:8px 0;padding:11px 14px;border:1px solid var(--border-2);border-radius:9px;background:var(--surface);font:inherit;font-size:.95rem;color:var(--text);cursor:pointer}
-.quiz-op:hover:not(:disabled){background:var(--hover);border-color:var(--purple)}
-.quiz-op:disabled{cursor:default;opacity:.65}
-.quiz-op.escolhida{opacity:1;border-color:var(--purple);background:var(--hover);font-weight:650}
-.placar{margin-top:22px;padding:18px 20px;border-radius:12px;background:var(--placar-bg);color:var(--placar-text)}
-.placar p{margin:0 0 12px;font-weight:700;font-size:1.02rem}
-.btn-refazer{background:var(--surface);color:var(--accent);border:1px solid var(--border-2);cursor:pointer;padding:10px 16px;border-radius:9px;font:inherit;font-size:.9rem;font-weight:700}
-.btn-refazer:hover{background:var(--hover)}
+  .cta {
+    margin-top: 4px; text-align: center; font-weight: 800; font-size: 14px;
+    padding: 12px; border-radius: 12px;
+    background: var(--accent); color: #130e22;
+  }
+  .cta:hover { filter: brightness(1.1); }
 
-@media(max-width:760px){
-  .layout{grid-template-columns:1fr}
-  .sidebar{position:relative;top:auto;height:auto;max-height:360px;border-right:0;border-bottom:1px solid var(--border);padding:16px 12px}
-  .conteudo{padding:22px 14px 50px}.conteudo:before{margin-bottom:13px}
-  .aula-secao{padding:25px 22px;min-height:0}.aula-secao h1{margin-bottom:20px}
-  .quiz-q{padding:16px}
-}
+  /* ===== Estados ===== */
+  .state { max-width: 1150px; margin: 0 auto; padding: 24px 32px; color: var(--muted); }
+  .state a { color: var(--accent); font-weight: 700; }
+
+  @media (max-width: 600px) {
+    .topbar, .hero, .grid, .state { padding-left: 18px; padding-right: 18px; }
+    .hero h1 { font-size: 30px; }
+  }
 </style>
 </head>
-
 <body>
 
-<header class="topbar">
-  <a class="brand" href="index.html">
-    <svg class="logo" viewBox="0 0 48 44" aria-hidden="true">
-      <rect x="2" y="2" width="44" height="30" rx="5" fill="#7a1fff" stroke="#b98aff" stroke-width="1.5"/>
-      <rect x="20" y="32" width="8" height="6" fill="#7a1fff"/>
-      <rect x="12" y="38" width="24" height="4" rx="2" fill="#7a1fff"/>
-      <g fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M19 10.5 12 17l7 6.5"/><path d="M26.5 9.5 21.5 24.5"/><path d="M29 10.5 36 17l-7 6.5"/>
-      </g>
-    </svg>
-    <span class="name">Dev <span>Cursos</span>+</span>
-  </a>
-  <a class="back" href="visualizarcurso.html">← Voltar ao curso</a>
-</header>
-
-<div class="layout">
-  <aside class="sidebar">
-    <h2 id="tituloCurso"></h2>
-    <div class="prog">
-      <div class="prog-barra"><div id="barraProg"></div></div>
-      <p id="textoProg"></p>
-      <button id="btnReiniciar" class="btn-reiniciar">Reiniciar progresso</button>
-    </div>
-    <nav id="menu"></nav>
-  </aside>
-
-  <main class="conteudo">
-    <div id="pagina"></div>
-  </main>
+<div class="topbar">
+  <a class="logo" href="index.html">Dev Cursos<span>+</span></a>
+  <a class="back" href="index.html">← Voltar ao início</a>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
-<script type="module" src="auth.js" defer></script>
-<script  type="module" src="cursos.js" defer></script>
-<script type="module" src="tema.js"></script>
+<section class="hero" id="hero" hidden>
+  <div class="eyebrow">cursos de</div>
+  <h1 id="titulo"></h1>
+  <p id="descricao"></p>
+</section>
 
+<div class="state" id="estado">Carregando cursos...</div>
+<div class="grid" id="lista"></div>
+
+<script>
+/* =====================================================================
+   CATEGORIAS — cores e textos de cada uma (a home usa as mesmas cores)
+   ===================================================================== */
+const CATEGORIAS = {
+  programacao: { nome: "Programação", cor: "#4ade80", texto: "Python, Java, Node.js, SQL e mais. Aprenda a lógica e as linguagens que movem o mercado." },
+  frontend:    { nome: "Front-end",   cor: "#a855f7", texto: "HTML, CSS, JavaScript, React e mais. Construa o que o usuário vê e usa." },
+  devops:      { nome: "DevOps",      cor: "#f87171", texto: "Git, GitHub, Linux, Cloud e mais. Entregue e mantenha seus projetos no ar." }
+};
+
+/* =====================================================================
+   DADOS DE EXEMPLO — no projeto real isso vem do back:
+   const cursos = await fetch(`/api/cursos?categoria=${categoria}`).then(r => r.json());
+   Formato esperado de cada curso:
+   { id, titulo, descricao, nivel, total_aulas, concluidas }
+   (concluidas = quantas lições o usuário já fez; 0 se não logado)
+   ===================================================================== */
+const DEMO_CURSOS = {
+  frontend: [
+    { id: 1, titulo: "HTML do zero",  descricao: "Descrição curta do curso. Troque pelo texto vindo do banco.", nivel: "Iniciante",     total_aulas: 20, concluidas: 8 },
+    { id: 2, titulo: "CSS",           descricao: "Descrição curta do curso. Troque pelo texto vindo do banco.", nivel: "Iniciante",     total_aulas: 24, concluidas: 0 },
+    { id: 3, titulo: "JavaScript",    descricao: "Descrição curta do curso. Troque pelo texto vindo do banco.", nivel: "Intermediário", total_aulas: 32, concluidas: 0 },
+    { id: 4, titulo: "React",         descricao: "Descrição curta do curso. Troque pelo texto vindo do banco.", nivel: "Intermediário", total_aulas: 28, concluidas: 0 }
+  ],
+  programacao: [
+    { id: 5, titulo: "Python",  descricao: "Descrição curta do curso. Troque pelo texto vindo do banco.", nivel: "Iniciante",     total_aulas: 30, concluidas: 0 },
+    { id: 6, titulo: "Java",    descricao: "Descrição curta do curso. Troque pelo texto vindo do banco.", nivel: "Intermediário", total_aulas: 36, concluidas: 0 },
+    { id: 7, titulo: "Node.js", descricao: "Descrição curta do curso. Troque pelo texto vindo do banco.", nivel: "Intermediário", total_aulas: 26, concluidas: 0 },
+    { id: 8, titulo: "SQL",     descricao: "Descrição curta do curso. Troque pelo texto vindo do banco.", nivel: "Iniciante",     total_aulas: 18, concluidas: 0 }
+  ],
+  devops: [
+    { id: 9,  titulo: "Git",    descricao: "Descrição curta do curso. Troque pelo texto vindo do banco.", nivel: "Iniciante",     total_aulas: 14, concluidas: 0 },
+    { id: 10, titulo: "GitHub", descricao: "Descrição curta do curso. Troque pelo texto vindo do banco.", nivel: "Iniciante",     total_aulas: 12, concluidas: 0 },
+    { id: 11, titulo: "Linux",  descricao: "Descrição curta do curso. Troque pelo texto vindo do banco.", nivel: "Intermediário", total_aulas: 22, concluidas: 0 },
+    { id: 12, titulo: "Cloud",  descricao: "Descrição curta do curso. Troque pelo texto vindo do banco.", nivel: "Avançado",      total_aulas: 20, concluidas: 0 }
+  ]
+};
+
+/* Hoje devolve os dados de exemplo. Quando o back estiver pronto, troque o
+   corpo desta função pelo fetch real (e mantenha o resto da página igual). */
+async function buscarCursos(categoria) {
+  return DEMO_CURSOS[categoria] || [];
+}
+
+/* ===================== Montagem da página ===================== */
+const $ = (id) => document.getElementById(id);
+
+function el(tag, classe, texto) {
+  const e = document.createElement(tag);
+  if (classe) e.className = classe;
+  if (texto !== undefined) e.textContent = texto;   // textContent: seguro contra HTML vindo do banco
+  return e;
+}
+
+function criarCard(c) {
+  const card = el("article", "course");
+  const pct = c.total_aulas ? Math.round((c.concluidas / c.total_aulas) * 100) : 0;
+  const comecou = c.concluidas > 0;
+
+  card.append(el("span", "tag", c.nivel));
+  card.append(el("h3", "", c.titulo));
+  card.append(el("p", "desc", c.descricao));
+
+  const info = el("div", "info");
+  info.append(el("span", "", `${c.total_aulas} aulas`));
+  card.append(info);
+
+  if (comecou) {
+    const bar = el("div", "bar");
+    const fill = el("div");
+    fill.style.width = pct + "%";
+    bar.append(fill);
+    card.append(bar, el("div", "pct", `${pct}% concluído`));
+  }
+
+  const cta = el("a", "cta", comecou ? "Continuar →" : "Começar →");
+  cta.href = `curso.html?id=${encodeURIComponent(c.id)}`;   // página do curso (próxima tela)
+  card.append(cta);
+  return card;
+}
+
+async function iniciar() {
+  const categoria = new URLSearchParams(location.search).get("categoria");
+  const info = CATEGORIAS[categoria];
+
+  if (!info) {
+    $("estado").innerHTML = 'Categoria não encontrada. <a href="index.html">Voltar ao início</a>';
+    return;
+  }
+
+  // Cor, título e texto mudam conforme a categoria
+  document.documentElement.style.setProperty("--accent", info.cor);
+  document.title = `Dev Cursos+ | ${info.nome}`;
+  $("titulo").textContent = info.nome;
+  $("descricao").textContent = info.texto;
+  $("hero").hidden = false;
+
+  try {
+    const cursos = await buscarCursos(categoria);
+    if (!cursos.length) { $("estado").textContent = "Ainda não há cursos nesta categoria."; return; }
+    $("estado").remove();
+    cursos.forEach(c => $("lista").append(criarCard(c)));
+  } catch (e) {
+    $("estado").textContent = "Não foi possível carregar os cursos. Tente novamente.";
+  }
+}
+
+iniciar();
+</script>
 </body>
 </html>
