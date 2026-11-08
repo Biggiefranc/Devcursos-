@@ -5,6 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DevCursos+ | Entrar</title>
     <link rel="stylesheet" href="auth.css">
+    <style>
+        /* Estilos rápidos para o botão do Google se adaptar ao padrão do seu projeto */
+        .btn-google-auth {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            background-color: #ffffff;
+            color: #1e1e2f;
+            border: 1px solid #e1e1e6;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .btn-google-auth:hover {
+            background-color: #f7f7fa;
+        }
+        .btn-google-auth:active {
+            transform: scale(0.98);
+        }
+        .btn-google-auth img {
+            width: 20px;
+            height: 20px;
+        }
+    </style>
 </head>
 
 <body data-page="login">
@@ -50,9 +80,16 @@
                             Reenviar e-mail de confirmação
                         </button>
 
+                        <!-- Botão de Login Padrão -->
                         <button type="submit" class="btn-primary" id="loginBtn">
                             <span class="rotulo">Entrar</span>
                             <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+                        </button>
+
+                        <!-- O BOTÃO DO GOOGLE ENTROU AQUI (Dentro do form, embaixo do Entrar) -->
+                        <button type="button" id="btn-google" class="btn-google-auth">
+                           <img src="https://www.vectorlogo.zone/logos/google/google-icon.svg" alt="Google logo">
+                            Entrar com o Google
                         </button>
 
                     </form>
@@ -157,11 +194,7 @@
 
 </main>
 
-<script type="module" src="login.js"></script>
-<!-- Botão do Google (coloque onde preferir no layout) -->
-<button type="button" id="btn-google">Entrar com o Google</button>
-
-<!-- Certifique-se de que a tag do seu script está com type="module" -->
+<!-- Apenas uma tag script correta no final do body -->
 <script type="module" src="./login.js"></script>
 
 </body>
