@@ -23,7 +23,7 @@
    URL aceita: menudashbord.html?busca=react  e  ?categoria=devops
    ===================================================================== */
 
-const API_URL = 'http://localhost:3000';
+const API_URL = 'http://localhost:3001';
 const USAR_EXEMPLO = true; // true = mostra dados de mentira só pra visualizar o layout
 
 const CATEGORIAS = { programacao: 'Programação', frontend: 'Front-end', devops: 'DevOps' };
