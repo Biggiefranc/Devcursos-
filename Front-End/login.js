@@ -1,11 +1,6 @@
-import {
-    signInWithEmailAndPassword,
-    sendEmailVerification,
-    sendPasswordResetEmail,
-    signOut
-} from "firebase/auth";
+import { signInWithPopup, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, signOut } from "firebase/auth";
 
-import { auth } from "./firebase/firebase-config";
+import { auth, googleProvider } from "./firebase/firebase-config";
 import { configurarPersistencia, sincronizarPerfil } from "./services/api";
 
 const loginForm = document.getElementById("loginForm");
@@ -133,3 +128,21 @@ recForm.addEventListener("submit", async (event) => {
         );
     }
 });
+
+// Nova função para o Google
+async function autenticarComGoogle() {
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    const user = result.user;
+    
+    console.log("Logado com o Google:", user);
+    window.location.href = "index.html"; // Altere para a sua página principal pós-login
+    
+  } catch (error) {
+    console.error("Erro no login com Google:", error.message);
+    alert("Erro ao entrar com o Google: " + error.message);
+  }
+}
+
+// Vincula ao botão do HTML
+document.getElementById("btn-google").addEventListener("click", autenticarComGoogle);
