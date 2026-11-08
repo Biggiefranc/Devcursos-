@@ -1,31 +1,61 @@
+
 <!doctype html>
 <html lang="pt-BR">
 
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <title>DevCursos+ | Aprenda tecnologia na prática</title>
+
   <meta name="description" content="Cursos de programação, front-end e DevOps para quem quer entrar ou crescer na área de tecnologia.">
 
-
+  <!-- Define o tema antes de carregar o CSS -->
   <script>
-    try { document.documentElement.dataset.tema = localStorage.getItem('devcursos-tema') || 'sistema'; } catch (e) {}
+    try {
+      document.documentElement.dataset.tema =
+        localStorage.getItem('devcursos-tema') || 'escuro';
+    } catch (e) {
+      document.documentElement.dataset.tema = 'escuro';
+    }
   </script>
+
+  <!-- Estilos -->
   <link rel="stylesheet" href="tema.css">
   <link rel="stylesheet" href="inicio.css">
 </head>
 
 <body>
+
   <section class="hero">
     <div class="wrap">
+
       <header class="nav">
-        <a class="brand" href="index.html" aria-label="DevCursos+ - página inicial">Dev<span>Cursos</span>+</a>
+
+        <a class="brand" href="index.html" aria-label="DevCursos+ - página inicial">
+          Dev<span>Cursos</span>+
+        </a>
 
         <form class="search" role="search" id="searchForm">
-          <input id="q" type="search" placeholder="O que você quer aprender?" aria-label="Pesquisar cursos">
+          <input
+            id="q"
+            type="search"
+            placeholder="O que você quer aprender?"
+            aria-label="Pesquisar cursos"
+          >
+
           <button type="submit" aria-label="Buscar">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
               <circle cx="11" cy="11" r="7"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
@@ -33,21 +63,41 @@
         </form>
 
         <nav class="nav-links" aria-label="Menu principal">
-          <span class="soon" aria-disabled="true" title="Futuramente">Teste 1<small>Futuramente</small></span>
-          <span class="soon" aria-disabled="true" title="Futuramente">Teste 2<small>Futuramente</small></span>
-          <span class="soon" aria-disabled="true" title="Futuramente">Teste 3<small>Futuramente</small></span>
+          <span class="soon" aria-disabled="true" title="Futuramente">
+            Teste 1
+            <small>Futuramente</small>
+          </span>
+
+          <span class="soon" aria-disabled="true" title="Futuramente">
+            Teste 2
+            <small>Futuramente</small>
+          </span>
+
+          <span class="soon" aria-disabled="true" title="Futuramente">
+            Teste 3
+            <small>Futuramente</small>
+          </span>
         </nav>
 
         <div class="nav-actions">
           <a class="btn-login" href="login.html">Entrar</a>
           <a class="btn-signup" href="cadastro.html">Matricule-se</a>
         </div>
+
       </header>
 
       <div class="hero-grid">
+
         <div>
-          <h1>Aprenda tecnologia <em>fazendo</em>, não só assistindo.</h1>
-          <p class="lead">Estude, pratique e evolua em uma plataforma pensada para quem quer entrar, ou crescer, na área de programação.</p>
+          <h1>
+            Aprenda tecnologia <em>fazendo</em>, não só assistindo.
+          </h1>
+
+          <p class="lead">
+            Estude, pratique e evolua em uma plataforma pensada para quem
+            quer entrar, ou crescer, na área de programação.
+          </p>
+
           <div class="hero-cta">
             <a class="btn-signup" href="cadastro.html">Começar agora</a>
             <a class="btn-ghost" href="#areas">Ver todos os cursos</a>
@@ -55,77 +105,133 @@
         </div>
 
         <div class="art">
-          <img src="hero-codigo.svg" alt="" width="480" height="360">
+          <img
+            src="hero-codigo.svg"
+            alt=""
+            width="480"
+            height="360"
+          >
         </div>
+
       </div>
     </div>
   </section>
 
   <main class="wrap">
+
     <section class="cats" id="areas" aria-label="Áreas de estudo">
+
       <a class="cat prog" href="cursos.html?categoria=programacao">
+
         <span class="icon" aria-hidden="true">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            width="26"
+            height="26"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <polyline points="4 17 10 11 4 5"></polyline>
             <line x1="12" y1="19" x2="20" y2="19"></line>
           </svg>
         </span>
+
         <small>cursos de</small>
         <h2>Programação</h2>
-        <p> Python, Java, Node.js, SQL e mais...</p>
+        <p>Python, Java, Node.js, SQL e mais...</p>
         <span class="go">Ver cursos →</span>
+
       </a>
 
       <a class="cat front" href="cursos.html?categoria=frontend">
+
         <span class="icon" aria-hidden="true">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            width="26"
+            height="26"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <rect x="3" y="3" width="18" height="18" rx="2"></rect>
             <line x1="3" y1="9" x2="21" y2="9"></line>
             <line x1="9" y1="21" x2="9" y2="9"></line>
           </svg>
         </span>
+
         <small>cursos de</small>
         <h2>Front-end</h2>
         <p>HTML, CSS, JavaScript, React e mais...</p>
         <span class="go">Ver cursos →</span>
+
       </a>
 
       <a class="cat devops" href="cursos.html?categoria=devops">
+
         <span class="icon" aria-hidden="true">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            width="26"
+            height="26"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <line x1="6" y1="3" x2="6" y2="15"></line>
             <circle cx="18" cy="6" r="3"></circle>
             <circle cx="6" cy="18" r="3"></circle>
             <path d="M18 9a9 9 0 0 1-9 9"></path>
           </svg>
         </span>
+
         <small>cursos de</small>
         <h2>DevOps</h2>
         <p>Git, GitHub, Linux, Cloud e mais...</p>
         <span class="go">Ver cursos →</span>
+
       </a>
+
     </section>
 
     <section class="features" aria-label="Diferenciais">
+
       <div class="feature">
         <div class="num">1</div>
         <h3>Exercícios em cada aula</h3>
-        <p>Você aprende o conceito e já coloca em prática na sequência, sem ficar só assistindo vídeo.</p>
+        <p>
+          Você aprende o conceito e já coloca em prática na sequência,
+          sem ficar só assistindo vídeo.
+        </p>
       </div>
+
       <div class="feature">
         <div class="num">2</div>
         <h3>Projetos para o portfólio</h3>
-        <p>Cada trilha termina com um projeto real que você pode mostrar no GitHub e em entrevistas.</p>
+        <p>
+          Cada trilha termina com um projeto real que você pode mostrar
+          no GitHub e em entrevistas.
+        </p>
       </div>
+
       <div class="feature">
         <div class="num">3</div>
         <h3>Acompanhe seu progresso</h3>
-        <p>Veja o que já concluiu, retome de onde parou e favorite os cursos que quer fazer depois.</p>
+        <p>
+          Veja o que já concluiu, retome de onde parou e favorite
+          os cursos que quer fazer depois.
+        </p>
       </div>
+
     </section>
+
   </main>
 
   <footer>
@@ -135,8 +241,9 @@
     </div>
   </footer>
 
+  <!-- Scripts -->
   <script src="inicio.js"></script>
   <script src="tema.js"></script>
-</body>
 
+</body>
 </html>

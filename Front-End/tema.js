@@ -1,106 +1,155 @@
+
 /* =====================================================
    Dev Cursos+ — tema compartilhado (menu + persistência)
-   Uso em qualquer tela:
-     1) no <head>, antes do CSS, pra não piscar a cor errada:
-        <script>try{document.documentElement.dataset.tema=localStorage.getItem('devcursos-tema')||'sistema'}catch(e){}</script>
-     2) no <head>:  <link rel="stylesheet" href="tema.css">
-     3) no fim do <body>: <script src="tema.js"></script>
-   Se a página tiver <header class="topbar">, o menu de tema é
-   inserido sozinho dentro dele.
+   Tema padrão: ESCURO
    ===================================================== */
+
 (function () {
-  const CHAVE = 'devcursos-tema';
-  const OPCOES = [
-    { valor: 'sistema', rotulo: 'Padrão do sistema' },
-    { valor: 'claro',   rotulo: 'Claro' },
-    { valor: 'escuro',  rotulo: 'Escuro' }
-  ];
+    'use strict';
 
-  function lerTema() {
-    try { return localStorage.getItem(CHAVE) || 'sistema'; } catch (e) { return 'sistema'; }
-  }
+    const CHAVE = 'devcursos-tema';
 
-  function aplicar(tema) {
-    document.documentElement.dataset.tema = tema;
-    document.querySelectorAll('.tema-lista button').forEach(b => {
-      b.setAttribute('aria-checked', String(b.dataset.t === tema));
-    });
-  }
+    const OPCOES = [
+        { valor: 'sistema', rotulo: 'Padrão do sistema' },
+        { valor: 'claro', rotulo: 'Claro' },
+        { valor: 'escuro', rotulo: 'Escuro' }
+    ];
 
-  function salvar(tema) {
-    try { localStorage.setItem(CHAVE, tema); } catch (e) {}
-    aplicar(tema);
-  }
-
-  function montarMenu() {
-    const topo = document.querySelector('.topbar');
-    if (!topo || topo.querySelector('.tema-menu')) return;
-
-    const wrap = document.createElement('div');
-    wrap.className = 'tema-menu';
-
-    const gatilho = document.createElement('button');
-    gatilho.className = 'tema-trigger';
-    gatilho.setAttribute('aria-haspopup', 'true');
-    gatilho.setAttribute('aria-expanded', 'false');
-    gatilho.innerHTML = '<span class="icone" aria-hidden="true">◐</span><span class="texto">Tema</span>';
-
-    const lista = document.createElement('div');
-    lista.className = 'tema-lista';
-    lista.setAttribute('role', 'menu');
-    lista.hidden = true;
-
-    OPCOES.forEach(o => {
-      const b = document.createElement('button');
-      b.dataset.t = o.valor;
-      b.setAttribute('role', 'menuitemradio');
-      b.setAttribute('aria-checked', 'false');
-      b.innerHTML = `<span>${o.rotulo}</span><span class="marca" aria-hidden="true">✓</span>`;
-      b.onclick = () => {
-        salvar(o.valor);
-        fechar();
-        gatilho.focus();
-      };
-      lista.appendChild(b);
-    });
-
-    function abrir() {
-      lista.hidden = false;
-      gatilho.setAttribute('aria-expanded', 'true');
-    }
-    function fechar() {
-      lista.hidden = true;
-      gatilho.setAttribute('aria-expanded', 'false');
+    // Recupera o tema salvo. Se não existir, usa escuro.
+    function lerTema() {
+        try {
+            return localStorage.getItem(CHAVE) || 'escuro';
+        } catch (e) {
+            return 'escuro';
+        }
     }
 
-    gatilho.onclick = e => {
-      e.stopPropagation();
-      lista.hidden ? abrir() : fechar();
+    // Aplica o tema na página.
+    function aplicar(tema) {
+        document.documentElement.dataset.tema = tema;
+
+        document.querySelectorAll('.tema-lista button').forEach(function (botao) {
+            botao.setAttribute(
+                'aria-checked',
+                String(botao.dataset.t === tema)
+            );
+        });
+    }
+
+    // Salva a preferência do usuário.
+    function salvar(tema) {
+        try {
+            localStorage.setItem(CHAVE, tema);
+        } catch (e) {}
+
+        aplicar(tema);
+    }
+
+    // Cria o menu de seleção de tema.
+    function montarMenu() {
+        const topo = document.querySelector('.topbar');
+
+        if (!topo || topo.querySelector('.tema-menu')) return;
+
+        const wrap = document.createElement('div');
+        wrap.className = 'tema-menu';
+
+        const gatilho = document.createElement('button');
+        gatilho.className = 'tema-trigger';
+        gatilho.setAttribute('aria-haspopup', 'true');
+        gatilho.setAttribute('aria-expanded', 'false');
+
+        gatilho.innerHTML = `
+            <span class="icone" aria-hidden="true">◐</span>
+            <span class="texto">Tema</span>
+        `;
+
+        const lista = document.createElement('div');
+        lista.className = 'tema-lista';
+        lista.setAttribute('role', 'menu');
+        lista.hidden = true;
+
+        OPCOES.forEach(function (opcao) {
+            const botao = document.createElement('button');
+
+            botao.dataset.t = opcao.valor;
+            botao.setAttribute('role', 'menuitemradio');
+            botao.setAttribute('aria-checked', 'false');
+
+            botao.innerHTML = `
+                <span>${opcao.rotulo}</span>
+                <span class="marca" aria-hidden="true">✓</span>
+            `;
+
+            botao.onclick = function () {
+                salvar(opcao.valor);
+                fechar();
+                gatilho.focus();
+            };
+
+            lista.appendChild(botao);
+        });
+
+        function abrir() {
+            lista.hidden = false;
+            gatilho.setAttribute('aria-expanded', 'true');
+        }
+
+        function fechar() {
+            lista.hidden = true;
+            gatilho.setAttribute('aria-expanded', 'false');
+        }
+
+        gatilho.onclick = function (e) {
+            e.stopPropagation();
+
+            if (lista.hidden) {
+                abrir();
+            } else {
+                fechar();
+            }
+        };
+
+        document.addEventListener('click', function (e) {
+            if (!wrap.contains(e.target)) {
+                fechar();
+            }
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                fechar();
+            }
+        });
+
+        wrap.append(gatilho, lista);
+
+        // Insere o menu antes do botão voltar, se existir.
+        const voltar = topo.querySelector('.back');
+
+        if (voltar) {
+            topo.insertBefore(wrap, voltar);
+        } else {
+            topo.appendChild(wrap);
+        }
+
+        aplicar(lerTema());
+    }
+
+    // Permite trocar o tema através de outros arquivos JavaScript.
+    window.DevTema = {
+        aplicar: salvar,
+        atual: lerTema
     };
-    document.addEventListener('click', e => {
-      if (!wrap.contains(e.target)) fechar();
-    });
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') fechar();
-    });
 
-    wrap.append(gatilho, lista);
-
-    // Coloca o menu antes do botão "voltar", se existir; senão, no fim do topo
-    const voltar = topo.querySelector('.back');
-    if (voltar) topo.insertBefore(wrap, voltar);
-    else topo.appendChild(wrap);
-
+    // Aplica o tema imediatamente.
     aplicar(lerTema());
-  }
 
-  // Expõe pra telas que quiserem trocar o tema por código
-  window.DevTema = { aplicar: salvar, atual: lerTema };
+    // Monta o menu quando o HTML estiver pronto.
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', montarMenu);
+    } else {
+        montarMenu();
+    }
 
-  aplicar(lerTema());
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', montarMenu);
-  } else {
-    montarMenu();
-  }
 })();
