@@ -10,22 +10,46 @@ const tratarErros = require("./shared/middlewares/tratarErros");
 
 const app = express();
 
-// Middlewares globais.
+//
+
 const origensPermitidas = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    process.env.FRONTEND_URL
+  'http://localhost:3001',
+  'http://localhost:5173',
+  'http://127.0.0.1:3001',
+  'http://127.0.0.1:5173',
+  process.env.FRONTEND_URL
 ].filter(Boolean);
+
+// Middlewares globais.
+
 
 app.use(cors({
     origin(origem, callback) {
         // Permite ferramentas locais sem Origin (curl/Postman).
         if (!origem || origensPermitidas.includes(origem)) {
-            return callback(null, true);
+            //return callback(null, true);
+            callback(null, true);
+            return;
         }
-        return callback(new Error("Origem não autorizada pelo CORS."));
-    }
+        console.log('Tentativa de acesso de origem não autorizada:', origem);
+        callback(new Error("Origem não autorizada pelo CORS."));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+app.options('*', cors({
+  origin: (origem, callback) => {
+    if (!origem || origensPermitidas.includes(origem)) {
+      callback(null, true);
+      return;
+    }
+    callback(new Error('Origem não autorizada pelo CORS'));
+  },
+  credentials: true
+}));
+
 app.use(express.json({ limit: "1mb" }));
 
 // Rota principal.
