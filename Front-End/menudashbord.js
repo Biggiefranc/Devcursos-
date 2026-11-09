@@ -172,8 +172,8 @@ function renderAprender() {
     const tipo = m.tipo === 'pratica' ? 'pratica' : 'aprender';
     const classe = status === 'atual' ? 'current' : status === 'concluido' ? 'done' : 'locked';
     const icone = status === 'concluido' ? `<span class="st done">${svg('check', 16)}</span>`
-                : status === 'bloqueado' ? `<span class="st lock">${svg('lock', 18)}</span>`
-                : `<span class="st chev">${svg('chev', 20)}</span>`;
+      : status === 'bloqueado' ? `<span class="st lock">${svg('lock', 18)}</span>`
+        : `<span class="st chev">${svg('chev', 20)}</span>`;
     return `
       <article class="module ${classe} ${aberto ? 'open' : ''}" data-i="${i}">
         <button class="module-head" type="button" ${status === 'bloqueado' ? 'disabled' : ''}>
