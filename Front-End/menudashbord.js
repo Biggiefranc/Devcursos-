@@ -142,8 +142,6 @@ function renderSidebar() {
   $('sidebarBar').style.width = (atual ? pct(atual) : 0) + '%';
 
   const u = estado.usuario;
-  $('coins').textContent = u.moedas || 0;
-  $('streak').textContent = `${u.sequencia || 0} ${u.sequencia === 1 ? 'dia' : 'dias'}`;
   $('userName').textContent = u.nome || 'Aluno';
   $('userAvatar').textContent = (u.nome || 'U').charAt(0).toUpperCase();
 }

@@ -316,9 +316,8 @@ a {
 
 .cat h2 {
   font-size: 1.25rem;
-  letter-spacing: .01em;
-  text-transform: uppercase;
-  font-weight: 800;
+  letter-spacing: -.02em;
+  font-weight: 700;
 }
 
 .cat p {
