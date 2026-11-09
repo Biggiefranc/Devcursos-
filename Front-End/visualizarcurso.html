@@ -1,27 +1,33 @@
 <!doctype html>
 <html lang="pt-BR">
+
 <head>
-  <script>try{document.documentElement.dataset.tema=localStorage.getItem('devcursos-tema')||'sistema'}catch(e){}</script>
-<link rel="stylesheet" href="tema.css">
+  <script>try { document.documentElement.dataset.tema = localStorage.getItem('devcursos-tema') || 'sistema' } catch (e) { }</script>
+  <link rel="stylesheet" href="tema.css">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>DevCursos+ | Visualizar curso</title>
   <link rel="stylesheet" href="componentes-ux.css">
 </head>
+
 <body>
   <header class="topbar">
     <a class="brand" href="menudashbord.html">Dev<span>Cursos</span>+</a>
     <a class="top-link" href="menudashbord.html">Catálogo</a>
-    <div class="account"><a href="login.html" id="accountLink">Entrar</a><span class="avatar" aria-hidden="true">♙</span></div>
+    <div class="account"><a href="login.html" id="accountLink">Entrar</a><span class="avatar"
+        aria-hidden="true">♙</span></div>
   </header>
   <main>
-    <div class="detail-layout" id="courseDetail"><p class="notice">Carregando curso...</p></div>
+    <div class="detail-layout" id="courseDetail">
+      <p class="notice">Carregando curso...</p>
+    </div>
   </main>
   <script type="module" src="visualizarcurso.js"></script>
-  <script src="menudashbord.js"></script>
+  <script type="module" src="menudashbord.js"></script>
   <link rel="stylesheet" href="tema.css">
-<link rel="stylesheet" href="componentes-ux.css">
-<script src="tema.js"></script>
+  <link rel="stylesheet" href="componentes-ux.css">
+  <script type="module" src="tema.js"></script>
 
 </body>
+
 </html>

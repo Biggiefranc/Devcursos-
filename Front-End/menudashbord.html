@@ -35,7 +35,9 @@
       <div class="current">
         <label for="courseSelect">Curso atual</label>
         <select id="courseSelect"></select>
-        <div class="bar"><div class="bar-fill" id="sidebarBar"></div></div>
+        <div class="bar">
+          <div class="bar-fill" id="sidebarBar"></div>
+        </div>
       </div>
 
       <nav class="menu" id="menu" aria-label="Menu do aluno">
@@ -63,7 +65,8 @@
       <div class="side-bottom">
         <div class="stats">
           <div class="stat" title="Moedas"><span data-icon="coin" data-size="18"></span><b id="coins">0</b></div>
-          <div class="stat" title="Sequência de dias"><span data-icon="flame" data-size="18"></span><b id="streak">0 dias</b></div>
+          <div class="stat" title="Sequência de dias"><span data-icon="flame" data-size="18"></span><b id="streak">0
+              dias</b></div>
         </div>
 
         <div class="user">
@@ -83,8 +86,8 @@
         <form class="search" role="search" id="searchForm">
           <input id="q" type="search" placeholder="O que você quer aprender?" aria-label="Pesquisar cursos">
           <button type="submit" aria-label="Buscar">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <circle cx="11" cy="11" r="7"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
@@ -153,7 +156,8 @@
   </div>
 
   <!-- Scripts -->
-  <script src="menudashbord.js"></script>
-  <script src="tema.js"></script>
+  <script type="module" src="menudashbord.js"></script>
+  <script type="module" src="tema.js"></script>
 </body>
+
 </html>

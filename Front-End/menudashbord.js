@@ -23,6 +23,28 @@
    URL aceita: menudashbord.html?busca=react  e  ?categoria=devops
    ===================================================================== */
 
+// ...existing code...
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { auth } from "./firebase/firebase-config";
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    localStorage.removeItem("devcursos_token");
+    localStorage.removeItem("devcursos_user");
+    window.location.href = "login.html";
+    return;
+  }
+
+  const token = await user.getIdToken();
+  localStorage.setItem("devcursos_token", token);
+
+  const userData = JSON.parse(localStorage.getItem("devcursos_user") || "{}");
+  estado.usuario.nome = user.displayName || userData.nome || user.email?.split("@")[0] || "Aluno";
+  renderSidebar();
+});
+
+// ...existing code...
+
 const API_URL = 'http://localhost:3001';
 const USAR_EXEMPLO = true; // true = mostra dados de mentira só pra visualizar o layout
 
@@ -399,8 +421,12 @@ $('menu').addEventListener('click', (e) => {
 });
 $('menuToggle').addEventListener('click', () => $('sidebar').classList.toggle('open'));
 $('courseSelect').addEventListener('change', (e) => trocarCurso(e.target.value));
-$('logoutBtn').addEventListener('click', () => {
+$('logoutBtn').addEventListener('click', async () => {
   localStorage.removeItem('devcursos_token');
+  localStorage.removeItem('devcursos_user');
+  if (auth) {
+    await signOut(auth);
+  }
   window.location.href = 'login.html';
 });
 

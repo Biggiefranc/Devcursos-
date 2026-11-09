@@ -130,14 +130,23 @@ recForm.addEventListener("submit", async (event) => {
 });
 
 // Nova função para o Google
+// ...existing code...
 async function autenticarComGoogle() {
   try {
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
-    
-    console.log("Logado com o Google:", user);
-    window.location.href = "index.html"; // Altere para a sua página principal pós-login
-    
+
+    const idToken = await user.getIdToken();
+
+    localStorage.setItem("devcursos_token", idToken);
+    localStorage.setItem("devcursos_user", JSON.stringify({
+      uid: user.uid,
+      nome: user.displayName,
+      email: user.email,
+      foto: user.photoURL
+    }));
+
+    window.location.href = "menudashbord.html";
   } catch (error) {
     console.error("Erro no login com Google:", error.message);
     alert("Erro ao entrar com o Google: " + error.message);
@@ -145,4 +154,4 @@ async function autenticarComGoogle() {
 }
 
 // Vincula ao botão do HTML
-document.getElementById("btn-google").addEventListener("click", autenticarComGoogle);
+document.getElementById("btn-google")?.addEventListener("click", autenticarComGoogle);
