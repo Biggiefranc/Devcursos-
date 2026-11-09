@@ -1,17 +1,13 @@
 node_modules/
 
 .env
+.env.local.backup
 .env.*
 !.env.example
 
 *.log
 npm-debug.log*
 
-backup*.sql
-*_backup.sql
-*.dump
-
 .DS_Store
 
-schema.sql
 
