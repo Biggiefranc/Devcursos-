@@ -156,25 +156,25 @@ recForm.addEventListener("submit", async (event) => {
 // Nova função para o Google
 // ...existing code...
 async function autenticarComGoogle() {
-  try {
-    const result = await signInWithPopup(auth, googleProvider);
-    const user = result.user;
+    try {
+        const result = await signInWithPopup(auth, googleProvider);
+        const user = result.user;
 
-    const idToken = await user.getIdToken();
+        const idToken = await user.getIdToken();
 
-    localStorage.setItem("devcursos_token", idToken);
-    localStorage.setItem("devcursos_user", JSON.stringify({
-      uid: user.uid,
-      nome: user.displayName,
-      email: user.email,
-      foto: user.photoURL
-    }));
+        localStorage.setItem("devcursos_token", idToken);
+        localStorage.setItem("devcursos_user", JSON.stringify({
+            uid: user.uid,
+            nome: user.displayName,
+            email: user.email,
+            foto: user.photoURL
+        }));
 
-    window.location.href = destinoDepoisDoLogin();
-  } catch (error) {
-    console.error("Erro no login com Google:", error.message);
-    alert("Erro ao entrar com o Google: " + error.message);
-  }
+        window.location.href = destinoDepoisDoLogin();
+    } catch (error) {
+        console.error("Erro no login com Google:", error.message);
+        alert("Erro ao entrar com o Google: " + error.message);
+    }
 }
 
 // Vincula ao botão do HTML

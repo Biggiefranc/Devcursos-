@@ -471,8 +471,8 @@ async function iniciarCurso() {
         montarMenu();
         renderTudo();
 
-    const primeiroModulo = document.querySelector(".modulo");
-    if (primeiroModulo) primeiroModulo.classList.add("aberto");
+        const primeiroModulo = document.querySelector(".modulo");
+        if (primeiroModulo) primeiroModulo.classList.add("aberto");
 
         verificarFimDaPagina();
 
