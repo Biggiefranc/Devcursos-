@@ -117,10 +117,10 @@ import { requisicaoAPI, encerrarSessao } from "./services/api";
         <div id="modules">${modules.length ? modules.map((m, i) => `<section class="module ${i === 0 ? "open" : ""}">
           <button class="module-toggle" type="button" aria-expanded="${i === 0}"><span>${i + 1}. ${esc(m.titulo || "Introdução")}</span><span aria-hidden="true">🔽</span></button>
           <div class="lesson-list">${(m.aulas || []).length ? m.aulas.map((a, j) => {
-            const isDone = completed.has(String(a.id));
-            const href = isLogged() ? `visualizarcurso.html?curso=${encodeURIComponent(course.id)}` : "login.html";
-            return `<a class="lesson ${isDone ? "completed" : ""}" href="${href}"><span>${i + 1}.${j + 1} &nbsp; ${esc(a.titulo || `Aula ${j + 1}`)}</span><span aria-label="${isDone ? "Concluída" : "Pendente"}">${isDone ? "✓" : ""}</span></a>`;
-          }).join("") : `<p class="small-note">As aulas deste módulo ainda não foram cadastradas.</p>`}</div>
+      const isDone = completed.has(String(a.id));
+      const href = isLogged() ? `visualizarcurso.html?curso=${encodeURIComponent(course.id)}` : "login.html";
+      return `<a class="lesson ${isDone ? "completed" : ""}" href="${href}"><span>${i + 1}.${j + 1} &nbsp; ${esc(a.titulo || `Aula ${j + 1}`)}</span><span aria-label="${isDone ? "Concluída" : "Pendente"}">${isDone ? "✓" : ""}</span></a>`;
+    }).join("") : `<p class="small-note">As aulas deste módulo ainda não foram cadastradas.</p>`}</div>
         </section>`).join("") : `<p class="notice">Este curso ainda não possui módulos cadastrados.</p>`}</div>
         <div class="enroll-row"><p class="small-note">${isLogged() ? `${done} de ${total} aulas concluídas.` : "Seu progresso aparecerá aqui quando você entrar na sua conta."}</p>${start}</div>
       </section>

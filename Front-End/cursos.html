@@ -1,222 +1,340 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dev Cursos+ | Cursos</title>
-<style>
-  :root {
-    --bg: #130e22;
-    --card: #1d1633;
-    --line: #2d2447;
-    --text: #f4f1ff;
-    --muted: #a99fc9;
-    --accent: #a855f7; /* muda conforme a categoria */
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: "Segoe UI", system-ui, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-  }
-  a { color: inherit; text-decoration: none; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dev Cursos+ | Cursos</title>
+  <style>
+    :root {
+      --bg: #130e22;
+      --card: #1d1633;
+      --line: #2d2447;
+      --text: #f4f1ff;
+      --muted: #a99fc9;
+      --accent: #a855f7;
+      /* muda conforme a categoria */
+    }
 
-  /* ===== Topo ===== */
-  .topbar {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 16px 32px; border-bottom: 1px solid var(--line);
-  }
-  .logo { font-weight: 800; font-size: 20px; }
-  .logo span { color: var(--accent); }
-  .back { color: var(--muted); font-size: 14px; }
-  .back:hover { color: var(--text); }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-  /* ===== Cabeçalho da categoria ===== */
-  .hero {
-    padding: 48px 32px 32px;
-    max-width: 1150px; margin: 0 auto;
-  }
-  .hero .eyebrow { color: var(--muted); font-size: 15px; margin-bottom: 6px; }
-  .hero h1 {
-    font-size: 40px; letter-spacing: 1px; text-transform: uppercase;
-    color: var(--accent);
-  }
-  .hero p { color: var(--muted); margin-top: 10px; max-width: 560px; line-height: 1.6; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
 
-  /* ===== Lista ===== */
-  .grid {
-    max-width: 1150px; margin: 0 auto; padding: 8px 32px 64px;
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 22px;
-  }
-  .course {
-    background: var(--card); border: 1px solid var(--line); border-radius: 18px;
-    padding: 24px; display: flex; flex-direction: column; gap: 12px;
-    transition: transform .15s, border-color .15s, box-shadow .15s;
-  }
-  .course:hover {
-    transform: translateY(-4px); border-color: var(--accent);
-    box-shadow: 0 12px 30px rgba(0,0,0,.35);
-  }
-  .course .tag {
-    align-self: flex-start; font-size: 12px; font-weight: 700;
-    padding: 4px 10px; border-radius: 999px;
-    background: color-mix(in srgb, var(--accent) 18%, transparent);
-    color: var(--accent);
-  }
-  .course h3 { font-size: 20px; }
-  .course .desc { color: var(--muted); font-size: 14px; line-height: 1.55; flex: 1; }
-  .course .info { display: flex; gap: 14px; color: var(--muted); font-size: 13px; }
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
 
-  .bar { height: 6px; background: var(--line); border-radius: 6px; overflow: hidden; }
-  .bar > div { height: 100%; background: var(--accent); border-radius: 6px; }
-  .pct { font-size: 12px; color: var(--muted); }
+    /* ===== Topo ===== */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 32px;
+      border-bottom: 1px solid var(--line);
+    }
 
-  .cta {
-    margin-top: 4px; text-align: center; font-weight: 800; font-size: 14px;
-    padding: 12px; border-radius: 12px;
-    background: var(--accent); color: #130e22;
-  }
-  .cta:hover { filter: brightness(1.1); }
+    .logo {
+      font-weight: 800;
+      font-size: 20px;
+    }
 
-  /* ===== Estados ===== */
-  .state { max-width: 1150px; margin: 0 auto; padding: 24px 32px; color: var(--muted); }
-  .state a { color: var(--accent); font-weight: 700; }
+    .logo span {
+      color: var(--accent);
+    }
 
-  @media (max-width: 600px) {
-    .topbar, .hero, .grid, .state { padding-left: 18px; padding-right: 18px; }
-    .hero h1 { font-size: 30px; }
-  }
-</style>
+    .back {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .back:hover {
+      color: var(--text);
+    }
+
+    /* ===== Cabeçalho da categoria ===== */
+    .hero {
+      padding: 48px 32px 32px;
+      max-width: 1150px;
+      margin: 0 auto;
+    }
+
+    .hero .eyebrow {
+      color: var(--muted);
+      font-size: 15px;
+      margin-bottom: 6px;
+    }
+
+    .hero h1 {
+      font-size: 40px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .hero p {
+      color: var(--muted);
+      margin-top: 10px;
+      max-width: 560px;
+      line-height: 1.6;
+    }
+
+    /* ===== Lista ===== */
+    .grid {
+      max-width: 1150px;
+      margin: 0 auto;
+      padding: 8px 32px 64px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 22px;
+    }
+
+    .course {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: transform .15s, border-color .15s, box-shadow .15s;
+    }
+
+    .course:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, .35);
+    }
+
+    .course .tag {
+      align-self: flex-start;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--accent) 18%, transparent);
+      color: var(--accent);
+    }
+
+    .course h3 {
+      font-size: 20px;
+    }
+
+    .course .desc {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+      flex: 1;
+    }
+
+    .course .info {
+      display: flex;
+      gap: 14px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .bar {
+      height: 6px;
+      background: var(--line);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .bar>div {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 6px;
+    }
+
+    .pct {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .cta {
+      margin-top: 4px;
+      text-align: center;
+      font-weight: 800;
+      font-size: 14px;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--accent);
+      color: #130e22;
+    }
+
+    .cta:hover {
+      filter: brightness(1.1);
+    }
+
+    /* ===== Estados ===== */
+    .state {
+      max-width: 1150px;
+      margin: 0 auto;
+      padding: 24px 32px;
+      color: var(--muted);
+    }
+
+    .state a {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    @media (max-width: 600px) {
+
+      .topbar,
+      .hero,
+      .grid,
+      .state {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      .hero h1 {
+        font-size: 30px;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<div class="topbar">
-  <a class="logo" href="index.html">Dev Cursos<span>+</span></a>
-  <a class="back" href="index.html">← Voltar ao início</a>
-</div>
+  <div class="topbar">
+    <a class="logo" href="index.html">Dev Cursos<span>+</span></a>
+    <a class="back" href="index.html">← Voltar ao início</a>
+  </div>
 
-<section class="hero" id="hero" hidden>
-  <div class="eyebrow">cursos de</div>
-  <h1 id="titulo"></h1>
-  <p id="descricao"></p>
-</section>
+  <section class="hero" id="hero" hidden>
+    <div class="eyebrow">cursos de</div>
+    <h1 id="titulo"></h1>
+    <p id="descricao"></p>
+  </section>
 
-<div class="state" id="estado">Carregando cursos...</div>
-<div class="grid" id="lista"></div>
+  <div class="state" id="estado">Carregando cursos...</div>
+  <div class="grid" id="lista"></div>
 
-<script>
-/* =====================================================================
-   CATEGORIAS — cores e textos de cada uma (a home usa as mesmas cores)
-   ===================================================================== */
-const CATEGORIAS = {
-  programacao: { nome: "Programação", cor: "#4ade80", texto: "Python, Java, Node.js, SQL e mais. Aprenda a lógica e as linguagens que movem o mercado." },
-  frontend:    { nome: "Front-end",   cor: "#a855f7", texto: "HTML, CSS, JavaScript, React e mais. Construa o que o usuário vê e usa." },
-  devops:      { nome: "DevOps",      cor: "#f87171", texto: "Git, GitHub, Linux, Cloud e mais. Entregue e mantenha seus projetos no ar." }
-};
+  <script>
+    /* =====================================================================
+       CATEGORIAS — cores e textos de cada uma (a home usa as mesmas cores)
+       ===================================================================== */
+    const CATEGORIAS = {
+      programacao: { nome: "Programação", cor: "#4ade80", texto: "Python, Java, Node.js, SQL e mais. Aprenda a lógica e as linguagens que movem o mercado." },
+      frontend: { nome: "Front-end", cor: "#a855f7", texto: "HTML, CSS, JavaScript, React e mais. Construa o que o usuário vê e usa." },
+      devops: { nome: "DevOps", cor: "#f87171", texto: "Git, GitHub, Linux, Cloud e mais. Entregue e mantenha seus projetos no ar." }
+    };
 
-const API_BASE = "http://localhost:3001";
+    const API_BASE = "http://localhost:3001";
 
-function normalizarCategoria(value) {
-  const texto = String(value || "").trim().toLowerCase();
-  const mapa = {
-    programacao: "programacao",
-    "programação": "programacao",
-    frontend: "frontend",
-    "front-end": "frontend",
-    "front end": "frontend",
-    devops: "devops",
-    "dev-ops": "devops",
-    "dev ops": "devops"
-  };
+    function normalizarCategoria(value) {
+      const texto = String(value || "").trim().toLowerCase();
+      const mapa = {
+        programacao: "programacao",
+        "programação": "programacao",
+        frontend: "frontend",
+        "front-end": "frontend",
+        "front end": "frontend",
+        devops: "devops",
+        "dev-ops": "devops",
+        "dev ops": "devops"
+      };
 
-  return mapa[texto] || "programacao";
-}
+      return mapa[texto] || "programacao";
+    }
 
-async function buscarCursos(categoria) {
-  const resposta = await fetch(`${API_BASE}/cursos`);
-  if (!resposta.ok) {
-    throw new Error("Não foi possível carregar os cursos do banco local.");
-  }
+    async function buscarCursos(categoria) {
+      const resposta = await fetch(`${API_BASE}/cursos`);
+      if (!resposta.ok) {
+        throw new Error("Não foi possível carregar os cursos do banco local.");
+      }
 
-  const cursos = await resposta.json();
-  return (Array.isArray(cursos) ? cursos : [])
-    .filter((curso) => !categoria || normalizarCategoria(curso.categoria) === categoria)
-    .map((curso) => ({
-      id: curso.id,
-      titulo: curso.titulo,
-      descricao: curso.descricao || "Curso disponível no catálogo DevCursos+.",
-      nivel: curso.nivel || "Geral",
-      total_aulas: Number(curso.total_aulas || 0),
-      concluidas: Number(curso.concluidas || 0),
-      categoria: normalizarCategoria(curso.categoria)
-    }));
-}
+      const cursos = await resposta.json();
+      return (Array.isArray(cursos) ? cursos : [])
+        .filter((curso) => !categoria || normalizarCategoria(curso.categoria) === categoria)
+        .map((curso) => ({
+          id: curso.id,
+          titulo: curso.titulo,
+          descricao: curso.descricao || "Curso disponível no catálogo DevCursos+.",
+          nivel: curso.nivel || "Geral",
+          total_aulas: Number(curso.total_aulas || 0),
+          concluidas: Number(curso.concluidas || 0),
+          categoria: normalizarCategoria(curso.categoria)
+        }));
+    }
 
-/* ===================== Montagem da página ===================== */
-const $ = (id) => document.getElementById(id);
+    /* ===================== Montagem da página ===================== */
+    const $ = (id) => document.getElementById(id);
 
-function el(tag, classe, texto) {
-  const e = document.createElement(tag);
-  if (classe) e.className = classe;
-  if (texto !== undefined) e.textContent = texto;   // textContent: seguro contra HTML vindo do banco
-  return e;
-}
+    function el(tag, classe, texto) {
+      const e = document.createElement(tag);
+      if (classe) e.className = classe;
+      if (texto !== undefined) e.textContent = texto;   // textContent: seguro contra HTML vindo do banco
+      return e;
+    }
 
-function criarCard(c) {
-  const card = el("article", "course");
-  const pct = c.total_aulas ? Math.round((c.concluidas / c.total_aulas) * 100) : 0;
-  const comecou = c.concluidas > 0;
+    function criarCard(c) {
+      const card = el("article", "course");
+      const pct = c.total_aulas ? Math.round((c.concluidas / c.total_aulas) * 100) : 0;
+      const comecou = c.concluidas > 0;
 
-  card.append(el("span", "tag", c.nivel));
-  card.append(el("h3", "", c.titulo));
-  card.append(el("p", "desc", c.descricao));
+      card.append(el("span", "tag", c.nivel));
+      card.append(el("h3", "", c.titulo));
+      card.append(el("p", "desc", c.descricao));
 
-  const info = el("div", "info");
-  info.append(el("span", "", c.total_aulas ? `${c.total_aulas} aulas` : "Curso disponível"));
-  card.append(info);
+      const info = el("div", "info");
+      info.append(el("span", "", c.total_aulas ? `${c.total_aulas} aulas` : "Curso disponível"));
+      card.append(info);
 
-  if (comecou) {
-    const bar = el("div", "bar");
-    const fill = el("div");
-    fill.style.width = pct + "%";
-    bar.append(fill);
-    card.append(bar, el("div", "pct", `${pct}% concluído`));
-  }
+      if (comecou) {
+        const bar = el("div", "bar");
+        const fill = el("div");
+        fill.style.width = pct + "%";
+        bar.append(fill);
+        card.append(bar, el("div", "pct", `${pct}% concluído`));
+      }
 
-  const cta = el("a", "cta", comecou ? "Continuar →" : "Começar →");
-  cta.href = `visualizarcurso.html?curso=${encodeURIComponent(c.id)}`;
-  card.append(cta);
-  return card;
-}
+      const cta = el("a", "cta", comecou ? "Continuar →" : "Começar →");
+      cta.href = `visualizarcurso.html?curso=${encodeURIComponent(c.id)}`;
+      card.append(cta);
+      return card;
+    }
 
-async function iniciar() {
-  const categoria = new URLSearchParams(location.search).get("categoria");
-  const info = CATEGORIAS[categoria];
+    async function iniciar() {
+      const categoria = new URLSearchParams(location.search).get("categoria");
+      const info = CATEGORIAS[categoria];
 
-  if (!info) {
-    $("estado").innerHTML = 'Categoria não encontrada. <a href="index.html">Voltar ao início</a>';
-    return;
-  }
+      if (!info) {
+        $("estado").innerHTML = 'Categoria não encontrada. <a href="index.html">Voltar ao início</a>';
+        return;
+      }
 
-  // Cor, título e texto mudam conforme a categoria
-  document.documentElement.style.setProperty("--accent", info.cor);
-  document.title = `Dev Cursos+ | ${info.nome}`;
-  $("titulo").textContent = info.nome;
-  $("descricao").textContent = info.texto;
-  $("hero").hidden = false;
+      // Cor, título e texto mudam conforme a categoria
+      document.documentElement.style.setProperty("--accent", info.cor);
+      document.title = `Dev Cursos+ | ${info.nome}`;
+      $("titulo").textContent = info.nome;
+      $("descricao").textContent = info.texto;
+      $("hero").hidden = false;
 
-  try {
-    const cursos = await buscarCursos(categoria);
-    if (!cursos.length) { $("estado").textContent = "Ainda não há cursos nesta categoria."; return; }
-    $("estado").remove();
-    cursos.forEach(c => $("lista").append(criarCard(c)));
-  } catch (e) {
-    $("estado").textContent = "Não foi possível carregar os cursos. Tente novamente.";
-  }
-}
+      try {
+        const cursos = await buscarCursos(categoria);
+        if (!cursos.length) { $("estado").textContent = "Ainda não há cursos nesta categoria."; return; }
+        $("estado").remove();
+        cursos.forEach(c => $("lista").append(criarCard(c)));
+      } catch (e) {
+        $("estado").textContent = "Não foi possível carregar os cursos. Tente novamente.";
+      }
+    }
 
-iniciar();
-</script>
+    iniciar();
+  </script>
 </body>
+
 </html>
