@@ -51,15 +51,16 @@ import { requisicaoAPI, encerrarSessao } from "./services/api";
       try { return JSON.parse(localStorage.getItem("devcursos_user") || "null"); }
       catch { return null; }
     })();
+    const tokenSalvo = localStorage.getItem("devcursos_token");
 
-    if (!auth.currentUser && !localStorage.getItem("devcursos_token") && !usuarioSalvo) {
+    if (!auth.currentUser && !tokenSalvo && !usuarioSalvo) {
       accountLink.textContent = "Entrar";
       accountLink.href = `login.html?redirect=${encodeURIComponent(`${location.pathname}${location.search}`)}`;
       accountLink.onclick = null;
       return;
     }
 
-    if (!auth.currentUser && usuarioSalvo) {
+    if (!auth.currentUser && usuarioSalvo && !tokenSalvo) {
       user = usuarioSalvo;
       accountLink.textContent = displayName(user);
       accountLink.href = "#";
@@ -90,21 +91,44 @@ import { requisicaoAPI, encerrarSessao } from "./services/api";
         }
       };
     } catch {
-      user = null;
+      user = usuarioSalvo || null;
       if (auth.currentUser) await encerrarSessao();
-      accountLink.textContent = "Entrar";
-      accountLink.href = `login.html?redirect=${encodeURIComponent(`${location.pathname}${location.search}`)}`;
-      accountLink.onclick = null;
+      if (!user && !tokenSalvo) {
+        accountLink.textContent = "Entrar";
+        accountLink.href = `login.html?redirect=${encodeURIComponent(`${location.pathname}${location.search}`)}`;
+        accountLink.onclick = null;
+        return;
+      }
+      accountLink.textContent = displayName(user || { nome: "Minha conta" });
+      accountLink.href = "#";
+      accountLink.onclick = async event => {
+        event.preventDefault();
+        if (confirm("Deseja sair da sua conta?")) {
+          await encerrarSessao();
+          localStorage.removeItem("devcursos_token");
+          localStorage.removeItem("devcursos_user");
+          location.href = "menudashbord.html";
+        }
+      };
     }
   }
   async function loadProgress(courseId) {
     completed = new Set();
-    if (!auth.currentUser || !user) return;
+    const tokenSalvo = localStorage.getItem("devcursos_token");
+    if (!tokenSalvo && !auth.currentUser) return;
+
     try {
       const data = await get(`/cursos/${encodeURIComponent(courseId)}/progresso`);
       completed = new Set((data.aulasConcluidas || []).map(String));
+      localStorage.setItem(`devcursos-progress-${courseId}`, JSON.stringify([...completed]));
     } catch (error) {
       console.error("Não foi possível carregar o progresso salvo:", error);
+      try {
+        const salvo = JSON.parse(localStorage.getItem(`devcursos-progress-${courseId}`) || "[]");
+        if (Array.isArray(salvo)) completed = new Set(salvo.map(String));
+      } catch {
+        completed = new Set();
+      }
     }
   }
   function slugCategoria(categoria) {

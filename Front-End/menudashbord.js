@@ -26,6 +26,7 @@
 // ...existing code...
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "./firebase/firebase-config";
+import { requisicaoAPI } from "./services/api";
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
@@ -415,6 +416,50 @@ function mapearCursoParaCatalogo(curso) {
   };
 }
 
+async function carregarProgressoDoUsuario() {
+  const token = localStorage.getItem('devcursos_token');
+  if (!token) {
+    estado.emAndamento = [];
+    renderProgresso();
+    return;
+  }
+
+  try {
+    const itens = await Promise.all((estado.catalogo || []).map(async (curso) => {
+      try {
+        const progresso = await requisicaoAPI(`/cursos/${encodeURIComponent(curso.id)}/progresso`);
+        const modulos = await requisicaoAPI(`/cursos/${encodeURIComponent(curso.id)}/modulos`);
+        let total = 0;
+
+        for (const modulo of Array.isArray(modulos) ? modulos : []) {
+          const aulas = await requisicaoAPI(`/modulos/${encodeURIComponent(modulo.id)}/aulas`);
+          total += Array.isArray(aulas) ? aulas.length : 0;
+        }
+
+        const concluidas = Array.isArray(progresso.aulasConcluidas) ? progresso.aulasConcluidas.length : 0;
+
+        return {
+          id: curso.id,
+          titulo: curso.titulo,
+          categoria: curso.categoria,
+          concluidas,
+          total
+        };
+      } catch (erro) {
+        console.warn(`Não foi possível carregar progresso do curso ${curso.id}:`, erro);
+        return null;
+      }
+    }));
+
+    estado.emAndamento = itens.filter(Boolean).filter((curso) => Number(curso.total) > 0);
+    renderProgresso();
+  } catch (erro) {
+    console.error('Erro ao carregar progresso do usuário:', erro);
+    estado.emAndamento = [];
+    renderProgresso();
+  }
+}
+
 async function carregarDadosDoBanco() {
   try {
     const resposta = await fetch(`${API_URL}/cursos`);
@@ -424,7 +469,7 @@ async function carregarDadosDoBanco() {
     const catalogo = (Array.isArray(cursos) ? cursos : []).map(mapearCursoParaCatalogo);
     const ordenado = [...catalogo].sort((a, b) => Number(b.id) - Number(a.id));
 
-    carregar({ catalogo: ordenado, emAndamento: ordenado.slice(0, 1) });
+    carregar({ catalogo: ordenado, emAndamento: [] });
     estado.idCursoAtual = String(ordenado[0]?.id || '');
   } catch (erro) {
     console.error('Erro ao carregar cursos do banco:', erro);
@@ -612,6 +657,7 @@ async function iniciar() {
 
   await carregarDadosDoBanco();
   await carregarUsuario();
+  await carregarProgressoDoUsuario();
   emitir('devcursos:pronto');
 }
 
