@@ -6,7 +6,7 @@
   "scripts": {
     "test": "node --test src/**/*.test.js",
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "dev": "node ./scripts/clear-stale-dev.js 3001 && nodemon src/server.js"
   },
   "keywords": [],
   "author": "",
