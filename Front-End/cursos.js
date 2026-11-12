@@ -227,6 +227,32 @@ function idDaSecao(key) {
     return key === PROVA.id ? "prova-final" : `aula-${key}`;
 }
 
+function indiceDaAula(key) {
+    return todas.findIndex((aula) => String(aula.id) === String(key));
+}
+
+function ultimaAulaLiberada() {
+    let ultimo = -1;
+    for (let i = 0; i < todas.length; i += 1) {
+        if (feitas.has(String(todas[i].id))) {
+            ultimo = i;
+        } else {
+            break;
+        }
+    }
+    return ultimo;
+}
+
+function aulaLiberada(key) {
+    const indice = indiceDaAula(key);
+    if (indice === -1) return false;
+    return indice <= ultimaAulaLiberada() + 1;
+}
+
+function provaLiberada() {
+    return todas.length > 0 && todas.every((aula) => feitas.has(String(aula.id)));
+}
+
 function atualizarProgresso() {
     const total = Math.max(todas.length + 1, 1);
     const concluidos = todas.filter((a) => feitas.has(String(a.id))).length + (feitas.has(PROVA.id) ? 1 : 0);
@@ -235,29 +261,46 @@ function atualizarProgresso() {
     textoProg.textContent = `${concluidos} de ${total} itens concluídos (${pct}%)`;
 }
 
-// Atualiza a lateral (check e destaque) e a barra, depois de uma conclusão
 function atualizarUI(key) {
-    document.querySelectorAll(".aula-btn").forEach(b => {
+    document.querySelectorAll(".aula-btn").forEach((b) => {
         if (b.dataset.key !== key) return;
-        const feita = feitas.has(key);
+        const feita = feitas.has(String(key));
         b.classList.toggle("concluida", feita);
-        b.querySelector(".check").textContent = feita ? "✓" : "";
+        const check = b.querySelector(".check");
+        if (check) check.textContent = feita ? "✓" : "";
     });
     atualizarProgresso();
 }
 
-// Aula vista = concluída. A prova não entra aqui: conta só quando é aprovada.
-async function marcarVista(key) {
-    if (key === PROVA.id || feitas.has(String(key))) return;
+async function concluirAula(key) {
+    const chave = String(key);
+    if (chave === PROVA.id) {
+        if (!provaLiberada()) {
+            alert("Finalize todas as aulas antes de acessar a avaliação final.");
+            return;
+        }
+        return;
+    }
 
-    feitas.add(String(key));
+    if (feitas.has(chave)) {
+        return;
+    }
+
+    if (!aulaLiberada(chave)) {
+        alert("Complete a aula anterior para desbloquear esta etapa.");
+        return;
+    }
+
+    feitas.add(chave);
     salvarConclusoesLocais();
-    atualizarUI(key);
+    atualizarUI(chave);
+    montarMenu();
+    renderTudo();
 
     try {
         const token = await tokenAtual();
         if (token) {
-            await salvarConclusaoDaAula(key, true);
+            await salvarConclusaoDaAula(chave, true);
         }
     } catch (erro) {
         console.error("Não foi possível salvar a conclusão da aula:", erro);
@@ -265,9 +308,9 @@ async function marcarVista(key) {
 }
 
 function destacarNaLateral(key) {
-    document.querySelectorAll(".aula-btn").forEach(b => {
-        b.classList.toggle("ativa", b.dataset.key === key);
-        if (b.dataset.key === key) b.closest(".modulo")?.classList.add("aberto");
+    document.querySelectorAll(".aula-btn").forEach((b) => {
+        b.classList.toggle("ativa", String(b.dataset.key) === String(key));
+        if (String(b.dataset.key) === String(key)) b.closest(".modulo")?.classList.add("aberto");
     });
 }
 
@@ -276,14 +319,27 @@ function montarMenu() {
     menu.replaceChildren();
 
     const criarBotaoAula = (key, titulo) => {
-        const botao = criarElemento("button", "aula-btn" + (feitas.has(key) ? " concluida" : ""));
+        const bloqueada = key !== PROVA.id ? !aulaLiberada(key) : !provaLiberada();
+        const concluida = feitas.has(String(key));
+        const botao = criarElemento("button", "aula-btn" + (concluida ? " concluida" : "") + (bloqueada ? " bloqueada" : ""));
         botao.type = "button";
         botao.dataset.key = key;
+        botao.disabled = bloqueada && !concluida;
         botao.append(
-            criarElemento("span", "check", feitas.has(key) ? "✓" : ""),
+            criarElemento("span", "check", concluida ? "✓" : ""),
             criarElemento("span", "", titulo)
         );
         botao.addEventListener("click", () => {
+            if (key === PROVA.id) {
+                if (!provaLiberada()) {
+                    alert("Você precisa concluir todas as aulas antes da avaliação final.");
+                    return;
+                }
+            } else if (!aulaLiberada(key)) {
+                alert("Complete a aula anterior para desbloquear esta etapa.");
+                return;
+            }
+
             const secaoId = idDaSecao(key);
             window.location.hash = secaoId;
             document.getElementById(secaoId)?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -306,7 +362,7 @@ function montarMenu() {
     curso.modulos.forEach((modulo, mi) => {
         criarModulo(
             modulo.titulo || `Módulo ${mi + 1}`,
-            modulo.aulas.map(aula => criarBotaoAula(String(aula.id), aula.titulo || "Aula"))
+            modulo.aulas.map((aula) => criarBotaoAula(String(aula.id), aula.titulo || "Aula"))
         );
     });
 
@@ -318,6 +374,11 @@ function criarSecaoAula(aula, modulo) {
     const sec = criarElemento("section", "aula-secao");
     sec.id = idDaSecao(key);
     sec.dataset.key = key;
+
+    const bloqueada = !aulaLiberada(key);
+    if (bloqueada) {
+        sec.classList.add("bloqueada");
+    }
 
     sec.append(
         criarElemento("p", "trilha", modulo.titulo || ""),
@@ -332,6 +393,19 @@ function criarSecaoAula(aula, modulo) {
         corpo.appendChild(criarElemento("p", "", "Esta aula ainda não possui conteúdo cadastrado."));
     }
     sec.appendChild(corpo);
+
+    const acao = criarElemento("button", "btn-concluir", "Concluir aula");
+    acao.type = "button";
+    acao.dataset.acao = "concluir-aula";
+    acao.dataset.key = key;
+    acao.disabled = bloqueada || feitas.has(key);
+    if (feitas.has(key)) {
+        acao.textContent = "Aula concluída";
+    }
+    acao.addEventListener("click", async () => {
+        await concluirAula(key);
+    });
+    sec.appendChild(acao);
     return sec;
 }
 
@@ -395,6 +469,16 @@ function criarSecaoProva() {
     sec.id = idDaSecao(PROVA.id);
     sec.dataset.key = PROVA.id;
 
+    if (!provaLiberada()) {
+        sec.classList.add("bloqueada");
+        sec.append(
+            criarElemento("p", "trilha", "Avaliação final"),
+            criarElemento("h1", "", PROVA.titulo),
+            criarElemento("p", "", "Finalize todas as aulas antes de desbloquear a avaliação final.")
+        );
+        return sec;
+    }
+
     sec.addEventListener("click", e => {
         const op = e.target.closest(".quiz-op");
         if (op && !op.disabled) {
@@ -404,13 +488,13 @@ function criarSecaoProva() {
 
             respostasProva[qi] = oi;
 
-            // Quando responde a última, calcula a aprovação
             if (Object.keys(respostasProva).length === PROVA.questoes.length) {
                 if (contarAcertos() >= PROVA.minimoAcertos) {
                     provaAprovada = true;
                     feitas.add(PROVA.id);
                     salvarConclusoesLocais();
                     atualizarUI(PROVA.id);
+                    atualizarProgresso();
                 }
             }
             salvarProva();
@@ -437,25 +521,21 @@ function renderTudo() {
         modulo.aulas.forEach(aula => pagina.appendChild(criarSecaoAula(aula, modulo)));
     });
     pagina.appendChild(criarSecaoProva());
+
+    document.querySelectorAll(".aula-secao").forEach((secao) => {
+        if (secao.dataset.key && secao.dataset.key !== PROVA.id) {
+            observador.observe(secao);
+        }
+    });
 }
 
-/* ----- Conclusão automática ----- */
 const observador = new IntersectionObserver(entradas => {
-    entradas.forEach(en => {
+    entradas.forEach((en) => {
         if (!en.isIntersecting) return;
         const key = en.target.dataset.key;
-        destacarNaLateral(key);
-        marcarVista(key);
+        if (key) destacarNaLateral(key);
     });
 }, { root: null, rootMargin: "-68px 0px -55% 0px", threshold: 0 });
-
-function verificarFimDaPagina() {
-    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) {
-        todas.forEach(a => marcarVista(String(a.id)));
-    }
-}
-
-window.addEventListener("scroll", verificarFimDaPagina, { passive: true });
 
 btnReiniciar.addEventListener("click", async () => {
     if (!confirm("Zerar todo o progresso deste curso?")) return;
@@ -551,8 +631,6 @@ async function iniciarCurso() {
 
         const primeiroModulo = document.querySelector(".modulo");
         if (primeiroModulo) primeiroModulo.classList.add("aberto");
-
-        verificarFimDaPagina();
 
         const alvo = decodeURIComponent(aulaSelecionada || (window.location.hash.match(/aula-(.+)/) || [])[1] || "");
         if (alvo) {

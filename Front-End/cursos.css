@@ -259,6 +259,41 @@ a {
     border-color: rgba(79, 211, 100, 0.22);
 }
 
+.aula-btn.bloqueada {
+    opacity: 0.55;
+    cursor: not-allowed;
+    filter: grayscale(0.2);
+}
+
+.aula-secao.bloqueada {
+    opacity: 0.72;
+    filter: saturate(0.7);
+}
+
+.btn-concluir {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 22px;
+    border: 1px solid rgba(79, 211, 100, 0.45);
+    background: linear-gradient(135deg, rgba(79, 211, 100, 0.18), rgba(167, 123, 255, 0.1));
+    color: var(--text);
+    border-radius: 12px;
+    padding: 11px 18px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.btn-concluir:hover:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.btn-concluir:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .check {
     display: inline-grid;
     place-items: center;
