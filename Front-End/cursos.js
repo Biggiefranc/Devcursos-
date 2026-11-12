@@ -60,8 +60,13 @@ function criarElemento(tag, classe, texto) {
     return elemento;
 }
 
-function tokenAtual() {
-    return auth.currentUser;
+async function tokenAtual() {
+    if (auth.currentUser) {
+        return auth.currentUser.getIdToken();
+    }
+
+    const salvo = localStorage.getItem("devcursos_token");
+    return salvo || null;
 }
 
 function carregarConclusoesLocais() {
@@ -148,27 +153,74 @@ function contarAcertos() {
 }
 
 /* ----- Renderização ----- */
-function renderizarMarkdown(markdown) {
-    const texto = String(markdown ?? "");
-    const escapeHtml = (valor) => valor
+function escaparHtml(valor) {
+    return String(valor ?? "")
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/\"/g, "&quot;")
         .replace(/'/g, "&#039;");
+}
 
-    return texto
-        .split(/\n{2,}/)
-        .map((bloco) => {
-            const linhas = bloco
-                .split(/\n/)
-                .map((linha) => escapeHtml(linha).replace(/\s{2,}/g, " ").trim())
-                .filter(Boolean)
-                .join("<br>");
+function renderizarInlineMarkdown(texto) {
+    const valor = escaparHtml(texto);
 
-            return linhas ? `<p>${linhas}</p>` : "";
-        })
-        .join("");
+    return valor
+        .replace(/`([^`]+)`/g, "<code>$1</code>")
+        .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+        .replace(/\*([^*]+)\*/g, "<em>$1</em>")
+        .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+        .replace(/(https?:\/\/\S+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+}
+
+function renderizarMarkdown(markdown) {
+    const texto = String(markdown ?? "").replace(/\r\n/g, "\n");
+    const blocos = texto.split(/\n\s*\n/).filter((bloco) => bloco.trim());
+
+    return blocos.map((bloco) => {
+        const linhas = bloco.split("\n");
+
+        if (linhas.every((linha) => /^```/.test(linha.trim()))) {
+            return "";
+        }
+
+        if (linhas[0]?.trim().startsWith("```")) {
+            const codigo = linhas.slice(1).filter((linha) => !/^```$/.test(linha.trim())).join("\n");
+            return `<pre><code>${escaparHtml(codigo)}</code></pre>`;
+        }
+
+        if (/^#{1,6}\s+/.test(bloco.trim())) {
+            const match = bloco.trim().match(/^(#{1,6})\s+(.*)$/);
+            const nivel = match[1].length;
+            const conteudo = renderizarInlineMarkdown(match[2]);
+            return `<h${nivel}>${conteudo}</h${nivel}>`;
+        }
+
+        if (/^>\s*/.test(bloco.trim())) {
+            const conteudo = renderizarInlineMarkdown(
+                bloco
+                    .split("\n")
+                    .map((linha) => linha.replace(/^>\s?/, "").trim())
+                    .filter(Boolean)
+                    .join("<br>")
+            );
+            return `<blockquote>${conteudo}</blockquote>`;
+        }
+
+        const itens = bloco
+            .split("\n")
+            .filter((linha) => /^[-*]\s+/.test(linha.trim()) || /^\d+\.\s+/.test(linha.trim()));
+
+        if (itens.length) {
+            const htmlLista = itens.map((linha) => {
+                const textoLinha = linha.replace(/^\s*[-*]\s+|^\s*\d+\.\s+/, "");
+                return `<li>${renderizarInlineMarkdown(textoLinha)}</li>`;
+            }).join("");
+            return `<ul>${htmlLista}</ul>`;
+        }
+
+        return `<p>${renderizarInlineMarkdown(bloco.replace(/\n/g, "<br>"))}</p>`;
+    }).join("");
 }
 
 function idDaSecao(key) {
@@ -176,10 +228,10 @@ function idDaSecao(key) {
 }
 
 function atualizarProgresso() {
-    const total = todas.length + 1;
-    const concluidos = todas.filter(a => feitas.has(String(a.id))).length + (feitas.has(PROVA.id) ? 1 : 0);
-    const pct = total ? Math.round(concluidos / total * 100) : 0;
-    barraProg.style.width = pct + "%";
+    const total = Math.max(todas.length + 1, 1);
+    const concluidos = todas.filter((a) => feitas.has(String(a.id))).length + (feitas.has(PROVA.id) ? 1 : 0);
+    const pct = total ? Math.round((concluidos / total) * 100) : 0;
+    barraProg.style.width = `${pct}%`;
     textoProg.textContent = `${concluidos} de ${total} itens concluídos (${pct}%)`;
 }
 
@@ -196,16 +248,19 @@ function atualizarUI(key) {
 
 // Aula vista = concluída. A prova não entra aqui: conta só quando é aprovada.
 async function marcarVista(key) {
-    if (key === PROVA.id || feitas.has(key)) return;
-    feitas.add(key);
+    if (key === PROVA.id || feitas.has(String(key))) return;
+
+    feitas.add(String(key));
     salvarConclusoesLocais();
     atualizarUI(key);
-    if (tokenAtual()) {
-        try {
+
+    try {
+        const token = await tokenAtual();
+        if (token) {
             await salvarConclusaoDaAula(key, true);
-        } catch (erro) {
-            console.error("Não foi possível salvar a conclusão da aula:", erro);
         }
+    } catch (erro) {
+        console.error("Não foi possível salvar a conclusão da aula:", erro);
     }
 }
 
@@ -402,15 +457,38 @@ function verificarFimDaPagina() {
 
 window.addEventListener("scroll", verificarFimDaPagina, { passive: true });
 
-btnReiniciar.addEventListener("click", () => {
+btnReiniciar.addEventListener("click", async () => {
     if (!confirm("Zerar todo o progresso deste curso?")) return;
+
     feitas = new Set();
     respostasProva = {};
     provaAprovada = false;
     salvarConclusoesLocais();
     salvarProva();
+
+    try {
+        const listaAulas = todas.map((aula) => String(aula.id));
+        for (const aulaId of listaAulas) {
+            try {
+                await requisicaoAPI(`/aulas/${encodeURIComponent(aulaId)}/conclusao`, {
+                    method: "PUT",
+                    body: JSON.stringify({ concluida: false })
+                });
+            } catch (erro) {
+                console.warn(`Não foi possível limpar a aula ${aulaId}:`, erro);
+            }
+        }
+
+        localStorage.removeItem("devcursos-feitas");
+        localStorage.removeItem(chaveProvaStorage());
+    } catch (erro) {
+        console.error("Erro ao reiniciar progresso:", erro);
+    }
+
+    montarMenu();
+    renderTudo();
+    atualizarProgresso();
     location.hash = "";
-    location.reload();
 });
 
 function mostrarErro(mensagem) {
