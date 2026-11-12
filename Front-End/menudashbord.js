@@ -46,7 +46,7 @@ onAuthStateChanged(auth, async (user) => {
 // ...existing code...
 
 const API_URL = 'http://localhost:3001';
-const USAR_EXEMPLO = true; // true = mostra dados de mentira só pra visualizar o layout
+const USAR_EXEMPLO = false;
 
 const CATEGORIAS = { programacao: 'Programação', frontend: 'Front-end', devops: 'DevOps' };
 const CAT_CLASS = { programacao: 'prog', frontend: 'front', devops: 'devops' };
@@ -359,6 +359,38 @@ function renderTudo() {
 }
 
 // ===== API PÚBLICA (o que vem do banco entra por aqui) =====
+function normalizarCategoria(categoria) {
+  const texto = String(categoria || '').trim().toLowerCase();
+  if (texto.includes('program')) return 'programacao';
+  if (texto.includes('front')) return 'frontend';
+  if (texto.includes('devops') || texto.includes('dev ops')) return 'devops';
+  return 'programacao';
+}
+
+function mapearCursoParaCatalogo(curso) {
+  return {
+    id: curso.id,
+    titulo: curso.titulo,
+    descricao: curso.descricao || 'Curso disponível no catálogo DevCursos+.',
+    categoria: normalizarCategoria(curso.categoria)
+  };
+}
+
+async function carregarDadosDoBanco() {
+  try {
+    const resposta = await fetch(`${API_URL}/cursos`);
+    if (!resposta.ok) throw new Error(`Erro ao consultar /cursos (${resposta.status})`);
+
+    const cursos = await resposta.json();
+    const catalogo = (Array.isArray(cursos) ? cursos : []).map(mapearCursoParaCatalogo);
+    carregar({ catalogo, emAndamento: [] });
+  } catch (erro) {
+    console.error('Erro ao carregar cursos do banco:', erro);
+    $('pathsEmpty').hidden = false;
+    $('pathsEmpty').textContent = 'Não foi possível carregar os cursos do banco local.';
+  }
+}
+
 function carregar(dados = {}) {
   if (dados.usuario) estado.usuario = { ...estado.usuario, ...dados.usuario };
   if (dados.emAndamento) estado.emAndamento = dados.emAndamento;
@@ -413,15 +445,17 @@ async function carregarUsuario() {
 }
 
 // ===== EVENTOS DA INTERFACE =====
-$('menu').addEventListener('click', (e) => {
-  const a = e.target.closest('a');
-  if (!a) return;
-  e.preventDefault();
-  if (a.dataset.view) mostrarView(a.dataset.view);
-});
-$('menuToggle').addEventListener('click', () => $('sidebar').classList.toggle('open'));
-$('courseSelect').addEventListener('change', (e) => trocarCurso(e.target.value));
-$('logoutBtn').addEventListener('click', async () => {
+if ($('menu')) {
+  $('menu').addEventListener('click', (e) => {
+    const a = e.target.closest('a');
+    if (!a) return;
+    e.preventDefault();
+    if (a.dataset.view) mostrarView(a.dataset.view);
+  });
+}
+if ($('menuToggle')) $('menuToggle').addEventListener('click', () => $('sidebar').classList.toggle('open'));
+if ($('courseSelect')) $('courseSelect').addEventListener('change', (e) => trocarCurso(e.target.value));
+if ($('logoutBtn')) $('logoutBtn').addEventListener('click', async () => {
   localStorage.removeItem('devcursos_token');
   localStorage.removeItem('devcursos_user');
   if (auth) {
@@ -430,49 +464,45 @@ $('logoutBtn').addEventListener('click', async () => {
   window.location.href = 'login.html';
 });
 
-$('prevSection').addEventListener('click', () => irSecao(-1));
-$('nextSection').addEventListener('click', () => irSecao(1));
-$('modules').addEventListener('click', (e) => {
+if ($('prevSection')) $('prevSection').addEventListener('click', () => irSecao(-1));
+if ($('nextSection')) $('nextSection').addEventListener('click', () => irSecao(1));
+if ($('modules')) $('modules').addEventListener('click', (e) => {
   const mod = e.target.closest('.module');
   if (!mod || !e.target.closest('.module-head')) return;
   clicarModulo(Number(mod.dataset.i));
 });
 
-$('progressGrid').addEventListener('click', (e) => {
+if ($('progressGrid')) $('progressGrid').addEventListener('click', (e) => {
   const card = e.target.closest('.cat');
   if (!card) return;
   e.preventDefault();
-  abrirCurso(card.dataset.id);
+  window.location.href = `visualizarcurso.html?curso=${encodeURIComponent(card.dataset.id)}`;
 });
-$('tabs').addEventListener('click', (e) => {
+if ($('tabs')) $('tabs').addEventListener('click', (e) => {
   const tab = e.target.closest('.tab');
   if (!tab) return;
   estado.categoria = tab.dataset.cat;
   renderCatalogo();
 });
-$('pathsGrid').addEventListener('click', (e) => {
+if ($('pathsGrid')) $('pathsGrid').addEventListener('click', (e) => {
   const card = e.target.closest('.cat');
   if (!card) return;
   e.preventDefault();
-  const id = card.dataset.id;
-  const curso = estado.catalogo.find((c) => String(c.id) === id);
-  const jaComecou = estado.emAndamento.some((c) => String(c.id) === id);
-  if (jaComecou) abrirCurso(id);
-  else emitir('devcursos:iniciar-curso', { curso });
+  window.location.href = `visualizarcurso.html?curso=${encodeURIComponent(card.dataset.id)}`;
 });
-$('searchInfo').addEventListener('click', (e) => {
+if ($('searchInfo')) $('searchInfo').addEventListener('click', (e) => {
   if (e.target.id !== 'limparBusca') return;
   $('q').value = '';
   aplicarBusca('');
 });
 
 // busca do topo: leva pra tela de cursos
-$('searchForm').addEventListener('submit', (e) => {
+if ($('searchForm')) $('searchForm').addEventListener('submit', (e) => {
   e.preventDefault();
   aplicarBusca($('q').value);
   mostrarView('cursos');
 });
-$('q').addEventListener('input', () => {
+if ($('q')) $('q').addEventListener('input', () => {
   if (estado.view === 'cursos') aplicarBusca($('q').value);
 });
 
@@ -537,6 +567,8 @@ async function iniciar() {
     carregar(exemploDados());
     return;
   }
+
+  await carregarDadosDoBanco();
   await carregarUsuario();
   emitir('devcursos:pronto');
 }

@@ -39,11 +39,11 @@ const pool = mysql.createPool({
     ssl: DB_SSL
         ? {
             minVersion: "TLSv1.2",
-            rejectUnauthorized: true
+            rejectUnauthorized: false
         }
         : undefined,
 
-    waitForConnections: true,
+    waitForConnections: false,
     connectionLimit: 5,
     queueLimit: 0
 });

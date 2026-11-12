@@ -81,19 +81,28 @@ import { requisicaoAPI, encerrarSessao } from "./services/api";
       console.error("Não foi possível carregar o progresso salvo:", error);
     }
   }
+  function slugCategoria(categoria) {
+    const texto = String(categoria || '').trim().toLowerCase();
+    if (texto.includes('program')) return 'programacao';
+    if (texto.includes('front')) return 'frontend';
+    if (texto.includes('devops') || texto.includes('dev ops')) return 'devops';
+    return 'programacao';
+  }
+
   function render(course, modules) {
     const allLessons = modules.flatMap(m => m.aulas || []);
     const total = allLessons.length;
     const done = allLessons.filter(a => completed.has(String(a.id))).length;
     const percent = total ? Math.round(done / total * 100) : 0;
     const fav = getFavorites().includes(String(course.id));
+    const categoria = encodeURIComponent(slugCategoria(course.categoria));
     const start = isLogged()
-      ? `<a class="primary-button" href="cursos.html?curso=${encodeURIComponent(course.id)}${allLessons.length ? `#aula-${encodeURIComponent(allLessons.find(a => !completed.has(String(a.id)))?.id || allLessons[0].id)}` : ""}">Começar agora</a>`
+      ? `<a class="primary-button" href="visualizarcurso.html?curso=${encodeURIComponent(course.id)}">Começar agora</a>`
       : `<a class="login-button" href="login.html">Entrar</a>`;
     root.innerHTML = `
       <section class="detail-main">
         <div class="detail-actions">
-          <a class="text-button" href="menudashbord.html">← Voltar ao início</a>
+          <a class="text-button" href="menudashbord.html?categoria=${categoria}">← Voltar ao catálogo</a>
           <button id="favoriteBtn" class="favorite ${fav ? "active" : ""}" type="button" aria-pressed="${fav}">${fav ? "♥ Favoritado" : "♡ Favoritar curso"}</button>
         </div>
         <div class="course-hero">
@@ -109,7 +118,7 @@ import { requisicaoAPI, encerrarSessao } from "./services/api";
           <button class="module-toggle" type="button" aria-expanded="${i === 0}"><span>${i + 1}. ${esc(m.titulo || "Introdução")}</span><span aria-hidden="true">🔽</span></button>
           <div class="lesson-list">${(m.aulas || []).length ? m.aulas.map((a, j) => {
             const isDone = completed.has(String(a.id));
-            const href = isLogged() ? `cursos.html?curso=${encodeURIComponent(course.id)}#aula-${encodeURIComponent(a.id)}` : "login.html";
+            const href = isLogged() ? `visualizarcurso.html?curso=${encodeURIComponent(course.id)}` : "login.html";
             return `<a class="lesson ${isDone ? "completed" : ""}" href="${href}"><span>${i + 1}.${j + 1} &nbsp; ${esc(a.titulo || `Aula ${j + 1}`)}</span><span aria-label="${isDone ? "Concluída" : "Pendente"}">${isDone ? "✓" : ""}</span></a>`;
           }).join("") : `<p class="small-note">As aulas deste módulo ainda não foram cadastradas.</p>`}</div>
         </section>`).join("") : `<p class="notice">Este curso ainda não possui módulos cadastrados.</p>`}</div>
@@ -130,7 +139,7 @@ import { requisicaoAPI, encerrarSessao } from "./services/api";
   async function init() {
     // file:// tem uma origem diferente e não compartilha a sessão do Live Server.
     if (location.protocol === "file:") {
-      root.innerHTML = `<p class="notice">Abra o catálogo pelo Live Server para manter a sessão e carregar o curso corretamente: <a href="http://127.0.0.1:5500/Front-End/menudashbord.html">abrir DevCursos+</a>.</p>`;
+      root.innerHTML = `<p class="notice">Abra o catálogo pelo Live Server para manter a sessão e carregar o curso corretamente: <a href="http://localhost:5173/menudashbord.html">abrir DevCursos+</a>.</p>`;
       return;
     }
     await new Promise(resolve => {

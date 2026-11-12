@@ -115,38 +115,42 @@ const CATEGORIAS = {
   devops:      { nome: "DevOps",      cor: "#f87171", texto: "Git, GitHub, Linux, Cloud e mais. Entregue e mantenha seus projetos no ar." }
 };
 
-/* =====================================================================
-   DADOS DE EXEMPLO — no projeto real isso vem do back:
-   const cursos = await fetch(`/api/cursos?categoria=${categoria}`).then(r => r.json());
-   Formato esperado de cada curso:
-   { id, titulo, descricao, nivel, total_aulas, concluidas }
-   (concluidas = quantas lições o usuário já fez; 0 se não logado)
-   ===================================================================== */
-const DEMO_CURSOS = {
-  frontend: [
-    { id: 1, titulo: "HTML do zero",  descricao: "Descrição curta do curso. Troque pelo texto vindo do banco.", nivel: "Iniciante",     total_aulas: 20, concluidas: 8 },
-    { id: 2, titulo: "CSS",           descricao: "Descrição curta do curso. Troque pelo texto vindo do banco.", nivel: "Iniciante",     total_aulas: 24, concluidas: 0 },
-    { id: 3, titulo: "JavaScript",    descricao: "Descrição curta do curso. Troque pelo texto vindo do banco.", nivel: "Intermediário", total_aulas: 32, concluidas: 0 },
-    { id: 4, titulo: "React",         descricao: "Descrição curta do curso. Troque pelo texto vindo do banco.", nivel: "Intermediário", total_aulas: 28, concluidas: 0 }
-  ],
-  programacao: [
-    { id: 5, titulo: "Python",  descricao: "Descrição curta do curso. Troque pelo texto vindo do banco.", nivel: "Iniciante",     total_aulas: 30, concluidas: 0 },
-    { id: 6, titulo: "Java",    descricao: "Descrição curta do curso. Troque pelo texto vindo do banco.", nivel: "Intermediário", total_aulas: 36, concluidas: 0 },
-    { id: 7, titulo: "Node.js", descricao: "Descrição curta do curso. Troque pelo texto vindo do banco.", nivel: "Intermediário", total_aulas: 26, concluidas: 0 },
-    { id: 8, titulo: "SQL",     descricao: "Descrição curta do curso. Troque pelo texto vindo do banco.", nivel: "Iniciante",     total_aulas: 18, concluidas: 0 }
-  ],
-  devops: [
-    { id: 9,  titulo: "Git",    descricao: "Descrição curta do curso. Troque pelo texto vindo do banco.", nivel: "Iniciante",     total_aulas: 14, concluidas: 0 },
-    { id: 10, titulo: "GitHub", descricao: "Descrição curta do curso. Troque pelo texto vindo do banco.", nivel: "Iniciante",     total_aulas: 12, concluidas: 0 },
-    { id: 11, titulo: "Linux",  descricao: "Descrição curta do curso. Troque pelo texto vindo do banco.", nivel: "Intermediário", total_aulas: 22, concluidas: 0 },
-    { id: 12, titulo: "Cloud",  descricao: "Descrição curta do curso. Troque pelo texto vindo do banco.", nivel: "Avançado",      total_aulas: 20, concluidas: 0 }
-  ]
-};
+const API_BASE = "http://localhost:3001";
 
-/* Hoje devolve os dados de exemplo. Quando o back estiver pronto, troque o
-   corpo desta função pelo fetch real (e mantenha o resto da página igual). */
+function normalizarCategoria(value) {
+  const texto = String(value || "").trim().toLowerCase();
+  const mapa = {
+    programacao: "programacao",
+    "programação": "programacao",
+    frontend: "frontend",
+    "front-end": "frontend",
+    "front end": "frontend",
+    devops: "devops",
+    "dev-ops": "devops",
+    "dev ops": "devops"
+  };
+
+  return mapa[texto] || "programacao";
+}
+
 async function buscarCursos(categoria) {
-  return DEMO_CURSOS[categoria] || [];
+  const resposta = await fetch(`${API_BASE}/cursos`);
+  if (!resposta.ok) {
+    throw new Error("Não foi possível carregar os cursos do banco local.");
+  }
+
+  const cursos = await resposta.json();
+  return (Array.isArray(cursos) ? cursos : [])
+    .filter((curso) => !categoria || normalizarCategoria(curso.categoria) === categoria)
+    .map((curso) => ({
+      id: curso.id,
+      titulo: curso.titulo,
+      descricao: curso.descricao || "Curso disponível no catálogo DevCursos+.",
+      nivel: curso.nivel || "Geral",
+      total_aulas: Number(curso.total_aulas || 0),
+      concluidas: Number(curso.concluidas || 0),
+      categoria: normalizarCategoria(curso.categoria)
+    }));
 }
 
 /* ===================== Montagem da página ===================== */
@@ -169,7 +173,7 @@ function criarCard(c) {
   card.append(el("p", "desc", c.descricao));
 
   const info = el("div", "info");
-  info.append(el("span", "", `${c.total_aulas} aulas`));
+  info.append(el("span", "", c.total_aulas ? `${c.total_aulas} aulas` : "Curso disponível"));
   card.append(info);
 
   if (comecou) {
@@ -181,7 +185,7 @@ function criarCard(c) {
   }
 
   const cta = el("a", "cta", comecou ? "Continuar →" : "Começar →");
-  cta.href = `curso.html?id=${encodeURIComponent(c.id)}`;   // página do curso (próxima tela)
+  cta.href = `visualizarcurso.html?curso=${encodeURIComponent(c.id)}`;
   card.append(cta);
   return card;
 }

@@ -6,16 +6,16 @@ require("dotenv").config({
     path: path.resolve(__dirname, "../../.env")
 });
 
-// Porta do servidor modular (padrão: 3000).
+// Porta do servidor modular (padrão: 3001).
 const PORT = Number(process.env.API_PORT || 3001);
 
 // Configurações do MySQL.
 const DB_HOST = process.env.DB_HOST;
-const DB_PORT = Number(process.env.DB_PORT || 4000);
+const DB_PORT = Number(process.env.DB_PORT || 3306);
 const DB_USER = process.env.DB_USER;
 const DB_PASSWORD = process.env.DB_PASSWORD ?? "";
 const DB_NAME = process.env.DB_NAME;
-const DB_SSL = process.env.DB_SSL === "true";
+const DB_SSL = process.env.DB_SSL === "false";
 
 // Valida as configurações obrigatórias.
 if (!DB_HOST || !DB_USER || !DB_NAME) {
