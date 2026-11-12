@@ -248,26 +248,35 @@ a {
 }
 
 .aula-btn.ativa {
-    background: linear-gradient(135deg, rgba(167, 123, 255, 0.18), rgba(91, 33, 182, 0.06));
-    border-color: rgba(167, 123, 255, 0.4);
+    background: linear-gradient(135deg, rgba(167, 123, 255, 0.2), rgba(91, 33, 182, 0.08));
+    border-color: rgba(167, 123, 255, 0.5);
     color: var(--text);
-    box-shadow: 0 12px 24px rgba(122, 31, 255, 0.12);
+    box-shadow: 0 12px 24px rgba(122, 31, 255, 0.16);
 }
 
 .aula-btn.concluida {
-    background: rgba(79, 211, 100, 0.08);
-    border-color: rgba(79, 211, 100, 0.22);
+    background: rgba(79, 211, 100, 0.12);
+    border-color: rgba(79, 211, 100, 0.38);
+    box-shadow: inset 0 0 0 1px rgba(79, 211, 100, 0.12);
 }
 
 .aula-btn.bloqueada {
-    opacity: 0.55;
+    background: rgba(255, 255, 255, 0.015);
+    border-color: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.45);
     cursor: not-allowed;
-    filter: grayscale(0.2);
+    filter: grayscale(0.25);
+}
+
+.aula-btn:not(.bloqueada):not(.concluida) {
+    border-color: rgba(167, 123, 255, 0.18);
+    background: rgba(167, 123, 255, 0.05);
 }
 
 .aula-secao.bloqueada {
     opacity: 0.72;
     filter: saturate(0.7);
+    border-style: dashed;
 }
 
 .btn-concluir {
@@ -275,23 +284,27 @@ a {
     align-items: center;
     justify-content: center;
     margin-top: 22px;
-    border: 1px solid rgba(79, 211, 100, 0.45);
-    background: linear-gradient(135deg, rgba(79, 211, 100, 0.18), rgba(167, 123, 255, 0.1));
+    border: 1px solid rgba(79, 211, 100, 0.55);
+    background: linear-gradient(135deg, rgba(79, 211, 100, 0.2), rgba(167, 123, 255, 0.12));
     color: var(--text);
     border-radius: 12px;
     padding: 11px 18px;
     font-weight: 800;
+    letter-spacing: 0.02em;
     cursor: pointer;
-    transition: transform 0.2s ease, opacity 0.2s ease;
+    transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 10px 20px rgba(79, 211, 100, 0.12);
 }
 
 .btn-concluir:hover:not(:disabled) {
     transform: translateY(-1px);
+    box-shadow: 0 14px 24px rgba(79, 211, 100, 0.18);
 }
 
 .btn-concluir:disabled {
-    opacity: 0.5;
+    opacity: 0.45;
     cursor: not-allowed;
+    box-shadow: none;
 }
 
 .check {
