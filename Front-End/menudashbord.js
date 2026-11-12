@@ -126,26 +126,65 @@ function mostrarView(nome) {
 }
 
 // ===== SIDEBAR =====
+function listaCursosAtuais() {
+  return (estado.emAndamento.length ? estado.emAndamento : estado.catalogo).slice();
+}
+
+function renderMiniStreak() {
+  const mini = $('miniWeek');
+  const count = $('miniStreakCount');
+  const diasAtivos = estado.usuario.diasAtivos || [];
+
+  if (!mini || !count) return;
+
+  const hoje = dayKey();
+  const ultimo = Array.from({ length: 7 }, (_, i) => {
+    const date = new Date();
+    date.setDate(date.getDate() - (6 - i));
+    const key = dayKey(date);
+    return {
+      key,
+      label: date.getDate(),
+      done: diasAtivos.includes(key),
+      today: key === hoje
+    };
+  });
+
+  mini.innerHTML = ultimo.map((d) => `
+    <div class="mini-day ${d.done ? 'done' : ''} ${d.today ? 'today' : ''}">${d.label}</div>
+  `).join('');
+
+  const total = (diasAtivos || []).filter((d) => d <= hoje).length;
+  count.textContent = `${total} ${total === 1 ? 'dia' : 'dias'}`;
+}
+
 function renderSidebar() {
   const select = $('courseSelect');
-  if (!estado.emAndamento.length) {
-    select.innerHTML = '<option value="">Nenhum curso em andamento</option>';
+  const lista = listaCursosAtuais();
+
+  if (!lista.length) {
+    select.innerHTML = '<option value="">Nenhum curso disponível</option>';
     select.disabled = true;
-  } else {
-    select.disabled = false;
-    select.innerHTML = estado.emAndamento.map((c) =>
-      `<option value="${esc(c.id)}" ${String(c.id) === String(estado.idCursoAtual) ? 'selected' : ''}>${esc(c.titulo)}</option>`
-    ).join('');
+    if ($('sidebarBar')) $('sidebarBar').style.width = '0%';
+    return;
   }
 
-  const atual = estado.emAndamento.find((c) => String(c.id) === String(estado.idCursoAtual));
-  $('sidebarBar').style.width = (atual ? pct(atual) : 0) + '%';
+  if (!estado.idCursoAtual || !lista.some((c) => String(c.id) === String(estado.idCursoAtual))) {
+    estado.idCursoAtual = String(lista[lista.length - 1].id);
+  }
+
+  select.disabled = false;
+  select.innerHTML = lista.map((c) =>
+    `<option value="${esc(c.id)}" ${String(c.id) === String(estado.idCursoAtual) ? 'selected' : ''}>${esc(c.titulo)}</option>`
+  ).join('');
+
+  const atual = lista.find((c) => String(c.id) === String(estado.idCursoAtual));
+  if ($('sidebarBar')) $('sidebarBar').style.width = (atual ? pct(atual) : 0) + '%';
 
   const u = estado.usuario;
-  $('coins').textContent = u.moedas || 0;
-  $('streak').textContent = `${u.sequencia || 0} ${u.sequencia === 1 ? 'dia' : 'dias'}`;
   $('userName').textContent = u.nome || 'Aluno';
   $('userAvatar').textContent = (u.nome || 'U').charAt(0).toUpperCase();
+  renderMiniStreak();
 }
 
 // ===== APRENDER (seções + módulos) =====
@@ -383,7 +422,10 @@ async function carregarDadosDoBanco() {
 
     const cursos = await resposta.json();
     const catalogo = (Array.isArray(cursos) ? cursos : []).map(mapearCursoParaCatalogo);
-    carregar({ catalogo, emAndamento: [] });
+    const ordenado = [...catalogo].sort((a, b) => Number(b.id) - Number(a.id));
+
+    carregar({ catalogo: ordenado, emAndamento: ordenado.slice(0, 1) });
+    estado.idCursoAtual = String(ordenado[0]?.id || '');
   } catch (erro) {
     console.error('Erro ao carregar cursos do banco:', erro);
     $('pathsEmpty').hidden = false;
@@ -396,12 +438,12 @@ function carregar(dados = {}) {
   if (dados.emAndamento) estado.emAndamento = dados.emAndamento;
   if (dados.catalogo) estado.catalogo = dados.catalogo;
 
-  const aindaExiste = estado.emAndamento.some((c) => String(c.id) === String(estado.idCursoAtual));
-  if (!aindaExiste) {
-    estado.idCursoAtual = null;
-    estado.cursoAtual = null;
-    if (estado.emAndamento.length) trocarCurso(estado.emAndamento[0].id);
+  const cursosAtuais = listaCursosAtuais();
+  const aindaExiste = cursosAtuais.some((c) => String(c.id) === String(estado.idCursoAtual));
+  if (!aindaExiste && cursosAtuais.length) {
+    estado.idCursoAtual = String(cursosAtuais[cursosAtuais.length - 1].id);
   }
+
   renderTudo();
 }
 

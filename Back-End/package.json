@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/server.js",
   "scripts": {
-    "test": "echo \"O ambiente de testes está configurado. Parabéns!\" && exit 0",
+    "test": "node --test src/**/*.test.js",
     "start": "node src/server.js",
     "dev": "nodemon src/server.js"
   },

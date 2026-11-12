@@ -42,33 +42,18 @@
 
       <nav class="menu" id="menu" aria-label="Menu do aluno">
         <a href="#" class="active" data-view="aprender"><span data-icon="learn"></span>Aprender</a>
-
-        <span class="soon-item" aria-disabled="true" title="Futuramente">
-          <span data-icon="zap"></span>Praticar<small>Futuramente</small>
-        </span>
-        <span class="soon-item" aria-disabled="true" title="Futuramente">
-          <span data-icon="folder"></span>Projetos<small>Futuramente</small>
-        </span>
-
-        <hr>
-
         <a href="#" data-view="cursos"><span data-icon="grid"></span>Cursos</a>
-
-        <span class="soon-item" aria-disabled="true" title="Futuramente">
-          <span data-icon="trophy"></span>Ranking<small>Futuramente</small>
-        </span>
-        <span class="soon-item" aria-disabled="true" title="Futuramente">
-          <span data-icon="bag"></span>Loja<small>Futuramente</small>
-        </span>
       </nav>
 
-      <div class="side-bottom">
-        <div class="stats">
-          <div class="stat" title="Moedas"><span data-icon="coin" data-size="18"></span><b id="coins">0</b></div>
-          <div class="stat" title="Sequência de dias"><span data-icon="flame" data-size="18"></span><b id="streak">0
-              dias</b></div>
+      <div class="mini-streak" id="sidebarStreak">
+        <div class="mini-head">
+          <span>Sequência</span>
+          <strong id="miniStreakCount">0 dias</strong>
         </div>
+        <div class="mini-week" id="miniWeek"></div>
+      </div>
 
+      <div class="side-bottom">
         <div class="user">
           <div class="avatar" id="userAvatar">U</div>
           <span id="userName">Aluno</span>

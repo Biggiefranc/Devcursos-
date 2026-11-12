@@ -16,7 +16,10 @@ export async function configurarPersistencia(lembrar = true) {
 
 export async function tokenAtual() {
     const usuario = auth.currentUser;
-    return usuario ? usuario.getIdToken() : null;
+    if (usuario) return usuario.getIdToken();
+
+    const tokenSalvo = localStorage.getItem("devcursos_token");
+    return tokenSalvo || null;
 }
 
 export async function requisicaoAPI(caminho, opcoes = {}) {

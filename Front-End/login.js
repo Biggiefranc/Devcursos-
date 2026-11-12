@@ -3,6 +3,21 @@ import { signInWithPopup, signInWithEmailAndPassword, sendEmailVerification, sen
 import { auth, googleProvider } from "./firebase/firebase-config";
 import { configurarPersistencia, sincronizarPerfil } from "./services/api";
 
+function destinoDepoisDoLogin() {
+    const params = new URLSearchParams(window.location.search);
+    const destino = params.get("redirect");
+
+    if (!destino) return "menudashbord.html";
+
+    try {
+        const url = new URL(destino, window.location.origin);
+        if (url.origin !== window.location.origin) return "menudashbord.html";
+        return `${url.pathname}${url.search}` || "menudashbord.html";
+    } catch {
+        return "menudashbord.html";
+    }
+}
+
 const loginForm = document.getElementById("loginForm");
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("senha");
@@ -70,12 +85,21 @@ loginForm.addEventListener("submit", async (event) => {
             );
         }
 
-        await sincronizarPerfil(
-            credencial.user.displayName ||
-            credencial.user.email.split("@")[0]
-        );
+        const nome = credencial.user.displayName ||
+            credencial.user.email.split("@")[0];
 
-        window.location.href = "menudashbord.html";
+        await sincronizarPerfil(nome);
+
+        const token = await credencial.user.getIdToken();
+        localStorage.setItem("devcursos_token", token);
+        localStorage.setItem("devcursos_user", JSON.stringify({
+            uid: credencial.user.uid,
+            nome,
+            email: credencial.user.email,
+            foto: credencial.user.photoURL || null
+        }));
+
+        window.location.href = destinoDepoisDoLogin();
 
     } catch (erro) {
         console.error("Falha no login:", erro);
@@ -146,7 +170,7 @@ async function autenticarComGoogle() {
       foto: user.photoURL
     }));
 
-    window.location.href = "menudashbord.html";
+    window.location.href = destinoDepoisDoLogin();
   } catch (error) {
     console.error("Erro no login com Google:", error.message);
     alert("Erro ao entrar com o Google: " + error.message);

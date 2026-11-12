@@ -1,5 +1,8 @@
 
-const { firebaseAuth } = require("../providers/firebaseAdmin");
+const {
+    firebaseAuth,
+    shouldBypassFirebaseAuth
+} = require("../providers/firebaseAdmin");
 
 // Erros que indicam que o token ou a conta não são válidos.
 const ERROS_DE_AUTENTICACAO = new Set([
@@ -12,6 +15,15 @@ const ERROS_DE_AUTENTICACAO = new Set([
 ]);
 
 async function autenticar(req, res, next) {
+    if (shouldBypassFirebaseAuth) {
+        req.firebaseUser = {
+            uid: "local-dev-user",
+            email: "local@devcursos.local",
+            emailVerified: true
+        };
+        return next();
+    }
+
     const cabecalho = req.headers.authorization || "";
 
     // Espera o formato: Authorization: Bearer <token>

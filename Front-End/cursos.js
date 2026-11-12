@@ -41,6 +41,7 @@ let provaAprovada = false;
 
 const parametros = new URLSearchParams(window.location.search);
 const cursoId = parametros.get("curso");
+const aulaSelecionada = parametros.get("aula") || (window.location.hash.match(/aula-(.+)/) || [])[1] || "";
 
 async function buscarJson(url) {
     const resposta = await fetch(url);
@@ -80,10 +81,12 @@ function salvarConclusoesLocais() {
 }
 
 async function carregarConclusoes() {
-    if (!tokenAtual()) {
+    const token = await tokenAtual();
+    if (!token) {
         carregarConclusoesLocais();
         return;
     }
+
     try {
         const dados = await requisicaoAPI(
             `/cursos/${encodeURIComponent(cursoId)}/progresso`
@@ -92,11 +95,13 @@ async function carregarConclusoes() {
         salvarConclusoesLocais();
     } catch (erro) {
         if (erro.status === 401) {
-            await encerrarSessao();
-            throw new Error("Sua sessão expirou. Entre novamente.");
+            console.warn("Sessão expirada ou ainda não revalidada. Usando progresso local.");
+            carregarConclusoesLocais();
+            return;
         }
+
         console.error("Não foi possível sincronizar o progresso com a API:", erro);
-        throw erro;
+        carregarConclusoesLocais();
     }
 }
 
@@ -144,7 +149,26 @@ function contarAcertos() {
 
 /* ----- Renderização ----- */
 function renderizarMarkdown(markdown) {
-    return DOMPurify.sanitize(marked.parse(String(markdown ?? "")));
+    const texto = String(markdown ?? "");
+    const escapeHtml = (valor) => valor
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+    return texto
+        .split(/\n{2,}/)
+        .map((bloco) => {
+            const linhas = bloco
+                .split(/\n/)
+                .map((linha) => escapeHtml(linha).replace(/\s{2,}/g, " ").trim())
+                .filter(Boolean)
+                .join("<br>");
+
+            return linhas ? `<p>${linhas}</p>` : "";
+        })
+        .join("");
 }
 
 function idDaSecao(key) {
@@ -205,7 +229,9 @@ function montarMenu() {
             criarElemento("span", "", titulo)
         );
         botao.addEventListener("click", () => {
-            document.getElementById(idDaSecao(key))?.scrollIntoView();
+            const secaoId = idDaSecao(key);
+            window.location.hash = secaoId;
+            document.getElementById(secaoId)?.scrollIntoView({ behavior: "smooth", block: "start" });
         });
         return botao;
     };
@@ -444,13 +470,20 @@ async function iniciarCurso() {
 
         montarMenu();
         renderTudo();
-        document.querySelectorAll(".aula-secao:not(.prova-secao)").forEach(s => observador.observe(s));
-        atualizarProgresso();
+
+    const primeiroModulo = document.querySelector(".modulo");
+    if (primeiroModulo) primeiroModulo.classList.add("aberto");
+
         verificarFimDaPagina();
 
-        // Se o link tiver #aula-ID, vai direto para ela
-        const hash = decodeURIComponent((window.location.hash.match(/aula-(.+)/) || [])[1] || "");
-        if (hash) document.getElementById(`aula-${hash}`)?.scrollIntoView();
+        const alvo = decodeURIComponent(aulaSelecionada || (window.location.hash.match(/aula-(.+)/) || [])[1] || "");
+        if (alvo) {
+            const secao = document.getElementById(`aula-${alvo}`);
+            if (secao) {
+                setTimeout(() => secao.scrollIntoView({ behavior: "smooth", block: "start" }), 160);
+                destacarNaLateral(alvo);
+            }
+        }
     } catch (erro) {
         console.error("Erro ao carregar o curso:", erro);
         mostrarErro("Não foi possível carregar este curso. Verifique se a API e o MySQL estão funcionando e tente atualizar a página.");

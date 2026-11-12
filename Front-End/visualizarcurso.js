@@ -32,7 +32,9 @@ import { requisicaoAPI, encerrarSessao } from "./services/api";
   async function get(path) {
     return requisicaoAPI(path);
   }
-  function isLogged() { return Boolean(auth.currentUser && user); }
+  function isLogged() {
+    return Boolean(auth.currentUser || user || localStorage.getItem("devcursos_token"));
+  }
   function getFavorites() {
     try { return JSON.parse(localStorage.getItem(favoriteKey) || "[]").map(String); }
     catch { return []; }
@@ -44,16 +46,40 @@ import { requisicaoAPI, encerrarSessao } from "./services/api";
   }
   async function updateAccount() {
     if (!accountLink) return;
-    if (!auth.currentUser) {
+
+    const usuarioSalvo = (() => {
+      try { return JSON.parse(localStorage.getItem("devcursos_user") || "null"); }
+      catch { return null; }
+    })();
+
+    if (!auth.currentUser && !localStorage.getItem("devcursos_token") && !usuarioSalvo) {
       accountLink.textContent = "Entrar";
-      accountLink.href = "login.html";
+      accountLink.href = `login.html?redirect=${encodeURIComponent(`${location.pathname}${location.search}`)}`;
+      accountLink.onclick = null;
       return;
     }
+
+    if (!auth.currentUser && usuarioSalvo) {
+      user = usuarioSalvo;
+      accountLink.textContent = displayName(user);
+      accountLink.href = "#";
+      accountLink.onclick = async event => {
+        event.preventDefault();
+        if (confirm("Deseja sair da sua conta?")) {
+          await encerrarSessao();
+          localStorage.removeItem("devcursos_token");
+          localStorage.removeItem("devcursos_user");
+          location.href = "menudashbord.html";
+        }
+      };
+      return;
+    }
+
     try {
       const data = await get("/me");
       if (!data?.usuario) throw new Error("Sessão inválida");
       user = data.usuario;
-      localStorage.setItem("devcursosUsuario", JSON.stringify(user));
+      localStorage.setItem("devcursos_user", JSON.stringify(user));
       accountLink.textContent = displayName(user);
       accountLink.href = "#";
       accountLink.onclick = async event => {
@@ -67,7 +93,7 @@ import { requisicaoAPI, encerrarSessao } from "./services/api";
       user = null;
       if (auth.currentUser) await encerrarSessao();
       accountLink.textContent = "Entrar";
-      accountLink.href = "login.html";
+      accountLink.href = `login.html?redirect=${encodeURIComponent(`${location.pathname}${location.search}`)}`;
       accountLink.onclick = null;
     }
   }
@@ -97,8 +123,8 @@ import { requisicaoAPI, encerrarSessao } from "./services/api";
     const fav = getFavorites().includes(String(course.id));
     const categoria = encodeURIComponent(slugCategoria(course.categoria));
     const start = isLogged()
-      ? `<a class="primary-button" href="visualizarcurso.html?curso=${encodeURIComponent(course.id)}">Começar agora</a>`
-      : `<a class="login-button" href="login.html">Entrar</a>`;
+      ? `<a class="primary-button" href="cursos.html?curso=${encodeURIComponent(course.id)}">Começar agora</a>`
+      : `<a class="login-button" href="login.html?redirect=${encodeURIComponent(`cursos.html?curso=${course.id}`)}">Entrar</a>`;
     root.innerHTML = `
       <section class="detail-main">
         <div class="detail-actions">
@@ -118,7 +144,9 @@ import { requisicaoAPI, encerrarSessao } from "./services/api";
           <button class="module-toggle" type="button" aria-expanded="${i === 0}"><span>${i + 1}. ${esc(m.titulo || "Introdução")}</span><span aria-hidden="true">🔽</span></button>
           <div class="lesson-list">${(m.aulas || []).length ? m.aulas.map((a, j) => {
       const isDone = completed.has(String(a.id));
-      const href = isLogged() ? `visualizarcurso.html?curso=${encodeURIComponent(course.id)}` : "login.html";
+      const href = isLogged()
+        ? `cursos.html?curso=${encodeURIComponent(course.id)}&aula=${encodeURIComponent(a.id)}`
+        : `login.html?redirect=${encodeURIComponent(`cursos.html?curso=${course.id}&aula=${a.id}`)}`;
       return `<a class="lesson ${isDone ? "completed" : ""}" href="${href}"><span>${i + 1}.${j + 1} &nbsp; ${esc(a.titulo || `Aula ${j + 1}`)}</span><span aria-label="${isDone ? "Concluída" : "Pendente"}">${isDone ? "✓" : ""}</span></a>`;
     }).join("") : `<p class="small-note">As aulas deste módulo ainda não foram cadastradas.</p>`}</div>
         </section>`).join("") : `<p class="notice">Este curso ainda não possui módulos cadastrados.</p>`}</div>
@@ -142,13 +170,13 @@ import { requisicaoAPI, encerrarSessao } from "./services/api";
       root.innerHTML = `<p class="notice">Abra o catálogo pelo Live Server para manter a sessão e carregar o curso corretamente: <a href="http://localhost:5173/menudashbord.html">abrir DevCursos+</a>.</p>`;
       return;
     }
-    await new Promise(resolve => {
-      const unsubscribe = onAuthStateChanged(auth, () => {
-        unsubscribe();
-        resolve();
-      });
-    });
-    await updateAccount();
+
+    try {
+      await updateAccount();
+    } catch (error) {
+      console.warn("Não foi possível validar a conta no momento:", error);
+    }
+
     if (!id) {
       root.innerHTML = `<p class="notice">Selecione um curso no <a href="menudashbord.html">catálogo</a> para visualizar os módulos e o progresso.</p>`;
       return;

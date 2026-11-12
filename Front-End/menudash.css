@@ -256,31 +256,66 @@ em {
 
 }
 
+.mini-streak {
+  background: rgba(255, 255, 255, .02);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 12px 10px;
+}
+
+.mini-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.mini-head strong {
+  color: var(--text);
+  letter-spacing: .04em;
+}
+
+.mini-week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.mini-day {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 9px;
+  border: 1px solid var(--border-2);
+  background: rgba(255, 255, 255, .02);
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  font-size: .58rem;
+  font-weight: 800;
+}
+
+.mini-day.done {
+  background: rgba(79, 211, 100, .12);
+  border-color: rgba(79, 211, 100, .32);
+  color: var(--green);
+}
+
+.mini-day.today {
+  border-color: rgba(167, 123, 255, .54);
+  color: var(--purple);
+}
+
 .side-bottom {
   margin-top: auto;
   display: flex;
   flex-direction: column;
   gap: 10px;
-}
-
-.stats {
-  display: flex;
-  gap: 8px;
-
-
-}
-
-.stat {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 9px;
-  border: 1.5px solid var(--border-2);
-  border-radius: 12px;
-  font-size: .88rem;
-  color: var(--accent);
 }
 
 .user {
