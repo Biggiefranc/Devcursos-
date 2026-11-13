@@ -43,9 +43,11 @@ const pool = mysql.createPool({
         }
         : undefined,
 
-    waitForConnections: false,
-    connectionLimit: 5,
-    queueLimit: 0
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 0
 });
 
 // Testa a conexão com o banco de dados

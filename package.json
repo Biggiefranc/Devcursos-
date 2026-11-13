@@ -1,0 +1,11 @@
+{
+  "name": "devcursos-root",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/dev.js",
+    "start": "npm --prefix Back-End run start",
+    "start:back": "npm --prefix Back-End run start",
+    "start:front": "npm --prefix Front-End run dev",
+    "build": "npm --prefix Front-End run build"
+  }
+}

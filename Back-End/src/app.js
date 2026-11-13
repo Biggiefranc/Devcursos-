@@ -11,7 +11,7 @@ const tratarErros = require("./shared/middlewares/tratarErros");
 
 const app = express();
 
-const allowedOrigins = [
+const allowedOrigins = new Set([
   "http://localhost:3001",
   "http://localhost:5173",
   "http://localhost:5174",
@@ -19,19 +19,15 @@ const allowedOrigins = [
   "http://127.0.0.1:5173",
   "http://127.0.0.1:5174",
   process.env.FRONTEND_URL
-].filter(Boolean);
+].filter(Boolean));
 
 const isAllowedOrigin = (origin) => {
   if (!origin) return true;
 
   try {
     const { protocol, hostname } = new URL(origin);
-
-    const isLocalHost =
-      ["http:", "https:"].includes(protocol) &&
-      ["localhost", "127.0.0.1"].includes(hostname);
-
-    return isLocalHost || allowedOrigins.includes(origin);
+    const isLocalHost = ["http:", "https:"].includes(protocol) && ["localhost", "127.0.0.1"].includes(hostname);
+    return isLocalHost || allowedOrigins.has(origin);
   } catch {
     return false;
   }
@@ -59,13 +55,13 @@ app.use((req, res, next) => {
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (isAllowedOrigin(origin)) {
+      if (!origin || isAllowedOrigin(origin)) {
         callback(null, true);
         return;
       }
 
-      console.log("CORS bloqueado para:", origin);
-      callback(new Error("Origem não autorizada pelo CORS"));
+      console.warn("CORS bloqueado para:", origin);
+      callback(null, false);
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
