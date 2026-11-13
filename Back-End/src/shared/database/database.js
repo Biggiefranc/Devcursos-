@@ -2,9 +2,9 @@ const mysql = require("mysql2/promise");
 const {
     DB_HOST,
     DB_PORT,
-    DB_USER, 
-    DB_PASSWORD, 
-    DB_NAME, 
+    DB_USER,
+    DB_PASSWORD,
+    DB_NAME,
     DB_SSL
 } = require("../../config/env");
 
@@ -13,9 +13,9 @@ const {
 //    user: DB_USER,
 //    password: DB_PASSWORD,
 //    database: DB_NAME,
- //   waitForConnections: true,
- //   connectionLimit: 10,
- //   queueLimit: 0
+//   waitForConnections: true,
+//   connectionLimit: 10,
+//   queueLimit: 0
 //});
 
 //const pool = mysql.createPool({
