@@ -327,7 +327,7 @@ img {
   position: relative
 }
 
-body > .tema-menu {
+body>.tema-menu {
   position: fixed;
   top: 18px;
   right: 20px;

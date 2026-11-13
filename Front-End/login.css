@@ -4,7 +4,8 @@
    Carregue DEPOIS do login.css
    ========================================================== */
 
-html, body {
+html,
+body {
     margin: 0;
     height: 100%;
 }
@@ -53,7 +54,9 @@ main.login-page .logo {
     color: var(--text);
 }
 
-main.login-page .logo span span { color: var(--purple); }
+main.login-page .logo span span {
+    color: var(--purple);
+}
 
 main.login-page h1 {
     margin: 0;
@@ -69,7 +72,9 @@ main.login-page .subtitle {
     color: var(--muted);
 }
 
-main.login-page .form-group { margin-bottom: 18px; }
+main.login-page .form-group {
+    margin-bottom: 18px;
+}
 
 main.login-page label {
     display: block;
@@ -79,9 +84,13 @@ main.login-page label {
     color: var(--text);
 }
 
-main.login-page .req { color: var(--red); }
+main.login-page .req {
+    color: var(--red);
+}
 
-main.login-page .input-wrapper { position: relative; }
+main.login-page .input-wrapper {
+    position: relative;
+}
 
 main.login-page input {
     box-sizing: border-box;
@@ -97,7 +106,10 @@ main.login-page input {
     transition: border-color .2s, box-shadow .2s;
 }
 
-main.login-page input::placeholder { color: var(--muted); opacity: .7; }
+main.login-page input::placeholder {
+    color: var(--muted);
+    opacity: .7;
+}
 
 main.login-page input:focus {
     border-color: var(--focus);
@@ -117,7 +129,10 @@ main.login-page .toggle-senha {
     color: var(--muted);
     cursor: pointer;
 }
-main.login-page .toggle-senha:hover { color: var(--text); }
+
+main.login-page .toggle-senha:hover {
+    color: var(--text);
+}
 
 main.login-page .login-error {
     min-height: 20px;
@@ -140,18 +155,25 @@ main.login-page .login-button {
     cursor: pointer;
     transition: background .2s;
 }
-main.login-page .login-button:hover { background: var(--blue-hover); }
+
+main.login-page .login-button:hover {
+    background: var(--blue-hover);
+}
 
 main.login-page .login-links {
     margin-top: 32px;
     text-align: center;
 }
+
 main.login-page .login-links a {
     font-size: 14px;
     color: var(--link);
     text-decoration: underline;
 }
-main.login-page .login-links a:hover { color: var(--accent); }
+
+main.login-page .login-links a:hover {
+    color: var(--accent);
+}
 
 
 /* ==========================================================
@@ -170,27 +192,33 @@ main.login-page .login-links a:hover { color: var(--accent); }
 /* brilho que "respira" atrás de tudo */
 .glow {
     position: absolute;
-    top: 50%; left: 50%;
-    width: 560px; height: 560px;
+    top: 50%;
+    left: 50%;
+    width: 560px;
+    height: 560px;
     margin: -280px 0 0 -280px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(167,123,255,.28), transparent 65%);
+    background: radial-gradient(circle, rgba(167, 123, 255, .28), transparent 65%);
     animation: respirar 6s ease-in-out infinite;
 }
 
 /* anel girando */
 .ring {
     position: absolute;
-    top: 50%; left: 50%;
-    width: 480px; height: 480px;
+    top: 50%;
+    left: 50%;
+    width: 480px;
+    height: 480px;
     margin: -240px 0 0 -240px;
     border-radius: 50%;
     border: 1px dashed var(--border-2);
     opacity: .6;
     animation: girar 40s linear infinite;
 }
+
 .ring.r2 {
-    width: 640px; height: 640px;
+    width: 640px;
+    height: 640px;
     margin: -320px 0 0 -320px;
     opacity: .35;
     animation-duration: 70s;
@@ -202,26 +230,32 @@ main.login-page .login-links a:hover { color: var(--accent); }
     position: absolute;
     inset: 0;
 }
+
 .stars::before {
     content: "";
     position: absolute;
-    top: 0; left: 0;
-    width: 3px; height: 3px;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 3px;
     border-radius: 50%;
     background: var(--accent);
     box-shadow:
-        80px 60px var(--accent),  220px 130px var(--purple), 380px 40px var(--accent),
+        80px 60px var(--accent), 220px 130px var(--purple), 380px 40px var(--accent),
         520px 150px var(--purple), 660px 70px var(--accent), 780px 200px var(--purple),
         140px 320px var(--purple), 300px 450px var(--accent), 460px 380px var(--purple),
         600px 520px var(--accent), 740px 430px var(--purple), 90px 560px var(--accent),
         830px 590px var(--accent), 700px 330px var(--accent);
     animation: piscar 3.5s ease-in-out infinite;
 }
+
 .stars::after {
     content: "";
     position: absolute;
-    top: 0; left: 0;
-    width: 2px; height: 2px;
+    top: 0;
+    left: 0;
+    width: 2px;
+    height: 2px;
     border-radius: 50%;
     background: var(--text-2);
     box-shadow:
@@ -247,13 +281,15 @@ main.login-page .login-links a:hover { color: var(--accent); }
     width: 320px;
     animation: flutuar 5s ease-in-out infinite;
 }
+
 .monitor .tela {
     background: var(--pre-bg);
     border: 6px solid var(--border-2);
     border-radius: 12px;
-    box-shadow: 0 0 40px rgba(167,123,255,.35), var(--shadow);
+    box-shadow: 0 0 40px rgba(167, 123, 255, .35), var(--shadow);
     overflow: hidden;
 }
+
 .monitor .barra {
     display: flex;
     gap: 6px;
@@ -261,13 +297,21 @@ main.login-page .login-links a:hover { color: var(--accent); }
     background: var(--surface-2);
     border-bottom: 1px solid var(--border);
 }
+
 .monitor .barra i {
-    width: 9px; height: 9px;
+    width: 9px;
+    height: 9px;
     border-radius: 50%;
     background: var(--red);
 }
-.monitor .barra i:nth-child(2) { background: var(--accent); }
-.monitor .barra i:nth-child(3) { background: var(--green); }
+
+.monitor .barra i:nth-child(2) {
+    background: var(--accent);
+}
+
+.monitor .barra i:nth-child(3) {
+    background: var(--green);
+}
 
 .monitor .codigo {
     padding: 14px 14px 16px;
@@ -277,6 +321,7 @@ main.login-page .login-links a:hover { color: var(--accent); }
     color: var(--pre-text);
     min-height: 118px;
 }
+
 .monitor .linha {
     display: block;
     width: 0;
@@ -285,14 +330,28 @@ main.login-page .login-links a:hover { color: var(--accent); }
     animation: digitar 9s steps(var(--n)) infinite;
     animation-delay: var(--d);
 }
-.monitor .k { color: var(--purple); }       /* palavras-chave */
-.monitor .s { color: var(--green-text); }   /* textos */
-.monitor .f { color: var(--accent); }       /* funções */
+
+.monitor .k {
+    color: var(--purple);
+}
+
+/* palavras-chave */
+.monitor .s {
+    color: var(--green-text);
+}
+
+/* textos */
+.monitor .f {
+    color: var(--accent);
+}
+
+/* funções */
 
 /* cursor piscando */
 .monitor .cursor {
     display: inline-block;
-    width: 8px; height: 14px;
+    width: 8px;
+    height: 14px;
     margin-left: 2px;
     vertical-align: -2px;
     background: var(--accent);
@@ -301,12 +360,15 @@ main.login-page .login-links a:hover { color: var(--accent); }
 
 /* pé do monitor */
 .monitor .pescoco {
-    width: 46px; height: 22px;
+    width: 46px;
+    height: 22px;
     margin: 0 auto;
     background: linear-gradient(var(--border-2), var(--border));
 }
+
 .monitor .base {
-    width: 120px; height: 9px;
+    width: 120px;
+    height: 9px;
     margin: 0 auto;
     border-radius: 6px 6px 3px 3px;
     background: var(--border-2);
@@ -323,8 +385,17 @@ main.login-page .login-links a:hover { color: var(--accent); }
     letter-spacing: .5px;
     color: var(--text);
 }
-.marca b { color: var(--purple); font-weight: 700; }
-.marca .chapeu { font-size: 34px; display: inline-block; animation: balancar 3s ease-in-out infinite; }
+
+.marca b {
+    color: var(--purple);
+    font-weight: 700;
+}
+
+.marca .chapeu {
+    font-size: 34px;
+    display: inline-block;
+    animation: balancar 3s ease-in-out infinite;
+}
 
 /* caixa da mensagem (igual à da Alura) */
 .promo {
@@ -338,11 +409,13 @@ main.login-page .login-links a:hover { color: var(--accent); }
     border-radius: 6px;
     backdrop-filter: blur(6px);
 }
+
 .promo p {
     margin: 0 0 18px;
     font-size: 22px;
     color: var(--text);
 }
+
 .promo .btn-promo {
     display: inline-block;
     padding: 13px 34px;
@@ -358,6 +431,7 @@ main.login-page .login-links a:hover { color: var(--accent); }
     cursor: pointer;
     transition: background .2s, box-shadow .2s;
 }
+
 .promo .btn-promo:hover {
     background: var(--blue);
     box-shadow: 0 0 18px rgba(11, 43, 214, .6);
@@ -380,12 +454,19 @@ main.login-page .login-links a:hover { color: var(--accent); }
     line-height: 1;
     color: var(--purple);
     opacity: .75;
-    text-shadow: 0 0 18px rgba(167,123,255,.6);
+    text-shadow: 0 0 18px rgba(167, 123, 255, .6);
     animation: subir var(--dur) ease-in-out infinite;
     animation-delay: var(--delay);
 }
-.flutua.claro { color: var(--accent); }
-.flutua.verde { color: var(--green); text-shadow: 0 0 18px rgba(79,211,100,.5); }
+
+.flutua.claro {
+    color: var(--accent);
+}
+
+.flutua.verde {
+    color: var(--green);
+    text-shadow: 0 0 18px rgba(79, 211, 100, .5);
+}
 
 /* mini monitores */
 .mini {
@@ -399,19 +480,23 @@ main.login-page .login-links a:hover { color: var(--accent); }
     border-radius: 6px;
     background:
         linear-gradient(var(--purple), var(--purple)) 14% 22% / 52% 3px no-repeat,
-        linear-gradient(var(--green), var(--green))   14% 44% / 36% 3px no-repeat,
+        linear-gradient(var(--green), var(--green)) 14% 44% / 36% 3px no-repeat,
         linear-gradient(var(--accent), var(--accent)) 26% 66% / 44% 3px no-repeat,
         var(--pre-bg);
-    box-shadow: 0 0 22px rgba(167,123,255,.35);
+    box-shadow: 0 0 22px rgba(167, 123, 255, .35);
     opacity: .85;
     animation: subir var(--dur) ease-in-out infinite;
     animation-delay: var(--delay);
 }
-.mini::after {                      /* pezinho */
+
+.mini::after {
+    /* pezinho */
     content: "";
     position: absolute;
-    left: 50%; bottom: -11px;
-    width: 30%; height: 8px;
+    left: 50%;
+    bottom: -11px;
+    width: 30%;
+    height: 8px;
     transform: translateX(-50%);
     border-radius: 0 0 4px 4px;
     background: var(--border-2);
@@ -419,41 +504,119 @@ main.login-page .login-links a:hover { color: var(--accent); }
 
 /* ---------- 4.3 ANIMAÇÕES ---------- */
 @keyframes digitar {
-    0%       { width: 0; }
-    30%, 88% { width: calc(var(--n) * 1ch); }
-    100%     { width: 0; }
+    0% {
+        width: 0;
+    }
+
+    30%,
+    88% {
+        width: calc(var(--n) * 1ch);
+    }
+
+    100% {
+        width: 0;
+    }
 }
-@keyframes cursor   { 50% { opacity: 0; } }
-@keyframes flutuar  { 50% { transform: translateY(-12px); } }
+
+@keyframes cursor {
+    50% {
+        opacity: 0;
+    }
+}
+
+@keyframes flutuar {
+    50% {
+        transform: translateY(-12px);
+    }
+}
+
 @keyframes subir {
-    0%, 100% { transform: translateY(0)     rotate(-4deg); }
-    50%      { transform: translateY(-22px) rotate(5deg); }
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(-4deg);
+    }
+
+    50% {
+        transform: translateY(-22px) rotate(5deg);
+    }
 }
-@keyframes girar    { to { transform: rotate(360deg); } }
-@keyframes respirar { 50% { transform: scale(1.15); opacity: .7; } }
-@keyframes piscar   { 50% { opacity: .25; } }
-@keyframes balancar { 50% { transform: rotate(-12deg); } }
+
+@keyframes girar {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes respirar {
+    50% {
+        transform: scale(1.15);
+        opacity: .7;
+    }
+}
+
+@keyframes piscar {
+    50% {
+        opacity: .25;
+    }
+}
+
+@keyframes balancar {
+    50% {
+        transform: rotate(-12deg);
+    }
+}
 
 /* quem desativou animações no sistema não vê movimento */
 @media (prefers-reduced-motion: reduce) {
-    .side-panel * , .side-panel *::before, .side-panel *::after {
+
+    .side-panel *,
+    .side-panel *::before,
+    .side-panel *::after {
         animation: none !important;
     }
-    .monitor .linha { width: calc(var(--n) * 1ch); }
+
+    .monitor .linha {
+        width: calc(var(--n) * 1ch);
+    }
 }
 
 /* ---------- 5. CELULAR / TELA PEQUENA ---------- */
 @media (max-width: 900px) {
-    main.login-page { grid-template-columns: 1fr; }
-    .side-panel { display: none; }
-    main.login-page .login-card { padding: 40px 24px; }
+    main.login-page {
+        grid-template-columns: 1fr;
+    }
+
+    .side-panel {
+        display: none;
+    }
+
+    main.login-page .login-card {
+        padding: 40px 24px;
+    }
 }
 
 /* telas baixas: encolhe o painel para caber */
 @media (max-height: 700px) {
-    .monitor { width: 270px; }
-    .monitor .codigo { min-height: 100px; }
-    .marca { font-size: 32px; margin: 18px 0 12px; }
-    .promo { padding: 16px 20px 20px; }
-    .promo p { font-size: 19px; margin-bottom: 12px; }
+    .monitor {
+        width: 270px;
+    }
+
+    .monitor .codigo {
+        min-height: 100px;
+    }
+
+    .marca {
+        font-size: 32px;
+        margin: 18px 0 12px;
+    }
+
+    .promo {
+        padding: 16px 20px 20px;
+    }
+
+    .promo p {
+        font-size: 19px;
+        margin-bottom: 12px;
+    }
 }

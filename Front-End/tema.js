@@ -66,7 +66,7 @@
     function salvar(tema) {
         try {
             localStorage.setItem(CHAVE, tema);
-        } catch (e) {}
+        } catch (e) { }
 
         aplicar(tema);
     }
