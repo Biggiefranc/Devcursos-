@@ -27,7 +27,9 @@ onAuthStateChanged(auth, async (usuario) => {
     const temSessaoLocal = Boolean(localStorage.getItem("devcursos_token"));
 
     if (!usuario) {
-        if (precisaLogin && !temSessaoLocal) {
+        if (precisaLogin) {
+            localStorage.removeItem("devcursos_token");
+            localStorage.removeItem("devcursos_user");
             const destino = encodeURIComponent(`${location.pathname}${location.search}`);
             window.location.replace(`login.html?redirect=${destino}`);
         }

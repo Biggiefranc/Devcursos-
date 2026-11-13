@@ -25,8 +25,13 @@ import { requisicaoAPI, encerrarSessao } from "./services/api";
   }
   function illustration(course) {
     const s = `${course.titulo || ""} ${course.categoria || ""}`.toLowerCase();
-    if (s.includes("python") || s.includes("phyton")) return `<svg viewBox="0 0 80 80" aria-hidden="true"><path d="M39 12c-13 0-13 6-13 13v8h18v5H20c-7 0-10 5-10 13s4 13 12 13h9v-9c0-7 5-12 12-12h12c6 0 10-5 10-12V25c0-8-7-13-16-13H39Z"/><circle cx="35" cy="22" r="2" fill="currentColor"/><path d="M42 68c13 0 13-6 13-13v-8H37v-5h24c7 0 10-5 10-13s-4-13-12-13h-9v9c0 7-5 12-12 12H26c-6 0-10 5-10 12v6c0 8 7 13 16 13h10Z"/></svg>`;
-    if (s.includes("web") || s.includes("html") || s.includes("javascript")) return `<svg viewBox="0 0 80 80" aria-hidden="true"><rect x="10" y="15" width="60" height="48" rx="4"/><path d="M10 27h60M27 39l-8 7 8 7m26-14 8 7-8 7m-7-16-8 18"/></svg>`;
+    if (s.includes("python") || s.includes("phyton")) {
+      return `<img class="tech-logo" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python" width="72" height="72">`;
+    }
+    if (s.includes("javascript") || s.includes("js")) {
+      return `<img class="tech-logo" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" alt="JavaScript" width="72" height="72">`;
+    }
+    if (s.includes("web") || s.includes("html")) return `<svg viewBox="0 0 80 80" aria-hidden="true"><rect x="10" y="15" width="60" height="48" rx="4"/><path d="M10 27h60M27 39l-8 7 8 7m26-14 8 7-8 7m-7-16-8 18"/></svg>`;
     return `<svg viewBox="0 0 80 80" aria-hidden="true"><path d="M14 25 40 12l26 13-26 13-26-13Z"/><path d="M23 31v18c10 9 24 9 34 0V31M66 26v20"/><circle cx="66" cy="50" r="4"/></svg>`;
   }
   async function get(path) {

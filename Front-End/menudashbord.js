@@ -57,6 +57,8 @@ const SVG = {
   programacao: '<polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line>',
   frontend: '<rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line>',
   devops: '<line x1="6" y1="3" x2="6" y2="15"></line><circle cx="18" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><path d="M18 9a9 9 0 0 1-9 9"></path>',
+  python: '<path d="M8 4.5h5.5A3.5 3.5 0 0 1 17 8v1.5H8.5A2.5 2.5 0 0 0 6 12v1.5a3.5 3.5 0 0 1 3.5-3.5H17V8a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v7a4 4 0 0 0 4 4h5.5A3.5 3.5 0 0 1 17 16v-1.5H8.5A2.5 2.5 0 0 0 6 17v-1.5a3.5 3.5 0 0 1 3.5-3.5H17v1.5a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V8a4 4 0 0 1 4-4Z" fill="currentColor" opacity="0.1"></path><path d="M12 3.5v8.5M12 12v8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path><path d="M9 5.5c0-1.1.9-2 2-2h5.5A2.5 2.5 0 0 1 19 6v4.5c0 1.4-1.1 2.5-2.5 2.5H9.5A2.5 2.5 0 0 1 7 10.5V8c0-1.4 1.1-2.5 2.5-2.5H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M12 18.5v-8.5M15 18.5c0 1.1-.9 2-2 2H7.5A2.5 2.5 0 0 1 5 18.5V14c0-1.4 1.1-2.5 2.5-2.5H15.5A2.5 2.5 0 0 1 18 14v2.5c0 1.4-1.1 2.5-2.5 2.5H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>',
+  javascript: '<circle cx="12" cy="12" r="8" fill="currentColor" opacity="0.18"></circle><path d="M7 8.5h10v7a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2v-7Z" fill="currentColor" opacity="0.2"></path><path d="M12 9.5v7M9.5 11.5h5.5M9.5 14.5h5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M16 8l2.5 2.5L16 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>',
   check: '<polyline points="20 6 9 17 4 12"></polyline>',
   lock: '<rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path>',
   chev: '<polyline points="9 18 15 12 9 6"></polyline>',
@@ -73,6 +75,19 @@ const SVG = {
 };
 const svg = (nome, s = 20) =>
   `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${SVG[nome] || ''}</svg>`;
+
+function tecnologiaIcone(curso) {
+  const m = `${curso?.titulo || ''} ${curso?.categoria || ''}`.toLowerCase();
+  const cat = CATEGORIAS[curso?.categoria] ? curso.categoria : 'frontend';
+
+  if (m.includes('python') || m.includes('phyton')) {
+    return '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python" width="26" height="26" style="display:block;object-fit:contain;">';
+  }
+  if (m.includes('javascript') || m.includes('js')) {
+    return '<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" alt="JavaScript" width="26" height="26" style="display:block;object-fit:contain;">';
+  }
+  return svg(catIcone(cat), 26);
+}
 
 // ===== ESTADO (só em memória) =====
 const estado = {
@@ -226,9 +241,34 @@ function renderAprender() {
   $('nextSection').disabled = !total || estado.secao >= total - 1;
 
   const modulos = secao?.modulos || [];
-  $('learnEmpty').hidden = modulos.length > 0;
+  const moduloAtual = modulos.find((m) => m.status === 'atual')
+    || modulos.find((m) => m.status === 'concluido')
+    || modulos[0] || null;
+  const totalModulos = modulos.length;
+  const concluidos = modulos.filter((m) => m.status === 'concluido').length;
+  const progresso = totalModulos ? Math.round((concluidos / totalModulos) * 100) : 0;
+  const resumo = `
+    <div class="learn-summary">
+      <div class="summary-card primary">
+        <span class="eyebrow">Curso atual</span>
+        <h3>${esc(curso?.titulo || 'Curso em andamento')}</h3>
+        <p>${esc(curso?.categoria || 'Curso')} · Seção ${total ? estado.secao + 1 : 0} de ${total || 0}</p>
+      </div>
+      <div class="summary-card">
+        <span class="eyebrow">Módulo em andamento</span>
+        <h3>${esc(moduloAtual?.titulo || 'Módulo inicial')}</h3>
+        <p>${moduloAtual ? `${esc(moduloAtual.tipo === 'pratica' ? 'Prática' : 'Aprender')} · ${concluidos}/${totalModulos} concluídos` : 'Ainda não há módulos disponíveis'}</p>
+      </div>
+      <div class="summary-card progress-card">
+        <span class="eyebrow">Progresso</span>
+        <strong>${progresso}%</strong>
+        <div class="mini-bar"><span style="width:${progresso}%"></span></div>
+        <small>${concluidos} de ${totalModulos} módulos concluídos</small>
+      </div>
+    </div>`;
 
-  $('modules').innerHTML = modulos.map((m, i) => {
+  $('learnEmpty').hidden = modulos.length > 0;
+  $('modules').innerHTML = `${resumo}${modulos.map((m, i) => {
     const status = m.status || 'bloqueado';
     const aberto = estado.moduloAberto === i && status !== 'bloqueado';
     const tipo = m.tipo === 'pratica' ? 'pratica' : 'aprender';
@@ -248,7 +288,7 @@ function renderAprender() {
           <div class="module-content" data-modulo-id="${esc(m.id)}"></div>
         </div>
       </article>`;
-  }).join('');
+  }).join('')}`;
 }
 
 function irSecao(delta) {
@@ -272,9 +312,10 @@ function clicarModulo(i) {
 // ===== CURSOS (progresso + sequência + catálogo) =====
 function cardCurso(c, extra, rodape) {
   const cat = CATEGORIAS[c.categoria] ? c.categoria : 'frontend';
+  const icone = tecnologiaIcone(c);
   return `
     <a href="#" class="cat ${CAT_CLASS[cat]} ${extra.selecionado ? 'selected' : ''}" data-id="${esc(c.id)}">
-      <span class="icon">${svg(catIcone(cat), 26)}</span>
+      <span class="icon">${icone}</span>
       <small>${esc(CATEGORIAS[cat])}</small>
       <h3>${esc(c.titulo)}</h3>
       ${extra.corpo || ''}

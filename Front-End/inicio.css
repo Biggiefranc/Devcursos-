@@ -6,10 +6,6 @@
    (as duas definem .brand, .search, main, h1, h2 diferentes).
    ===================================================== */
 
-:root {
-  --radius: 18px;
-}
-
 * {
   box-sizing: border-box;
   margin: 0;

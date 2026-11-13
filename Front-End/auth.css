@@ -5,35 +5,7 @@
 
 /* ---------- 1. CORES (mude aqui e muda tudo) ---------- */
 :root {
-    --bg: #150f24;
-    --surface: #1f1734;
-    --surface-2: #271d42;
-    --text: #efe9ff;
-    --text-2: #cfc4ec;
-    --muted: #a79bc6;
-    --purple: #a77bff;
-    --accent: #d2b8ff;
-    --link: #c4a6ff;
-    --border: #33284f;
-    --border-2: #4a3a6e;
-    --hover: #2c2150;
-    --green: #4fd364;
-    --green-bg: #173a22;
-    --green-text: #a8f0b5;
-    --red: #e0686b;
-    --red-bg: #3d1a1f;
-    --red-text: #ffb3b3;
-    --pre-bg: #0d0817;
-    --pre-text: #f4edff;
-    --focus: #a77bff;
-    --shadow: 0 8px 28px rgba(0, 0, 0, .35);
-
-    --blue: #0b2bd6;          /* botão azul */
-    --blue-hover: #1a3be8;
-
-    --move: .45s;             /* velocidade da transição entre telas */
-
-    color-scheme: dark;
+    --move: .45s;
 }
 
 * { box-sizing: border-box; }

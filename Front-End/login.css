@@ -4,46 +4,6 @@
    Carregue DEPOIS do login.css
    ========================================================== */
 
-/* ---------- 1. CORES (mude aqui e muda a página toda) ---------- */
-:root {
-    --bg: #150f24;
-    --surface: #1f1734;
-    --surface-2: #271d42;
-    --text: #efe9ff;
-    --text-2: #cfc4ec;
-    --muted: #a79bc6;
-    --purple: #a77bff;
-    --accent: #d2b8ff;
-    --link: #c4a6ff;
-    --border: #33284f;
-    --border-2: #4a3a6e;
-    --hover: #2c2150;
-    --green: #4fd364;
-    --green-bg: #173a22;
-    --green-text: #a8f0b5;
-    --red: #e0686b;
-    --red-bg: #3d1a1f;
-    --red-text: #ffb3b3;
-    --code-bg: #2f2350;
-    --code-text: #d2b8ff;
-    --pre-bg: #0d0817;
-    --pre-text: #f4edff;
-    --pre-border: #33284f;
-    --track: #2c2150;
-    --focus: #a77bff;
-    --shadow: 0 8px 28px rgba(0, 0, 0, .35);
-    --shadow-top: 0 2px 8px rgba(0, 0, 0, .3);
-    --placar-bg: #2c2150;
-    --placar-text: #e6dcff;
-    --menu-shadow: 0 12px 32px rgba(0, 0, 0, .5);
-
-    /* botão azul (igual ao da Alura) */
-    --blue: #0b2bd6;
-    --blue-hover: #1a3be8;
-
-    color-scheme: dark;
-}
-
 html, body {
     margin: 0;
     height: 100%;

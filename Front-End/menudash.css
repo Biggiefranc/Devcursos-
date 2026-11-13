@@ -5,10 +5,6 @@
    Mesmo estilo da página inicial (inicio.css).
    ===================================================== */
 
-:root {
-  --radius: 18px;
-}
-
 * {
   box-sizing: border-box;
   margin: 0;
@@ -90,13 +86,13 @@ em {
   top: 0;
   height: 100vh;
   overflow-y: auto;
-  background: linear-gradient(180deg, rgba(18, 20, 31, 0.9), rgba(18, 20, 31, 0.72));
+  background: var(--sidebar-bg);
   border-right: 1px solid var(--border);
   padding: 26px 18px;
   display: flex;
   flex-direction: column;
   gap: 24px;
-  box-shadow: 18px 0 40px rgba(9, 12, 18, 0.22);
+  box-shadow: var(--menu-shadow);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
 }
@@ -111,7 +107,7 @@ em {
 .brand {
   font-size: 1.6rem;
   font-weight: 800;
-  letter-spacing: -.02em;
+  letter-spacing: -.04em;
   white-space: nowrap;
   padding: 0 6px;
 }
@@ -121,12 +117,11 @@ em {
 }
 
 .current {
-
-  background: rgba(255, 255, 255, .02);
+  background: var(--sidebar-panel);
   border: 1.5px solid var(--border-2);
   border-radius: 14px;
   padding: 14px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+  box-shadow: var(--shadow-top);
 }
 
 .current label {
@@ -165,9 +160,10 @@ em {
 .bar-fill {
   height: 100%;
   width: 0;
-  background: var(--c, var(--purple));
+  background: linear-gradient(90deg, var(--purple), var(--green));
   border-radius: inherit;
   transition: width .5s ease;
+  box-shadow: 0 0 18px rgba(122, 77, 255, 0.18);
 }
 
 .menu {
@@ -204,9 +200,9 @@ em {
 }
 
 .menu a.active {
-  background: linear-gradient(135deg, rgba(167, 123, 255, 0.14), rgba(255, 255, 255, 0.02));
+  background: linear-gradient(135deg, rgba(122, 77, 255, 0.18), rgba(17, 23, 36, 0.32));
   color: var(--accent);
-  border-color: rgba(167, 123, 255, 0.2);
+  border-color: rgba(168, 142, 255, 0.28);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
@@ -546,6 +542,78 @@ em {
   white-space: nowrap;
 }
 
+.learn-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.summary-card {
+  background: var(--glass-strong);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 18px 16px;
+  box-shadow: var(--shadow-top);
+}
+
+.summary-card.primary {
+  background: linear-gradient(135deg, rgba(122, 77, 255, 0.12), rgba(79, 211, 100, 0.08));
+  border-color: rgba(122, 77, 255, 0.18);
+}
+
+.eyebrow {
+  display: inline-block;
+  font-size: .68rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.summary-card h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.35;
+  color: var(--text);
+}
+
+.summary-card p,
+.summary-card small {
+  margin: 8px 0 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.summary-card strong {
+  display: block;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -.06em;
+  color: var(--purple);
+  line-height: 1;
+}
+
+.mini-bar {
+  margin-top: 12px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--track);
+  overflow: hidden;
+}
+
+.mini-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--purple), var(--green));
+}
+
+.summary-card.progress-card strong {
+  margin-bottom: 0;
+}
+
 .modules {
   display: flex;
   flex-direction: column;
@@ -704,7 +772,8 @@ em {
 }
 
 .cat {
-  background: var(--glass-strong);
+  position: relative;
+  background: var(--card-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 26px 26px 28px;
@@ -717,12 +786,22 @@ em {
   -webkit-backdrop-filter: blur(12px);
 }
 
+.cat::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 100%;
+  height: 4px;
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: linear-gradient(90deg, rgba(122,77,255,0.74), rgba(79,211,100,0.7));
+}
+
 .cat:hover,
 .cat:focus-visible {
   transform: translateY(-6px);
-  background: var(--surface-2);
+  background: var(--card-surface-hover);
   border-color: var(--c);
-  box-shadow: var(--menu-shadow);
+  box-shadow: 0 22px 36px rgba(7, 9, 18, 0.26), 0 6px 18px rgba(91, 53, 217, 0.08);
 }
 
 .cat.selected {
@@ -731,6 +810,22 @@ em {
 
 .cat .icon {
   margin-bottom: 14px;
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: var(--surface-2);
+  border: 1px solid var(--green);
+  color: var(--green);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+}
+
+.cat .icon img,
+.cat .icon svg {
+  width: 24px;
+  height: 24px;
+  display: block;
 }
 
 .cat small {

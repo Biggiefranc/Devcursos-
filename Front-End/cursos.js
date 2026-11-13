@@ -43,6 +43,17 @@ const parametros = new URLSearchParams(window.location.search);
 const cursoId = parametros.get("curso");
 const aulaSelecionada = parametros.get("aula") || (window.location.hash.match(/aula-(.+)/) || [])[1] || "";
 
+const brandLink = document.getElementById("brandLink");
+const backLink = document.getElementById("backLink");
+
+function atualizarLinksDeNavegacao() {
+    const destinoCurso = cursoId ? `visualizarcurso.html?curso=${encodeURIComponent(cursoId)}` : "menudashbord.html";
+    if (brandLink) brandLink.href = destinoCurso;
+    if (backLink) backLink.href = destinoCurso;
+}
+
+atualizarLinksDeNavegacao();
+
 async function buscarJson(url) {
     const resposta = await fetch(url);
     const dados = await resposta.json().catch(() => null);
