@@ -200,12 +200,27 @@ function renderizarMarkdown(markdown) {
             return `<pre><code>${escaparHtml(codigo)}</code></pre>`;
         }
 
-        if (/^#{1,6}\s+/.test(bloco.trim())) {
-            const match = bloco.trim().match(/^(#{1,6})\s+(.*)$/);
-            const nivel = match[1].length;
-            const conteudo = renderizarInlineMarkdown(match[2]);
-            return `<h${nivel}>${conteudo}</h${nivel}>`;
-        }
+        
+    const blocoLimpo = bloco.trim();
+
+        if (/^#{1,6}[ \t]+/.test(blocoLimpo)) {
+            const match = blocoLimpo.match(
+                /^(#{1,6})[ \t]+([^\n]*)(?:\n([\s\S]*))?$/
+                );
+
+    if (match) {
+        const nivel = match[1].length;
+        const titulo = renderizarInlineMarkdown(match[2].trim());
+        const restante = match[3]?.trim();
+
+        const htmlTitulo = `<h${nivel}>${titulo}</h${nivel}>`;
+
+        return htmlTitulo + (
+            restante ? renderizarMarkdown(restante) : ""
+        );
+    }
+}
+
 
         if (/^>\s*/.test(bloco.trim())) {
             const conteudo = renderizarInlineMarkdown(
@@ -653,7 +668,7 @@ async function iniciarCurso() {
         }
     } catch (erro) {
         console.error("Erro ao carregar o curso:", erro);
-        mostrarErro("Não foi possível carregar este curso. Verifique se a API e o MySQL estão funcionando e tente atualizar a página.");
+        mostrarErro(`Falha ao carregar o curso: ${erro.message}`);
     }
 }
 
