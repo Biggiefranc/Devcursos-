@@ -4,9 +4,10 @@
   "description": "",
   "main": "src/server.js",
   "scripts": {
-    "test": "node --test src/**/*.test.js",
+    "test": "node --test",
     "start": "node src/server.js",
-    "dev": "node ./scripts/clear-stale-dev.js 3001 && nodemon src/server.js"
+    "dev": "node ./scripts/clear-stale-dev.js 3001 && nodemon src/server.js",
+    "import": "node importar.js"
   },
   "keywords": [],
   "author": "",

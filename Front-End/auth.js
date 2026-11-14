@@ -4,6 +4,7 @@ import { requisicaoAPI } from "./services/api";
 
 const pagina = (location.pathname.split("/").pop() || "index.html").toLowerCase();
 const precisaLogin = ["menudashbord.html", "visualizarcurso.html", "cursos.html"].includes(pagina);
+const paginaDeAutenticacao = ["login.html", "cadastro.html"].includes(pagina);
 
 function urlDestinoPadrao() {
     return "menudashbord.html";
@@ -24,8 +25,6 @@ function recuperarDestino() {
 }
 
 onAuthStateChanged(auth, async (usuario) => {
-    const temSessaoLocal = Boolean(localStorage.getItem("devcursos_token"));
-
     if (!usuario) {
         if (precisaLogin) {
             localStorage.removeItem("devcursos_token");
@@ -38,28 +37,29 @@ onAuthStateChanged(auth, async (usuario) => {
 
     const token = await usuario.getIdToken();
     localStorage.setItem("devcursos_token", token);
-    try {
-        const perfil = {
-            uid: usuario.uid,
-            nome: usuario.displayName || usuario.email?.split("@")[0] || "Aluno",
-            email: usuario.email,
-            foto: usuario.photoURL || null
-        };
-        localStorage.setItem("devcursos_user", JSON.stringify(perfil));
-    } catch (erro) {
-        console.warn("Não foi possível salvar o perfil local:", erro);
-    }
 
-    if (pagina === "login.html" || pagina === "cadastro.html") {
-        window.location.replace(recuperarDestino());
-        return;
-    }
+    const perfilLocal = {
+        uid: usuario.uid,
+        nome: usuario.displayName || usuario.email?.split("@")[0] || "Aluno",
+        email: usuario.email,
+        foto: usuario.photoURL || null
+    };
+    localStorage.setItem("devcursos_user", JSON.stringify(perfilLocal));
+
+    // Não interrompe o fluxo de login/cadastro antes que os scripts dessas
+    // páginas validem e sincronizem o perfil no banco.
+    if (paginaDeAutenticacao && !usuario.emailVerified) return;
 
     try {
         await requisicaoAPI("/me", {
             headers: { Authorization: `Bearer ${token}` }
         });
+        if (paginaDeAutenticacao) {
+            window.location.replace(recuperarDestino());
+        }
     } catch (erro) {
         console.error("Não foi possível validar o perfil:", erro);
+        // Em login/cadastro, deixa o respectivo fluxo criar/sincronizar o perfil.
+        // Nas páginas protegidas, o próprio fluxo da página tratará o erro.
     }
 });

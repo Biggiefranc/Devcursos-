@@ -1,51 +1,44 @@
-
-const fs = require("node:fs");
+const path = require("node:path");
+const dotenv = require("dotenv");
+dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 
 const {
     initializeApp,
     applicationDefault,
     getApps
 } = require("firebase-admin/app");
-
 const { getAuth } = require("firebase-admin/auth");
 
-// Carrega as configurações de ambiente
-require("../../config/env");
-
 function getFirebaseAuthMode() {
-    const modoExplicit = (process.env.FIREBASE_AUTH_MODE || "").trim().toLowerCase();
-    if (modoExplicit === "strict") return "strict";
-    if (modoExplicit === "bypass") return "bypass";
+    const configured = String(process.env.FIREBASE_AUTH_MODE || "strict")
+        .trim()
+        .toLowerCase();
 
-    const caminhoCredencial = process.env.GOOGLE_APPLICATION_CREDENTIALS;
-    if (!caminhoCredencial) return "bypass";
-
-    try {
-        fs.accessSync(caminhoCredencial, fs.constants.R_OK);
-        return "strict";
-    } catch {
-        return "bypass";
+    if (!new Set(["strict", "bypass"]).has(configured)) {
+        throw new Error("FIREBASE_AUTH_MODE deve ser 'strict' ou 'bypass'.");
     }
+
+    if (configured === "bypass" && process.env.NODE_ENV !== "development") {
+        throw new Error("O bypass do Firebase exige NODE_ENV=development e é proibido fora do desenvolvimento local.");
+    }
+
+    return configured;
 }
 
 const firebaseAuthMode = getFirebaseAuthMode();
 
 if (firebaseAuthMode === "bypass") {
     console.warn(
-        "Firebase Admin em modo de desenvolvimento: a autenticação será bypassada porque não há credenciais válidas. Defina FIREBASE_AUTH_MODE=strict para produção."
+        "AVISO: autenticação Firebase em bypass. Permitido somente para desenvolvimento local."
     );
 }
 
-// Inicializa o Firebase Admin SDK somente quando há credenciais válidas.
 const firebaseApp = getApps().length
     ? getApps()[0]
-    : initializeApp(
-        firebaseAuthMode === "strict"
-            ? { credential: applicationDefault() }
-            : { projectId: process.env.FIREBASE_PROJECT_ID || "devcursos-b3589" }
-    );
+    : initializeApp(firebaseAuthMode === "strict"
+        ? { credential: applicationDefault() }
+        : { projectId: process.env.FIREBASE_PROJECT_ID || "devcursos-b3589" });
 
-// Disponibiliza o serviço de autenticação
 const firebaseAuth = getAuth(firebaseApp);
 
 module.exports = {

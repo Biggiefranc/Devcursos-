@@ -23,30 +23,16 @@
    URL aceita: menudashbord.html?busca=react  e  ?categoria=devops
    ===================================================================== */
 
-// ...existing code...
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "./firebase/firebase-config";
 import { requisicaoAPI } from "./services/api";
 
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    localStorage.removeItem("devcursos_token");
-    localStorage.removeItem("devcursos_user");
-    window.location.href = "login.html";
-    return;
-  }
-
-  const token = await user.getIdToken();
-  localStorage.setItem("devcursos_token", token);
-
-  const userData = JSON.parse(localStorage.getItem("devcursos_user") || "{}");
-  estado.usuario.nome = user.displayName || userData.nome || user.email?.split("@")[0] || "Aluno";
-  renderSidebar();
+const authReady = new Promise((resolve) => {
+  const unsubscribe = onAuthStateChanged(auth, (user) => {
+    unsubscribe();
+    resolve(user);
+  });
 });
-
-// ...existing code...
-
-const API_URL = 'http://localhost:3001';
 const USAR_EXEMPLO = false;
 
 const CATEGORIAS = { programacao: 'Programação', frontend: 'Front-end', devops: 'DevOps' };
@@ -143,7 +129,10 @@ function mostrarView(nome) {
 
 // ===== SIDEBAR =====
 function listaCursosAtuais() {
-  return (estado.emAndamento.length ? estado.emAndamento : estado.catalogo).slice();
+  return (estado.emAndamento.length
+     ? estado.emAndamento
+     : estado.catalogo
+    ).slice();
 }
 
 function renderMiniStreak() {
@@ -492,7 +481,11 @@ async function carregarProgressoDoUsuario() {
       }
     }));
 
-    estado.emAndamento = itens.filter(Boolean).filter((curso) => Number(curso.total) > 0);
+    estado.emAndamento = itens
+  .filter(Boolean)
+  .filter((curso) =>
+    Number(curso.total) > 0 &&
+    Number(curso.concluidas) > 0 && Number(curso.concluidas) > 0);
     renderProgresso();
   } catch (erro) {
     console.error('Erro ao carregar progresso do usuário:', erro);
@@ -503,10 +496,7 @@ async function carregarProgressoDoUsuario() {
 
 async function carregarDadosDoBanco() {
   try {
-    const resposta = await fetch(`${API_URL}/cursos`);
-    if (!resposta.ok) throw new Error(`Erro ao consultar /cursos (${resposta.status})`);
-
-    const cursos = await resposta.json();
+    const cursos = await requisicaoAPI("/cursos");
     const catalogo = (Array.isArray(cursos) ? cursos : []).map(mapearCursoParaCatalogo);
     const ordenado = [...catalogo].sort((a, b) => Number(b.id) - Number(a.id));
 
@@ -547,28 +537,99 @@ function carregarCurso(curso) {
 
 window.DevCursos = { carregar, carregarCurso };
 
+async function carregarCursoDaAPI(cursoId) {
+  const curso = await requisicaoAPI(`/cursos/${encodeURIComponent(cursoId)}`);
+  const modulos = await requisicaoAPI(`/cursos/${encodeURIComponent(cursoId)}/modulos`);
+  const progresso = await requisicaoAPI(`/cursos/${encodeURIComponent(cursoId)}/progresso`);
+  const concluidas = new Set((progresso.aulasConcluidas || []).map(String));
+  const secoes = [];
+  let existeAulaAtual = false;
+
+  for (const modulo of (Array.isArray(modulos) ? modulos : [])) {
+    const aulas = await requisicaoAPI(`/modulos/${encodeURIComponent(modulo.id)}/aulas`);
+    const itens = (Array.isArray(aulas) ? aulas : []).map((aula) => {
+      const concluido = concluidas.has(String(aula.id));
+      let status = "bloqueado";
+      if (concluido) status = "concluido";
+      else if (!existeAulaAtual) { status = "atual"; existeAulaAtual = true; }
+      return {
+        id: String(aula.id),
+        aulaId: String(aula.id),
+        titulo: aula.titulo || "Aula",
+        descricao: aula.descricao || "",
+        tipo: "aprender",
+        status
+      };
+    });
+    if (itens.length) {
+      secoes.push({
+        titulo: modulo.titulo || "Módulo",
+        descricao: modulo.descricao || "",
+        modulos: itens
+      });
+    }
+  }
+
+  carregarCurso({
+    id: String(curso.id),
+    titulo: curso.titulo || "Curso",
+    descricao: curso.descricao || "",
+    categoria: normalizarCategoria(curso.categoria),
+    secoes
+  });
+}
+
+document.addEventListener("devcursos:trocar-curso", async (event) => {
+  const cursoId = event.detail?.id;
+  if (!cursoId) return;
+  try {
+    await carregarCursoDaAPI(cursoId);
+  } catch (erro) {
+    console.error("Não foi possível carregar as aulas do curso no painel:", erro);
+    estado.cursoAtual = null;
+    renderAprender();
+    if ($("learnEmpty")) {
+      $("learnEmpty").hidden = false;
+      $("learnEmpty").textContent = "Não foi possível carregar este curso. Verifique sua conexão e tente novamente.";
+    }
+  }
+});
+
+document.addEventListener("devcursos:modulo-aberto", async (event) => {
+  const modulo = event.detail?.modulo;
+  const cursoId = event.detail?.cursoId;
+  const container = [...document.querySelectorAll("[data-modulo-id]")]
+    .find((elemento) => elemento.dataset.moduloId === String(modulo?.id || ""));
+  if (!container || !modulo || !cursoId) return;
+  container.replaceChildren();
+  const resumo = document.createElement("p");
+  resumo.textContent = modulo.descricao || "Continue esta aula no ambiente de aprendizagem.";
+  const link = document.createElement("a");
+  link.href = `cursos.html?curso=${encodeURIComponent(cursoId)}&aula=${encodeURIComponent(modulo.aulaId || modulo.id)}`;
+  link.textContent = "Abrir aula";
+  link.className = "module-open-link";
+  container.append(resumo, link);
+});
+
 // ===== USUÁRIO LOGADO (nome da conta) =====
 async function carregarUsuario() {
-  const token = localStorage.getItem('devcursos_token');
-  if (!token) {
-    console.warn('Sem token no localStorage, voltando pro login');
-    window.location.href = 'login.html';
-    return;
-  }
   try {
-    const res = await fetch(`${API_URL}/me`, { headers: { Authorization: `Bearer ${token}` } });
-    if (res.status === 401) {
-      console.warn('Token inválido ou expirado');
-      localStorage.removeItem('devcursos_token');
-      window.location.href = 'login.html';
+    const resposta = await requisicaoAPI("/me");
+    const usuario = resposta?.usuario;
+    if (!usuario) throw new Error("A API não retornou o perfil do usuário.");
+    estado.usuario.nome = usuario.nome || usuario.email?.split("@")[0] || "Aluno";
+    localStorage.setItem("devcursos_user", JSON.stringify(usuario));
+    renderSidebar();
+  } catch (erro) {
+    console.error("Erro ao buscar o perfil do usuário:", erro);
+    if (erro.status === 401 || erro.status === 404) {
+      localStorage.removeItem("devcursos_token");
+      localStorage.removeItem("devcursos_user");
+      await signOut(auth);
+      window.location.href = "login.html";
       return;
     }
-    if (!res.ok) throw new Error(`/me respondeu ${res.status}`);
-    const user = await res.json();
-    estado.usuario.nome = user.nome;
-    renderSidebar();
-  } catch (err) {
-    console.error('Erro ao buscar o usuário:', err);
+    throw erro;
   }
 }
 
@@ -680,7 +741,6 @@ async function iniciar() {
   montarIcones();
   montarAbas();
 
-  // ?busca=... e ?categoria=... (a busca da página inicial manda pra cá)
   const params = new URLSearchParams(window.location.search);
   const busca = (params.get('busca') || '').trim();
   const cat = params.get('categoria');
@@ -696,10 +756,25 @@ async function iniciar() {
     return;
   }
 
+  const user = await authReady;
+  if (!user) {
+    localStorage.removeItem('devcursos_token');
+    localStorage.removeItem('devcursos_user');
+    window.location.href = `login.html?redirect=${encodeURIComponent(`${location.pathname}${location.search}`)}`;
+    return;
+  }
+  localStorage.setItem('devcursos_token', await user.getIdToken());
+
   await carregarDadosDoBanco();
   await carregarUsuario();
   await carregarProgressoDoUsuario();
+  if (estado.idCursoAtual) {
+    try { await carregarCursoDaAPI(estado.idCursoAtual); }
+    catch (erro) { console.warn('Não foi possível abrir o curso inicial:', erro); }
+  }
   emitir('devcursos:pronto');
 }
 
-iniciar();
+iniciar().catch((erro) => {
+  console.error('Falha ao iniciar o painel:', erro);
+});

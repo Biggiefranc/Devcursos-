@@ -153,29 +153,39 @@ recForm.addEventListener("submit", async (event) => {
     }
 });
 
-// Nova função para o Google
-// ...existing code...
+// Login com Google: usa o mesmo fluxo de sincronização de perfil do login por e-mail.
 async function autenticarComGoogle() {
+    const botaoGoogle = document.getElementById("btn-google");
+    if (botaoGoogle) botaoGoogle.disabled = true;
+
     try {
+        await configurarPersistencia(true);
         const result = await signInWithPopup(auth, googleProvider);
         const user = result.user;
+        const nome = user.displayName || user.email?.split("@")[0] || "Aluno";
+
+        await sincronizarPerfil(nome);
 
         const idToken = await user.getIdToken();
-
         localStorage.setItem("devcursos_token", idToken);
         localStorage.setItem("devcursos_user", JSON.stringify({
             uid: user.uid,
-            nome: user.displayName,
+            nome,
             email: user.email,
-            foto: user.photoURL
+            foto: user.photoURL || null
         }));
 
         window.location.href = destinoDepoisDoLogin();
     } catch (error) {
-        console.error("Erro no login com Google:", error.message);
-        alert("Erro ao entrar com o Google: " + error.message);
+        console.error("Erro no login com Google:", error);
+        mostrarMensagem(
+            loginError,
+            error?.message || "Não foi possível entrar com o Google. Tente novamente.",
+            "erro"
+        );
+    } finally {
+        if (botaoGoogle) botaoGoogle.disabled = false;
     }
 }
 
-// Vincula ao botão do HTML
 document.getElementById("btn-google")?.addEventListener("click", autenticarComGoogle);

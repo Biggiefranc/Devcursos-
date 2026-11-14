@@ -1,24 +1,34 @@
-// ...existing code...
 const express = require("express");
 const cors = require("cors");
 
 const usersRoutes = require("./modules/users/users.routes");
 const cursosRoutes = require("./modules/courses/cursos.routes");
 const progressRoutes = require("./modules/progress/progress.routes");
+const favoritesRoutes = require("./modules/favorites/favorites.routes");
+const assessmentsRoutes = require("./modules/assessments/assessments.routes");
 
 const { pool } = require("./shared/database/database");
 const tratarErros = require("./shared/middlewares/tratarErros");
 
 const app = express();
 
+const configuredFrontendOrigin = (() => {
+  try {
+    return process.env.FRONTEND_URL ? new URL(process.env.FRONTEND_URL).origin : null;
+  } catch {
+    console.warn("FRONTEND_URL inválida; a origem configurada não será liberada pelo CORS.");
+    return null;
+  }
+})();
+
 const allowedOrigins = new Set([
-  "http://localhost:3001",
-  "http://localhost:5173",
-  "http://localhost:5174",
-  "http://127.0.0.1:3001",
-  "http://127.0.0.1:5173",
-  "http://127.0.0.1:5174",
-  process.env.FRONTEND_URL
+  configuredFrontendOrigin,
+  ...(process.env.NODE_ENV === "production" ? [] : [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:5174"
+  ])
 ].filter(Boolean));
 
 const isAllowedOrigin = (origin) => {
@@ -26,31 +36,14 @@ const isAllowedOrigin = (origin) => {
 
   try {
     const { protocol, hostname } = new URL(origin);
-    const isLocalHost = ["http:", "https:"].includes(protocol) && ["localhost", "127.0.0.1"].includes(hostname);
+    const isLocalHost = process.env.NODE_ENV !== "production"
+      && ["http:", "https:"].includes(protocol)
+      && ["localhost", "127.0.0.1"].includes(hostname);
     return isLocalHost || allowedOrigins.has(origin);
   } catch {
     return false;
   }
 };
-
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-
-  if (req.method === "OPTIONS") {
-    if (origin && isAllowedOrigin(origin)) {
-      res.header("Access-Control-Allow-Origin", origin);
-    } else {
-      res.header("Access-Control-Allow-Origin", "*");
-    }
-
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    res.header("Access-Control-Allow-Credentials", "true");
-    return res.sendStatus(204);
-  }
-
-  next();
-});
 
 app.use(
   cors({
@@ -98,6 +91,8 @@ app.get("/health", async (req, res) => {
 app.use(usersRoutes);
 app.use(cursosRoutes);
 app.use(progressRoutes);
+app.use(favoritesRoutes);
+app.use(assessmentsRoutes);
 
 app.use((req, res) => {
   return res.status(404).json({
@@ -108,4 +103,3 @@ app.use((req, res) => {
 app.use(tratarErros);
 
 module.exports = app;
-// ...existing code...

@@ -2,29 +2,13 @@ import { auth } from "./firebase/firebase-config";
 import { onAuthStateChanged } from "firebase/auth";
 import { API_URL, requisicaoAPI, encerrarSessao } from "./services/api";
 
-/* ===================== PROVA FINAL =====================
-   Por enquanto as questões ficam aqui no código.
-   Depois que o banco estiver pronto, troque por uma chamada à API.
-   "correta": índice da alternativa (0 = A, 1 = B, 2 = C, 3 = D).
-   ======================================================= */
+/* A correção da avaliação é feita exclusivamente pelo Back-End. */
 const PROVA = {
     id: "prova-final",
-    titulo: "Prova final",
-    minimoAcertos: 6,
-    questoes: [
-        { pergunta: "Qual função mostra um texto na tela em Python?", opcoes: ["echo", "print", "console.log", "printf"], correta: 1 },
-        { pergunta: "Como se define o bloco de código dentro de um if?", opcoes: ["Com chaves { }", "Com ponto e vírgula", "Com recuo (indentação)", "Com begin e end"], correta: 2 },
-        { pergunta: "Qual é a extensão padrão de arquivos Python?", opcoes: [".py", ".pt", ".python", ".pyt"], correta: 0 },
-        { pergunta: "Qual é o resultado de print(2 + 3)?", opcoes: ["23", "5", "2 + 3", "Erro"], correta: 1 },
-        { pergunta: "Qual símbolo começa um comentário em Python?", opcoes: ["//", "/*", "#", "--"], correta: 2 },
-        { pergunta: "Qual é a saída de print('Hello, world!')?", opcoes: ["Hello, world!", "'Hello, world!'", "Hello", "Nada aparece"], correta: 0 },
-        { pergunta: "Qual é o tipo de dado de idade = 17?", opcoes: ["str", "int", "float", "bool"], correta: 1 },
-        { pergunta: "Qual comando instala um pacote com o pip?", opcoes: ["pip install nome", "install pip nome", "pip add nome", "python get nome"], correta: 0 },
-        { pergunta: "Qual dos valores abaixo é uma string?", opcoes: ["10", "True", '"texto"', "3.5"], correta: 2 },
-        { pergunta: "O que o comando if faz?", opcoes: ["Repete o código", "Executa um bloco quando a condição é verdadeira", "Define uma função", "Importa um módulo"], correta: 1 }
-    ]
+    titulo: "Avaliação final",
+    minimoAcertos: 0
 };
-const LETRAS = ["A", "B", "C", "D"];
+const LETRAS = ["A", "B", "C", "D", "E", "F"];
 
 const tituloCurso = document.getElementById("tituloCurso");
 const menu = document.getElementById("menu");
@@ -37,7 +21,9 @@ let curso = null;
 let todas = [];
 let feitas = new Set();
 let respostasProva = {};
-let provaAprovada = false;
+let avaliacao = null;
+let tentativaProva = null;
+let mensagemAvaliacao = "Esta avaliação ainda não foi configurada para o curso.";
 
 const parametros = new URLSearchParams(window.location.search);
 const cursoId = parametros.get("curso");
@@ -80,27 +66,12 @@ async function tokenAtual() {
     return salvo || null;
 }
 
-function carregarConclusoesLocais() {
-    try {
-        feitas = new Set(JSON.parse(localStorage.getItem("devcursos-feitas") || "[]").map(String));
-    } catch {
-        feitas = new Set();
-    }
-}
-
-function salvarConclusoesLocais() {
-    try {
-        localStorage.setItem("devcursos-feitas", JSON.stringify([...feitas]));
-    } catch (erro) {
-        console.error("Não foi possível salvar as conclusões locais:", erro);
-    }
-}
-
 async function carregarConclusoes() {
     const token = await tokenAtual();
     if (!token) {
-        carregarConclusoesLocais();
-        return;
+        const destino = `cursos.html?curso=${encodeURIComponent(cursoId)}`;
+        window.location.href = `login.html?redirect=${encodeURIComponent(destino)}`;
+        throw new Error("É necessário entrar para consultar seu progresso.");
     }
 
     try {
@@ -108,16 +79,16 @@ async function carregarConclusoes() {
             `/cursos/${encodeURIComponent(cursoId)}/progresso`
         );
         feitas = new Set((dados.aulasConcluidas || []).map(String));
-        salvarConclusoesLocais();
+        localStorage.removeItem("devcursos-feitas");
     } catch (erro) {
         if (erro.status === 401) {
-            console.warn("Sessão expirada ou ainda não revalidada. Usando progresso local.");
-            carregarConclusoesLocais();
-            return;
+            localStorage.removeItem("devcursos_token");
+            localStorage.removeItem("devcursos_user");
+            await encerrarSessao();
+            const destino = `cursos.html?curso=${encodeURIComponent(cursoId)}`;
+            window.location.href = `login.html?redirect=${encodeURIComponent(destino)}`;
         }
-
-        console.error("Não foi possível sincronizar o progresso com a API:", erro);
-        carregarConclusoesLocais();
+        throw erro;
     }
 }
 
@@ -128,39 +99,25 @@ async function salvarConclusaoDaAula(aulaId, concluida) {
     });
 }
 
-/* ----- Prova: estado salvo no navegador (cache até o banco existir) ----- */
-function chaveProvaStorage() {
-    return `devcursos-prova-${cursoId}`;
-}
+/* A avaliação e as tentativas são consultadas/enviadas ao servidor. */
+async function carregarProva() {
+    respostasProva = {};
+    tentativaProva = null;
+    avaliacao = null;
+    mensagemAvaliacao = "Esta avaliação ainda não foi configurada para o curso.";
+    localStorage.removeItem(`devcursos-prova-${cursoId}`);
 
-function carregarProva() {
     try {
-        const salvo = JSON.parse(localStorage.getItem(chaveProvaStorage()) || "null");
-        if (salvo) {
-            respostasProva = salvo.respostas || {};
-            provaAprovada = !!salvo.aprovada;
-        }
-    } catch {
-        respostasProva = {};
-        provaAprovada = false;
-    }
-    if (provaAprovada) feitas.add(PROVA.id);
-}
-
-function salvarProva() {
-    try {
-        localStorage.setItem(chaveProvaStorage(), JSON.stringify({ respostas: respostasProva, aprovada: provaAprovada }));
+        avaliacao = await requisicaoAPI(`/cursos/${encodeURIComponent(cursoId)}/avaliacao`);
+        PROVA.titulo = avaliacao.titulo || "Avaliação final";
+        PROVA.minimoAcertos = Number(avaliacao.minimoAcertos || 0);
     } catch (erro) {
-        console.error("Não foi possível salvar a prova:", erro);
+        if (erro.status === 404 || erro.status === 409) {
+            mensagemAvaliacao = erro.message || mensagemAvaliacao;
+            return;
+        }
+        throw erro;
     }
-}
-
-function respostaDe(i) {
-    return respostasProva[i];
-}
-
-function contarAcertos() {
-    return PROVA.questoes.filter((q, i) => respostaDe(i) === q.correta).length;
 }
 
 /* ----- Renderização ----- */
@@ -174,14 +131,24 @@ function escaparHtml(valor) {
 }
 
 function renderizarInlineMarkdown(texto) {
-    const valor = escaparHtml(texto);
+    const tokens = [];
+    const proteger = (html) => {
+        const indice = tokens.push(html) - 1;
+        return `\u0001${indice}\u0001`;
+    };
 
-    return valor
-        .replace(/`([^`]+)`/g, "<code>$1</code>")
+    let valor = escaparHtml(texto)
+        .replace(/`([^`]+)`/g, (_, codigo) => proteger(`<code>${codigo}</code>`))
+        .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, (_, rotulo, url) =>
+            proteger(`<a href="${url}" target="_blank" rel="noopener noreferrer">${rotulo}</a>`)
+        );
+
+    valor = valor
         .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
         .replace(/\*([^*]+)\*/g, "<em>$1</em>")
-        .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
-        .replace(/(https?:\/\/\S+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+        .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+
+    return valor.replace(/\u0001(\d+)\u0001/g, (_, indice) => tokens[Number(indice)] || "");
 }
 
 function renderizarMarkdown(markdown) {
@@ -280,8 +247,8 @@ function provaLiberada() {
 }
 
 function atualizarProgresso() {
-    const total = Math.max(todas.length + 1, 1);
-    const concluidos = todas.filter((a) => feitas.has(String(a.id))).length + (feitas.has(PROVA.id) ? 1 : 0);
+    const total = Math.max(todas.length, 1);
+    const concluidos = todas.filter((a) => feitas.has(String(a.id))).length;
     const pct = total ? Math.round((concluidos / total) * 100) : 0;
     barraProg.style.width = `${pct}%`;
     textoProg.textContent = `${concluidos} de ${total} itens concluídos (${pct}%)`;
@@ -301,35 +268,33 @@ function atualizarUI(key) {
 async function concluirAula(key) {
     const chave = String(key);
     if (chave === PROVA.id) {
-        if (!provaLiberada()) {
-            alert("Finalize todas as aulas antes de acessar a avaliação final.");
-            return;
-        }
+        alert("A avaliação deste curso ainda não foi configurada no servidor.");
         return;
     }
 
-    if (feitas.has(chave)) {
-        return;
-    }
-
+    if (feitas.has(chave)) return;
     if (!aulaLiberada(chave)) {
         alert("Complete a aula anterior para desbloquear esta etapa.");
         return;
     }
 
-    feitas.add(chave);
-    salvarConclusoesLocais();
-    atualizarUI(chave);
-    montarMenu();
-    renderTudo();
+    const botao = document.querySelector(`.btn-concluir[data-key="${CSS.escape(chave)}"]`);
+    if (botao) botao.disabled = true;
 
     try {
         const token = await tokenAtual();
-        if (token) {
-            await salvarConclusaoDaAula(chave, true);
-        }
+        if (!token) throw new Error("Sua sessão expirou. Entre novamente para salvar o progresso.");
+
+        // O servidor confirma a gravação antes que a interface altere o estado.
+        await salvarConclusaoDaAula(chave, true);
+        feitas.add(chave);
+        atualizarUI(chave);
+        montarMenu();
+        renderTudo();
     } catch (erro) {
         console.error("Não foi possível salvar a conclusão da aula:", erro);
+        alert(erro.message || "Não foi possível salvar seu progresso. Tente novamente.");
+        if (botao) botao.disabled = false;
     }
 }
 
@@ -436,58 +401,61 @@ function criarSecaoAula(aula, modulo) {
 }
 
 function desenharProva(sec) {
-    const total = PROVA.questoes.length;
     sec.replaceChildren();
-
     sec.append(
         criarElemento("p", "trilha", "Avaliação final"),
-        criarElemento("h1", "", PROVA.titulo),
-        criarElemento("p", "", `Responda as ${total} questões. Para passar, você precisa acertar pelo menos ${PROVA.minimoAcertos}.`)
+        criarElemento("h1", "", PROVA.titulo)
     );
 
-    // Cubos: mostram só a letra que o aluno escolheu, conforme responde (sem gabarito)
-    const cubos = criarElemento("div", "cubos");
-    PROVA.questoes.forEach((_, i) => {
-        const r = respostaDe(i);
-        const respondido = r !== undefined;
-        cubos.appendChild(
-            criarElemento("span", "cubo" + (respondido ? " respondido" : ""),
-                respondido ? `${i + 1}${LETRAS[r]}` : String(i + 1))
-        );
-    });
-    sec.appendChild(cubos);
+    if (!avaliacao || !Array.isArray(avaliacao.questoes) || !avaliacao.questoes.length) {
+        sec.appendChild(criarElemento(
+            "p",
+            "",
+            `${mensagemAvaliacao} O sistema não exibirá uma prova genérica nem aceitará aprovação registrada apenas no navegador.`
+        ));
+        return;
+    }
 
-    PROVA.questoes.forEach((q, qi) => {
+    sec.appendChild(criarElemento(
+        "p",
+        "",
+        `Responda todas as questões. É necessário acertar pelo menos ${PROVA.minimoAcertos} questão(ões). A correção será feita pelo servidor.`
+    ));
+
+    avaliacao.questoes.forEach((questao, indice) => {
         const bloco = criarElemento("div", "quiz-q");
-        bloco.appendChild(criarElemento("h3", "", `${qi + 1}. ${q.pergunta}`));
-
-        const r = respostaDe(qi);
-        q.opcoes.forEach((op, oi) => {
-            const botao = criarElemento("button", "quiz-op", `${LETRAS[oi]}) ${op}`);
+        bloco.appendChild(criarElemento("h3", "", `${indice + 1}. ${questao.enunciado}`));
+        const selecionada = String(respostasProva[String(questao.id)] || "");
+        (questao.alternativas || []).forEach((alternativa, alternativaIndice) => {
+            const botao = criarElemento(
+                "button",
+                `quiz-op${selecionada === String(alternativa.id) ? " escolhida" : ""}`,
+                `${LETRAS[alternativaIndice] || alternativaIndice + 1}. ${alternativa.texto}`
+            );
             botao.type = "button";
-            botao.dataset.q = qi;
-            botao.dataset.o = oi;
-            if (r !== undefined) botao.disabled = true;
-            if (r === oi) botao.classList.add("escolhida");
+            botao.dataset.questaoId = String(questao.id);
+            botao.dataset.alternativaId = String(alternativa.id);
+            botao.disabled = Boolean(tentativaProva);
             bloco.appendChild(botao);
         });
         sec.appendChild(bloco);
     });
 
-    if (Object.keys(respostasProva).length === total) {
-        const acertos = contarAcertos();
-        const placar = criarElemento("div", "placar");
-        if (provaAprovada) {
-            placar.appendChild(criarElemento("p", "", `Aprovado! Você acertou ${acertos} de ${total}.`));
-        } else {
-            placar.appendChild(criarElemento("p", "", `Você acertou ${acertos} de ${total}. Para passar, precisa de pelo menos ${PROVA.minimoAcertos}. Refaça a prova.`));
-            const btn = criarElemento("button", "btn-refazer", "Refazer prova");
-            btn.type = "button";
-            btn.dataset.acao = "refazer";
-            placar.appendChild(btn);
-        }
-        sec.appendChild(placar);
+    if (tentativaProva) {
+        const resultado = criarElemento(
+            "p",
+            "quiz-resultado",
+            `${tentativaProva.acertos} de ${tentativaProva.totalQuestoes} acertos. ${tentativaProva.aprovada ? "Avaliação aprovada." : "Avaliação não aprovada."}`
+        );
+        sec.appendChild(resultado);
+        return;
     }
+
+    const botaoEnviar = criarElemento("button", "btn-concluir quiz-submit", "Enviar avaliação");
+    botaoEnviar.type = "button";
+    botaoEnviar.dataset.acao = "enviar-prova";
+    botaoEnviar.disabled = avaliacao.questoes.some((questao) => !respostasProva[String(questao.id)]);
+    sec.appendChild(botaoEnviar);
 }
 
 function criarSecaoProva() {
@@ -500,39 +468,37 @@ function criarSecaoProva() {
         sec.append(
             criarElemento("p", "trilha", "Avaliação final"),
             criarElemento("h1", "", PROVA.titulo),
-            criarElemento("p", "", "Finalize todas as aulas antes de desbloquear a avaliação final.")
+            criarElemento("p", "", "Finalize todas as aulas antes de acessar a avaliação final.")
         );
         return sec;
     }
 
-    sec.addEventListener("click", e => {
-        const op = e.target.closest(".quiz-op");
-        if (op && !op.disabled) {
-            const qi = +op.dataset.q;
-            const oi = +op.dataset.o;
-            if (respostaDe(qi) !== undefined) return;
-
-            respostasProva[qi] = oi;
-
-            if (Object.keys(respostasProva).length === PROVA.questoes.length) {
-                if (contarAcertos() >= PROVA.minimoAcertos) {
-                    provaAprovada = true;
-                    feitas.add(PROVA.id);
-                    salvarConclusoesLocais();
-                    atualizarUI(PROVA.id);
-                    atualizarProgresso();
-                }
-            }
-            salvarProva();
+    sec.addEventListener("click", async (evento) => {
+        const alvo = evento.target instanceof Element ? evento.target : evento.target?.parentElement;
+        const opcao = alvo?.closest(".quiz-op");
+        if (opcao && sec.contains(opcao) && !tentativaProva) {
+            respostasProva[opcao.dataset.questaoId] = opcao.dataset.alternativaId;
             desenharProva(sec);
             return;
         }
 
-        if (e.target.closest("[data-acao='refazer']")) {
-            respostasProva = {};
-            provaAprovada = false;
-            salvarProva();
+        const enviar = alvo?.closest('[data-acao="enviar-prova"]');
+        if (!enviar || !avaliacao || tentativaProva) return;
+        enviar.disabled = true;
+        try {
+            const respostas = Object.entries(respostasProva).map(([questaoId, alternativaId]) => ({
+                questaoId: Number(questaoId),
+                alternativaId: Number(alternativaId)
+            }));
+            tentativaProva = await requisicaoAPI(`/avaliacoes/${encodeURIComponent(avaliacao.id)}/tentativas`, {
+                method: "POST",
+                body: JSON.stringify({ respostas })
+            });
             desenharProva(sec);
+        } catch (erro) {
+            console.error("Não foi possível enviar a avaliação:", erro);
+            alert(erro.message || "Não foi possível enviar a avaliação. Tente novamente.");
+            enviar.disabled = false;
         }
     });
 
@@ -565,36 +531,36 @@ const observador = new IntersectionObserver(entradas => {
 
 btnReiniciar.addEventListener("click", async () => {
     if (!confirm("Zerar todo o progresso deste curso?")) return;
-
-    feitas = new Set();
-    respostasProva = {};
-    provaAprovada = false;
-    salvarConclusoesLocais();
-    salvarProva();
+    btnReiniciar.disabled = true;
 
     try {
-        const listaAulas = todas.map((aula) => String(aula.id));
-        for (const aulaId of listaAulas) {
-            try {
-                await requisicaoAPI(`/aulas/${encodeURIComponent(aulaId)}/conclusao`, {
-                    method: "PUT",
-                    body: JSON.stringify({ concluida: false })
-                });
-            } catch (erro) {
-                console.warn(`Não foi possível limpar a aula ${aulaId}:`, erro);
-            }
+        for (const aula of todas) {
+            await requisicaoAPI(`/aulas/${encodeURIComponent(aula.id)}/conclusao`, {
+                method: "PUT",
+                body: JSON.stringify({ concluida: false })
+            });
         }
-
+        feitas = new Set();
+        respostasProva = {};
+        tentativaProva = null;
         localStorage.removeItem("devcursos-feitas");
-        localStorage.removeItem(chaveProvaStorage());
+        await carregarProva();
+        montarMenu();
+        renderTudo();
+        atualizarProgresso();
+        location.hash = "";
     } catch (erro) {
         console.error("Erro ao reiniciar progresso:", erro);
+        alert("Não foi possível reiniciar todo o progresso. Os dados do servidor não foram substituídos localmente.");
+        try { await carregarConclusoes(); } catch (erroAtualizacao) {
+            console.error("Não foi possível recarregar o progresso:", erroAtualizacao);
+        }
+        montarMenu();
+        renderTudo();
+        atualizarProgresso();
+    } finally {
+        btnReiniciar.disabled = false;
     }
-
-    montarMenu();
-    renderTudo();
-    atualizarProgresso();
-    location.hash = "";
 });
 
 function mostrarErro(mensagem) {
@@ -650,7 +616,7 @@ async function iniciarCurso() {
         }
 
         await carregarConclusoes();
-        carregarProva();
+        await carregarProva();
 
         montarMenu();
         renderTudo();
@@ -679,4 +645,16 @@ const aguardarAuth = new Promise(resolve => {
     });
 });
 
-aguardarAuth.then(() => iniciarCurso());
+aguardarAuth.then(async usuario => {
+    if (!usuario) {
+        localStorage.removeItem("devcursos_token");
+        const destino = `cursos.html?curso=${encodeURIComponent(cursoId || "")}`;
+        window.location.href = `login.html?redirect=${encodeURIComponent(destino)}`;
+        return;
+    }
+    localStorage.setItem("devcursos_token", await usuario.getIdToken());
+    await iniciarCurso();
+}).catch((erro) => {
+    console.error("Não foi possível iniciar a área de aprendizagem:", erro);
+    mostrarErro(erro.message || "Não foi possível carregar o curso.");
+});

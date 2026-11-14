@@ -7,9 +7,15 @@ import { requisicaoAPI, encerrarSessao } from "./services/api";
   const id = params.get("curso");
   const root = document.getElementById("courseDetail");
   const accountLink = document.getElementById("accountLink");
-  const favoriteKey = "devcursos-favoritos";
   let user = null;
   let completed = new Set();
+  let favorites = new Set();
+  const authReady = new Promise((resolve) => {
+    const unsubscribe = onAuthStateChanged(auth, (usuario) => {
+      unsubscribe();
+      resolve(usuario);
+    });
+  });
 
   function esc(v) {
     return String(v ?? "").replace(/[&<>"']/g, c => ({
@@ -17,11 +23,10 @@ import { requisicaoAPI, encerrarSessao } from "./services/api";
     }[c]));
   }
   function duration(course) {
-    const t = (course.titulo || "").toLowerCase();
-    if (t.includes("python") || t.includes("phyton")) return "⌛ 22h";
-    if (t.includes("html") || t.includes("web")) return "⌛ 18h";
-    if (t.includes("banco") || t.includes("sql")) return "⌛ 16h";
-    return "⌛ 12h";
+    const horas = Number(course?.duracao_horas);
+    return Number.isFinite(horas) && horas > 0
+      ? `${horas}h de conteúdo`
+      : "Duração não informada";
   }
   function illustration(course) {
     const s = `${course.titulo || ""} ${course.categoria || ""}`.toLowerCase();
@@ -41,8 +46,14 @@ import { requisicaoAPI, encerrarSessao } from "./services/api";
     return Boolean(auth.currentUser || user || localStorage.getItem("devcursos_token"));
   }
   function getFavorites() {
-    try { return JSON.parse(localStorage.getItem(favoriteKey) || "[]").map(String); }
-    catch { return []; }
+    return [...favorites];
+  }
+
+  async function loadFavorites() {
+    favorites = new Set();
+    if (!isLogged()) return;
+    const data = await get("/me/favoritos");
+    favorites = new Set((data.favoritos || []).map((item) => String(item.id)));
   }
   function displayName(data) {
     let name = String(data?.nome || "").trim();
@@ -58,26 +69,12 @@ import { requisicaoAPI, encerrarSessao } from "./services/api";
     })();
     const tokenSalvo = localStorage.getItem("devcursos_token");
 
-    if (!auth.currentUser && !tokenSalvo && !usuarioSalvo) {
+    if (!auth.currentUser && !tokenSalvo) {
+      user = null;
+      localStorage.removeItem("devcursos_user");
       accountLink.textContent = "Entrar";
       accountLink.href = `login.html?redirect=${encodeURIComponent(`${location.pathname}${location.search}`)}`;
       accountLink.onclick = null;
-      return;
-    }
-
-    if (!auth.currentUser && usuarioSalvo && !tokenSalvo) {
-      user = usuarioSalvo;
-      accountLink.textContent = displayName(user);
-      accountLink.href = "#";
-      accountLink.onclick = async event => {
-        event.preventDefault();
-        if (confirm("Deseja sair da sua conta?")) {
-          await encerrarSessao();
-          localStorage.removeItem("devcursos_token");
-          localStorage.removeItem("devcursos_user");
-          location.href = "menudashbord.html";
-        }
-      };
       return;
     }
 
@@ -95,15 +92,21 @@ import { requisicaoAPI, encerrarSessao } from "./services/api";
           location.href = "menudashbord.html";
         }
       };
-    } catch {
-      user = usuarioSalvo || null;
-      if (auth.currentUser) await encerrarSessao();
-      if (!user && !tokenSalvo) {
+    } catch (error) {
+      const sessaoInvalida = error.status === 401 || error.status === 404;
+      if (sessaoInvalida) {
+        if (auth.currentUser) await encerrarSessao();
+        localStorage.removeItem("devcursos_token");
+        localStorage.removeItem("devcursos_user");
+        user = null;
         accountLink.textContent = "Entrar";
         accountLink.href = `login.html?redirect=${encodeURIComponent(`${location.pathname}${location.search}`)}`;
         accountLink.onclick = null;
         return;
       }
+
+      // Falha de rede/servidor não deve encerrar uma sessão válida por engano.
+      user = usuarioSalvo || null;
       accountLink.textContent = displayName(user || { nome: "Minha conta" });
       accountLink.href = "#";
       accountLink.onclick = async event => {
@@ -119,23 +122,13 @@ import { requisicaoAPI, encerrarSessao } from "./services/api";
   }
   async function loadProgress(courseId) {
     completed = new Set();
-    const tokenSalvo = localStorage.getItem("devcursos_token");
-    if (!tokenSalvo && !auth.currentUser) return;
+    if (!isLogged()) return;
 
-    try {
-      const data = await get(`/cursos/${encodeURIComponent(courseId)}/progresso`);
-      completed = new Set((data.aulasConcluidas || []).map(String));
-      localStorage.setItem(`devcursos-progress-${courseId}`, JSON.stringify([...completed]));
-    } catch (error) {
-      console.error("Não foi possível carregar o progresso salvo:", error);
-      try {
-        const salvo = JSON.parse(localStorage.getItem(`devcursos-progress-${courseId}`) || "[]");
-        if (Array.isArray(salvo)) completed = new Set(salvo.map(String));
-      } catch {
-        completed = new Set();
-      }
-    }
+    const data = await get(`/cursos/${encodeURIComponent(courseId)}/progresso`);
+    completed = new Set((data.aulasConcluidas || []).map(String));
+    localStorage.removeItem(`devcursos-progress-${courseId}`);
   }
+
   function slugCategoria(categoria) {
     const texto = String(categoria || '').trim().toLowerCase();
     if (texto.includes('program')) return 'programacao';
@@ -182,11 +175,28 @@ import { requisicaoAPI, encerrarSessao } from "./services/api";
         <div class="enroll-row"><p class="small-note">${isLogged() ? `${done} de ${total} aulas concluídas.` : "Seu progresso aparecerá aqui quando você entrar na sua conta."}</p>${start}</div>
       </section>
       <aside class="progress-panel"><h3>Seu progresso</h3><div class="progress-number">${percent}%</div><div class="progress-track"><div class="progress-fill" style="width:${percent}%"></div></div><p class="small-note">${done} de ${total} aulas concluídas</p></aside>`;
-    document.getElementById("favoriteBtn").addEventListener("click", () => {
-      const favorites = getFavorites(); const key = String(course.id); const index = favorites.indexOf(key);
-      if (index >= 0) favorites.splice(index, 1); else favorites.push(key);
-      localStorage.setItem(favoriteKey, JSON.stringify(favorites));
-      render(course, modules);
+    document.getElementById("favoriteBtn").addEventListener("click", async (event) => {
+      if (!isLogged()) {
+        location.href = `login.html?redirect=${encodeURIComponent(`${location.pathname}${location.search}`)}`;
+        return;
+      }
+      const button = event.currentTarget;
+      const key = String(course.id);
+      const favoritado = !favorites.has(key);
+      button.disabled = true;
+      try {
+        await requisicaoAPI(`/cursos/${encodeURIComponent(key)}/favorito`, {
+          method: "PUT",
+          body: JSON.stringify({ favoritado })
+        });
+        if (favoritado) favorites.add(key);
+        else favorites.delete(key);
+        render(course, modules);
+      } catch (error) {
+        console.error("Não foi possível atualizar o favorito:", error);
+        alert(error.message || "Não foi possível atualizar seus favoritos.");
+        button.disabled = false;
+      }
     });
     root.querySelectorAll(".module-toggle").forEach(btn => btn.addEventListener("click", () => {
       const section = btn.closest(".module"); const open = section.classList.toggle("open");
@@ -201,7 +211,9 @@ import { requisicaoAPI, encerrarSessao } from "./services/api";
     }
 
     try {
+      await authReady;
       await updateAccount();
+      await loadFavorites();
     } catch (error) {
       console.warn("Não foi possível validar a conta no momento:", error);
     }
@@ -211,6 +223,7 @@ import { requisicaoAPI, encerrarSessao } from "./services/api";
       return;
     }
     try {
+      localStorage.removeItem("devcursos-favoritos");
       const course = await get(`/cursos/${encodeURIComponent(id)}`);
       const modulesData = await get(`/cursos/${encodeURIComponent(id)}/modulos`);
       const modules = await Promise.all((Array.isArray(modulesData) ? modulesData : []).map(async m => {

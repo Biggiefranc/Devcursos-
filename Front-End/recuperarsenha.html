@@ -80,8 +80,7 @@
         <button class="login-button" type="submit">Solicitar recuperação</button>
       </form>
       <p id="recoveryStatus" class="recovery-status" role="status"></p>
-      <p class="recovery-note">A recuperação por e-mail precisa ser habilitada no servidor para enviar um link seguro.
-      </p>
+      <p class="recovery-note">Você receberá um link seguro de redefinição caso exista uma conta associada ao e-mail informado.</p>
       <a class="back-login" href="login.html">← Voltar para entrar</a>
     </section>
     <section class="visual-section">
@@ -95,13 +94,8 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
     if (window.lucide) lucide.createIcons();
-    document.getElementById("recoveryForm").addEventListener("submit", event => {
-      event.preventDefault();
-      const status = document.getElementById("recoveryStatus");
-      status.textContent = "A tela está pronta, mas o servidor ainda não possui uma rota de recuperação de senha. Nenhum e-mail foi enviado.";
-      status.classList.add("show");
-    });
   </script>
+  <script type="module" src="./recuperarsenha.js"></script>
   
 
 </body>

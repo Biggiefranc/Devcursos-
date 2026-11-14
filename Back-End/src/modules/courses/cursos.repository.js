@@ -66,6 +66,17 @@ async function listarAulasPorModulo(moduloId) {
     return aulas;
 }
 
+async function contarAulasPorCurso(cursoId) {
+    const [rows] = await pool.execute(
+        `SELECT COUNT(*) AS total
+         FROM aulas a
+         INNER JOIN modulos m ON m.id = a.modulo_id
+         WHERE m.curso_id = ?`,
+        [cursoId]
+    );
+    return Number(rows[0]?.total || 0);
+}
+
 async function buscarAulaPorId(id) {
     const [aulas] = await pool.execute(`
         SELECT
@@ -90,5 +101,6 @@ module.exports = {
     listarModulosPorCurso,
     buscarModuloPorId,
     listarAulasPorModulo,
+    contarAulasPorCurso,
     buscarAulaPorId
 };

@@ -16,6 +16,7 @@ const DB_USER = process.env.DB_USER;
 const DB_PASSWORD = process.env.DB_PASSWORD ?? "";
 const DB_NAME = process.env.DB_NAME;
 const DB_SSL = String(process.env.DB_SSL ?? "false").toLowerCase() === "true";
+const DB_SSL_CA = process.env.DB_SSL_CA ? path.resolve(process.env.DB_SSL_CA) : null;
 
 // Valida as configurações obrigatórias.
 if (!DB_HOST || !DB_USER || !DB_NAME) {
@@ -39,5 +40,6 @@ module.exports = {
     DB_USER,
     DB_PASSWORD,
     DB_NAME,
-    DB_SSL
+    DB_SSL,
+    DB_SSL_CA
 };

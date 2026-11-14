@@ -537,6 +537,21 @@ a {
     background: rgba(167, 123, 255, 0.12);
 }
 
+.quiz-op:disabled {
+    cursor: default;
+    opacity: 0.82;
+}
+
+.quiz-resultado {
+    margin-top: 20px;
+    padding: 14px 16px;
+    border: 1px solid var(--border-2);
+    border-radius: 12px;
+    color: var(--text);
+    background: var(--surface-2);
+    font-weight: 700;
+}
+
 .cubos {
     display: flex;
     gap: 8px;

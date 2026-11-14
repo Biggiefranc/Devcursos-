@@ -44,6 +44,12 @@ async function autenticar(req, res, next) {
             true
         );
 
+        if (usuarioFirebase.email_verified !== true) {
+            return res.status(403).json({
+                mensagem: "Verifique seu e-mail antes de utilizar esta funcionalidade."
+            });
+        }
+
         // Disponibiliza a identidade verificada para as próximas etapas.
         req.firebaseUser = {
             uid: usuarioFirebase.uid,
