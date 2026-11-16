@@ -66,6 +66,17 @@ async function atualizarConclusao(firebaseUid, aulaId, concluida) {
     }
 
     if (concluida) {
+        const aulaAnteriorPendente =
+            await progressRepository.buscarAulaAnteriorPendente(usuarioId, idAula);
+
+        if (aulaAnteriorPendente) {
+            const erro = new Error(
+                "Conclua as aulas anteriores antes de avançar neste curso."
+            );
+            erro.statusCode = 409;
+            throw erro;
+        }
+
         await progressRepository.concluirAula(usuarioId, idAula);
     } else {
         await progressRepository.desmarcarAula(usuarioId, idAula);

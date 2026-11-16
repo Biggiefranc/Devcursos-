@@ -35,6 +35,47 @@ async function buscarAulaPorId(aulaId) {
     return aulas[0] || null;
 }
 
+// Retorna uma aula anterior ainda não concluída no mesmo curso.
+// A ordem é a mesma usada pela interface: módulo.ordem, aula.ordem e IDs.
+async function buscarAulaAnteriorPendente(usuarioId, aulaId) {
+    const sql = `
+        SELECT anterior.id
+        FROM aulas atual
+        INNER JOIN modulos modulo_atual ON modulo_atual.id = atual.modulo_id
+        INNER JOIN modulos modulo_anterior
+            ON modulo_anterior.curso_id = modulo_atual.curso_id
+        INNER JOIN aulas anterior ON anterior.modulo_id = modulo_anterior.id
+        LEFT JOIN progresso_aulas pa
+            ON pa.aula_id = anterior.id
+           AND pa.usuario_id = ?
+           AND pa.concluida = 1
+        WHERE atual.id = ?
+          AND modulo_anterior.curso_id = modulo_atual.curso_id
+          AND (
+              modulo_anterior.ordem < modulo_atual.ordem
+              OR (
+                  modulo_anterior.ordem = modulo_atual.ordem
+                  AND (
+                      modulo_anterior.id < modulo_atual.id
+                      OR (
+                          modulo_anterior.id = modulo_atual.id
+                          AND (
+                              anterior.ordem < atual.ordem
+                              OR (anterior.ordem = atual.ordem AND anterior.id < atual.id)
+                          )
+                      )
+                  )
+              )
+          )
+          AND pa.id IS NULL
+        ORDER BY modulo_anterior.ordem ASC, anterior.ordem ASC, anterior.id ASC
+        LIMIT 1
+    `;
+
+    const [aulas] = await pool.execute(sql, [usuarioId, aulaId]);
+    return aulas[0] || null;
+}
+
 // Marca uma aula como concluída.
 async function concluirAula(usuarioId, aulaId) {
     const sql = `
@@ -62,6 +103,7 @@ async function desmarcarAula(usuarioId, aulaId) {
 module.exports = {
     listarAulasConcluidas,
     buscarAulaPorId,
+    buscarAulaAnteriorPendente,
     concluirAula,
     desmarcarAula
 };
