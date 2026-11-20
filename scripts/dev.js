@@ -1,8 +1,8 @@
 const { spawn } = require("node:child_process");
 const path = require("node:path");
 
-const backendDir = path.resolve(__dirname, "../Back-End");
-const frontendDir = path.resolve(__dirname, "../Front-End");
+const backendDir = path.resolve(__dirname, "../backend");
+const frontendDir = path.resolve(__dirname, "../frontend");
 
 function startProcess(label, cwd, args) {
     const child = spawn("npm", args, {
