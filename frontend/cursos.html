@@ -1,54 +1,57 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DevCursos+ | Cursos</title>
-  <link rel="stylesheet" href="tema.css">
-  <link rel="stylesheet" href="cursos.css">
-</head>
-
-<body>
-  <div class="page-shell">
-    <aside class="sidebar">
-      <div class="sidebar-top">
-        <a class="brand" id="brandLink" href="menudashbord.html">DevCursos<span>+</span></a>
-        <a class="back" id="backLink" href="menudashbord.html">← Voltar</a>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Área de estudo do curso selecionado." />
+    <title>Estudar | DevCursos+</title>
+    <link rel="stylesheet" href="design.css" />
+  </head>
+  <body class="study-site">
+    <header class="study-header">
+      <a class="wordmark" href="menudashbord.html"
+        ><span class="wordmark-mark">D</span
+        ><span>devcursos<span class="wordmark-plus">+</span></span></a
+      ><a class="study-back" id="backLink" href="menudashbord.html"
+        >Meu espaço</a
+      >
+      <div class="study-course-name" id="tituloCurso">Carregando curso</div>
+      <div class="study-progress-copy" id="textoProg">
+        Preparando o conteúdo
       </div>
-
-      <div class="course-card">
-        <span class="eyebrow">Curso atual</span>
-        <h1 id="tituloCurso">Carregando curso...</h1>
-      </div>
-
-      <nav id="menu" class="menu" aria-label="Menu do curso"></nav>
-    </aside>
-
-    <main class="main-panel">
-      <header class="topbar">
-        <div class="topbar-copy">
-          <span class="chip">Aulas</span>
-          <strong id="textoProg">0 de 0 concluídas</strong>
+    </header>
+    <div class="study-layout">
+      <aside class="curriculum-panel">
+        <div class="curriculum-head">
+          <span class="section-kicker">CURRÍCULO</span>
+          <h2 id="curriculumTitle">Conteúdo do curso</h2>
+          <div class="curriculum-count">
+            <span id="curriculumCount">Carregando aulas</span>
+          </div>
         </div>
-        <div class="progress-bar" aria-label="Progresso do curso">
-          <span id="barraProg"></span>
+        <nav
+          id="menu"
+          class="curriculum-list"
+          aria-label="Aulas do curso"
+        ></nav>
+      </aside>
+      <main class="lesson-main">
+        <div class="lesson-loading" id="pagina" aria-live="polite">
+          <div class="detail-skeleton">
+            <span class="skeleton-line short"></span
+            ><span class="skeleton-line wide"></span
+            ><span class="skeleton-line medium"></span
+            ><span class="skeleton-block"></span>
+          </div>
         </div>
-      </header>
-
-      <div class="page-content">
-        <div id="pagina" class="course-page"></div>
-      </div>
-
-      <div class="toolbar">
-        <button type="button" id="btnReiniciar" class="reset-btn">Reiniciar progresso</button>
-      </div>
-    </main>
-  </div>
-
-  <script type="module" src="tema.js"></script>
-  <script type="module" src="auth.js"></script>
-  <script type="module" src="cursos.js"></script>
-</body>
-
+      </main>
+    </div>
+    <div class="study-footer">
+      <span>DEV CURSOS+ / ESPAÇO DE ESTUDO</span
+      ><button type="button" id="btnReiniciar" class="study-reset">
+        Reiniciar meu progresso
+      </button>
+    </div>
+    <script type="module" src="cursos.js"></script>
+  </body>
 </html>

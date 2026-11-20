@@ -1,103 +1,90 @@
 <!doctype html>
 <html lang="pt-BR">
-
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DevCursos+ | Recuperar senha</title>
-  <link rel="stylesheet" href="login.css">
-  <style>
-    /* Complemento local: mantém o cartão, cores e composição da tela de login. */
-    .recovery-note {
-      margin-top: 16px;
-      color: #71717a;
-      font-size: 12px;
-      line-height: 1.6;
-    }
-
-    .recovery-status {
-      display: none;
-      margin-top: 16px;
-      padding: 12px;
-      border-radius: 8px;
-      background: #f3e8ff;
-      color: #4c1d95;
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .recovery-status.show {
-      display: block;
-    }
-
-    .back-login {
-      display: inline-block;
-      margin-top: 20px;
-      color: #6d28d9;
-      font-size: 13px;
-      font-weight: 600;
-      text-decoration: none;
-    }
-
-    .back-login:hover {
-      text-decoration: underline;
-    }
-
-    @media(max-width:800px) {
-      .login-page {
-        grid-template-columns: 1fr;
-      }
-
-      .visual-section {
-        display: none;
-      }
-
-      .login-card {
-        margin: 24px auto;
-      }
-    }
-  </style>
-</head>
-
-<body>
-  <main class="login-page">
-    <div class="background-decoration decoration-1"></div>
-    <div class="background-decoration decoration-2"></div>
-    <div class="background-decoration decoration-3"></div>
-    <section class="login-card">
-      <div class="logo">
-        <div class="logo-icon"><i data-lucide="graduation-cap"></i></div>
-        <span>DevCursos<span>+</span></span>
-      </div>
-      <h1>Recuperar senha</h1>
-      <p class="subtitle">Informe o e-mail associado à sua conta para iniciar a recuperação.</p>
-      <form id="recoveryForm">
-        <div class="form-group">
-          <label for="email">E-mail</label>
-          <div class="input-wrapper"><input type="email" id="email" name="email" placeholder="seu@email.com"
-              autocomplete="email" required></div>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Recuperar senha | DevCursos+</title>
+    <link rel="stylesheet" href="design.css" />
+  </head>
+  <body class="auth-page">
+    <main class="auth-layout">
+      <section class="auth-form-side">
+        <a class="wordmark auth-wordmark" href="index.html"
+          ><span class="wordmark-mark">D</span
+          ><span>devcursos<span class="wordmark-plus">+</span></span></a
+        >
+        <div class="auth-form-wrap recovery-form-wrap">
+          <p class="section-kicker"><span>ACESSO À CONTA</span></p>
+          <h1>Retome seus estudos.</h1>
+          <p class="auth-intro">
+            Informe o e-mail da sua conta. Enviaremos um link para redefinir sua
+            senha.
+          </p>
+          <form id="recoveryForm">
+            <div class="field">
+              <label for="email">E-mail</label>
+              <div class="input-wrap">
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  autocomplete="email"
+                  required
+                />
+              </div>
+            </div>
+            <button class="button button-primary auth-submit" type="submit">
+              Enviar link de recuperação
+            </button>
+          </form>
+          <p
+            id="recoveryStatus"
+            class="msg recovery-status"
+            role="status"
+            aria-live="polite"
+          ></p>
+          <p class="field-help">
+            Se a mensagem não aparecer, confira as pastas de spam e promoções.
+          </p>
+          <p class="auth-switch"><a href="login.html">Voltar para entrar</a></p>
         </div>
-        <button class="login-button" type="submit">Solicitar recuperação</button>
-      </form>
-      <p id="recoveryStatus" class="recovery-status" role="status"></p>
-      <p class="recovery-note">Você receberá um link seguro de redefinição caso exista uma conta associada ao e-mail informado.</p>
-      <a class="back-login" href="login.html">← Voltar para entrar</a>
-    </section>
-    <section class="visual-section">
-      <div class="visual-content">
-        <div class="visual-icon"><i data-lucide="key-round"></i></div>
-        <h2>Retome seus estudos.<br>Continue evoluindo.</h2>
-        <p>Recupere o acesso à sua conta DevCursos+.</p>
-      </div>
-    </section>
-  </main>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script>
-    if (window.lucide) lucide.createIcons();
-  </script>
-  <script type="module" src="./recuperarsenha.js"></script>
-  
-
-</body>
-
+        <p class="auth-legal">DEV CURSOS+ / ACESSO SEGURO</p>
+      </section>
+      <aside
+        class="auth-visual"
+        aria-label="Ambiente de aprendizagem DevCursos"
+      >
+        <div class="auth-visual-orbit orbit-a"></div>
+        <div class="auth-visual-orbit orbit-b"></div>
+        <span class="auth-visual-code code-a">01 / 03</span
+        ><span class="auth-visual-code code-b">CONTINUAR</span>
+        <div class="auth-display">
+          <div class="auth-display-top">
+            <span>DEV / CURSOS</span><span>SEU AMBIENTE</span>
+          </div>
+          <div class="auth-display-screen">
+            <div class="auth-screen-sidebar"><i></i><i></i><i></i><i></i></div>
+            <div class="auth-screen-content">
+              <span>SEU ESPAÇO DE ESTUDO</span>
+              <h2>O conhecimento<br />continua daqui.</h2>
+              <div class="auth-code">
+                <i>01</i><span><b>revisar</b>(fundamentos);</span><i>02</i
+                ><span><b>aplicar</b>(conhecimento);</span><i>03</i
+                ><span><b>continuar</b>();</span><i>04</i
+                ><span class="cursor-line">_</span>
+              </div>
+              <div class="auth-display-line">
+                <span>ESTUDO GUIADO</span><span>RITMO PRÓPRIO</span>
+              </div>
+            </div>
+          </div>
+          <div class="auth-display-base"></div>
+        </div>
+        <p class="auth-visual-caption">
+          Retome com clareza a partir do ponto em que você está.
+        </p>
+      </aside>
+    </main>
+    <script type="module" src="./recuperarsenha.js"></script>
+  </body>
 </html>

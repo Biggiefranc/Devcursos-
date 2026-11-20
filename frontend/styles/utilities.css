@@ -1,0 +1,16 @@
+.empty-message,
+.inline-error {
+  grid-column: 1/-1;
+  padding: 22px;
+  border: 1px solid var(--line);
+  color: #a39ba7;
+  font-size: 12px;
+}
+.inline-error p {
+  margin: 0 0 14px;
+}
+.inline-error a:not(.button) {
+  color: #c5afd4;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}

@@ -1,26 +1,28 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from "vite";
 
 export default defineConfig({
   server: {
-    host: '0.0.0.0',
+    host: "localhost",
     port: 5173,
-    strictPort: false,
+    strictPort: true,
   },
   preview: {
-    host: '0.0.0.0',
+    host: "localhost",
     port: 4173,
-    strictPort: false,
+    strictPort: true,
   },
   build: {
     rollupOptions: {
       input: {
-        main: 'index.html',
-        login: 'login.html',
-        cadastro: 'cadastro.html',
-        cursos: 'cursos.html',
-        menudashbord: 'menudashbord.html',
-        recuperarsenha: 'recuperarsenha.html',
-        visualizarcursos: 'visualizarcurso.html',
+        main: "index.html",
+        catalogo: "catalogo.html",
+        login: "login.html",
+        cadastro: "cadastro.html",
+        cursos: "cursos.html",
+        menudashbord: "menudashbord.html",
+        recuperarsenha: "recuperarsenha.html",
+        visualizarcurso: "visualizarcurso.html",
+        legado: "tela.html",
       },
     },
   },
