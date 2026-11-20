@@ -50,7 +50,6 @@ async function buscarAulaAnteriorPendente(usuarioId, aulaId) {
            AND pa.usuario_id = ?
            AND pa.concluida = 1
         WHERE atual.id = ?
-          AND modulo_anterior.curso_id = modulo_atual.curso_id
           AND (
               modulo_anterior.ordem < modulo_atual.ordem
               OR (

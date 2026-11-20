@@ -56,6 +56,8 @@ async function listarQuestoesPublicas(avaliacaoId) {
 
 async function registrarTentativa({ usuarioId, avaliacaoId, total, acertos, aprovada, respostas }) {
     const connection = await pool.getConnection();
+    let descartarConexao = false;
+
     try {
         await connection.beginTransaction();
         const [insert] = await connection.execute(
@@ -82,10 +84,16 @@ async function registrarTentativa({ usuarioId, avaliacaoId, total, acertos, apro
             aprovada
         };
     } catch (erro) {
-        await connection.rollback();
+        try {
+            await connection.rollback();
+        } catch (erroRollback) {
+            descartarConexao = true;
+            erro.erroRollback = erroRollback;
+        }
         throw erro;
     } finally {
-        connection.release();
+        if (descartarConexao) connection.destroy();
+        else connection.release();
     }
 }
 

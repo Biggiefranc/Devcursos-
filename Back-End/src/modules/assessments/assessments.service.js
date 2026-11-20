@@ -2,43 +2,47 @@ const repository = require("./assessments.repository");
 const usersRepository = require("../users/users.repository");
 const coursesRepository = require("../courses/cursos.repository");
 const progressRepository = require("../progress/progress.repository");
-
-function criarErro(statusCode, mensagem) {
-    const erro = new Error(mensagem);
-    erro.statusCode = statusCode;
-    return erro;
-}
-
-function validarId(valor, nome = "Identificador") {
-    const numero = Number(valor);
-    if (!Number.isSafeInteger(numero) || numero <= 0) {
-        throw criarErro(400, `${nome} inválido.`);
-    }
-    return numero;
-}
+const AppError = require("../../shared/errors/AppError");
+const { validarIdPositivo } = require("../../shared/validation/ids");
 
 async function obterUsuario(firebaseUid) {
     const usuario = await usersRepository.buscarPorFirebaseUid(firebaseUid);
-    if (!usuario) throw criarErro(404, "Perfil não encontrado. Sincronize seu perfil antes de acessar avaliações.");
+    if (!usuario) {
+        throw new AppError(
+            404,
+            "PERFIL_NAO_ENCONTRADO",
+            "Perfil não encontrado. Sincronize seu perfil antes de acessar avaliações."
+        );
+    }
     return usuario;
 }
 
 async function buscarPorCurso(firebaseUid, cursoId) {
     await obterUsuario(firebaseUid);
-    const idCurso = validarId(cursoId, "ID do curso");
+    const idCurso = validarIdPositivo(cursoId, "ID do curso");
     const curso = await coursesRepository.buscarCursoPorId(idCurso);
-    if (!curso) throw criarErro(404, "Curso não encontrado.");
+    if (!curso) throw new AppError(404, "CURSO_NAO_ENCONTRADO", "Curso não encontrado.");
 
     const avaliacao = await repository.buscarPorCurso(idCurso);
-    if (!avaliacao) throw criarErro(404, "Este curso ainda não possui avaliação configurada.");
+    if (!avaliacao) {
+        throw new AppError(
+            404,
+            "AVALIACAO_NAO_ENCONTRADA",
+            "Este curso ainda não possui avaliação configurada."
+        );
+    }
 
     const questoes = await repository.listarQuestoesPublicas(avaliacao.id);
     if (!questoes.length || questoes.some((questao) => questao.alternativas.length < 2)) {
-        throw criarErro(409, "A avaliação está incompleta e não pode ser iniciada.");
+        throw new AppError(409, "AVALIACAO_INCOMPLETA", "A avaliação está incompleta e não pode ser iniciada.");
     }
     const minimoAcertos = Number(avaliacao.minimo_acertos);
     if (!Number.isInteger(minimoAcertos) || minimoAcertos < 1 || minimoAcertos > questoes.length) {
-        throw criarErro(409, "O critério mínimo de aprovação da avaliação está inválido.");
+        throw new AppError(
+            409,
+            "CRITERIO_DE_APROVACAO_INVALIDO",
+            "O critério mínimo de aprovação da avaliação está inválido."
+        );
     }
 
     return {
@@ -50,24 +54,24 @@ async function buscarPorCurso(firebaseUid, cursoId) {
 }
 
 async function registrarTentativa(firebaseUid, avaliacaoId, respostas) {
-    const idAvaliacao = validarId(avaliacaoId, "ID da avaliação");
+    const idAvaliacao = validarIdPositivo(avaliacaoId, "ID da avaliação");
     const usuario = await obterUsuario(firebaseUid);
     const avaliacao = await repository.buscarPorId(idAvaliacao);
-    if (!avaliacao) throw criarErro(404, "Avaliação não encontrada ou inativa.");
+    if (!avaliacao) throw new AppError(404, "AVALIACAO_NAO_ENCONTRADA", "Avaliação não encontrada ou inativa.");
 
     const totalAulas = await coursesRepository.contarAulasPorCurso(avaliacao.curso_id);
     const aulasConcluidas = await progressRepository.listarAulasConcluidas(usuario.id, avaliacao.curso_id);
     if (totalAulas === 0 || aulasConcluidas.length < totalAulas) {
-        throw criarErro(403, "Conclua todas as aulas do curso antes de enviar a avaliação.");
+        throw new AppError(403, "CURSO_NAO_CONCLUIDO", "Conclua todas as aulas do curso antes de enviar a avaliação.");
     }
 
     if (!Array.isArray(respostas) || respostas.length === 0) {
-        throw criarErro(400, "Envie as respostas da avaliação.");
+        throw new AppError(400, "RESPOSTAS_OBRIGATORIAS", "Envie as respostas da avaliação.");
     }
 
     const questoesConfiguradas = await repository.listarQuestoesPublicas(idAvaliacao);
     if (!questoesConfiguradas.length || questoesConfiguradas.some((questao) => questao.alternativas.length < 2)) {
-        throw criarErro(409, "A avaliação está incompleta e não pode ser corrigida.");
+        throw new AppError(409, "AVALIACAO_INCOMPLETA", "A avaliação está incompleta e não pode ser corrigida.");
     }
 
     const corretasRows = await repository.listarCorretas(idAvaliacao);
@@ -79,36 +83,60 @@ async function registrarTentativa(firebaseUid, avaliacaoId, respostas) {
         if (!opcoesValidas.has(qid)) opcoesValidas.set(qid, new Set());
         opcoesValidas.get(qid).add(aid);
         if (Number(row.correta) === 1) {
-            if (porQuestao.has(qid)) throw criarErro(409, "A avaliação possui mais de uma alternativa correta para uma questão.");
+            if (porQuestao.has(qid)) {
+                throw new AppError(
+                    409,
+                    "GABARITO_INVALIDO",
+                    "A avaliação possui mais de uma alternativa correta para uma questão."
+                );
+            }
             porQuestao.set(qid, aid);
         }
     }
 
     const questionIds = questoesConfiguradas.map((questao) => Number(questao.id));
     if (questionIds.some((id) => !opcoesValidas.has(id) || !porQuestao.has(id))) {
-        throw criarErro(409, "A avaliação possui questões sem uma alternativa correta configurada.");
+        throw new AppError(
+            409,
+            "GABARITO_INCOMPLETO",
+            "A avaliação possui questões sem uma alternativa correta configurada."
+        );
     }
     const minimoAcertos = Number(avaliacao.minimo_acertos);
     if (!Number.isInteger(minimoAcertos) || minimoAcertos < 1 || minimoAcertos > questionIds.length) {
-        throw criarErro(409, "O critério mínimo de aprovação da avaliação está inválido.");
+        throw new AppError(
+            409,
+            "CRITERIO_DE_APROVACAO_INVALIDO",
+            "O critério mínimo de aprovação da avaliação está inválido."
+        );
     }
     if (respostas.length !== questionIds.length) {
-        throw criarErro(400, "Responda todas as questões antes de enviar a avaliação.");
+        throw new AppError(400, "RESPOSTAS_INCOMPLETAS", "Responda todas as questões antes de enviar a avaliação.");
     }
 
     const recebidas = new Map();
     for (const item of respostas) {
-        const questaoId = validarId(item?.questaoId, "ID da questão");
-        const alternativaId = validarId(item?.alternativaId, "ID da alternativa");
-        if (recebidas.has(questaoId)) throw criarErro(400, "Há respostas duplicadas para uma questão.");
+        const questaoId = validarIdPositivo(item?.questaoId, "ID da questão");
+        const alternativaId = validarIdPositivo(item?.alternativaId, "ID da alternativa");
+        if (recebidas.has(questaoId)) {
+            throw new AppError(
+                400,
+                "RESPOSTA_DUPLICADA",
+                "Há respostas duplicadas para uma questão."
+            );
+        }
         if (!opcoesValidas.get(questaoId)?.has(alternativaId)) {
-            throw criarErro(400, "Uma alternativa enviada não pertence à questão correspondente.");
+            throw new AppError(
+                400,
+                "ALTERNATIVA_INVALIDA",
+                "Uma alternativa enviada não pertence à questão correspondente."
+            );
         }
         recebidas.set(questaoId, alternativaId);
     }
 
     if (questionIds.some((id) => !recebidas.has(id))) {
-        throw criarErro(400, "Responda todas as questões antes de enviar a avaliação.");
+        throw new AppError(400, "RESPOSTAS_INCOMPLETAS", "Responda todas as questões antes de enviar a avaliação.");
     }
 
     const respostasValidadas = questionIds.map((questaoId) => ({

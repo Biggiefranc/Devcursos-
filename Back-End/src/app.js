@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const { randomUUID } = require("node:crypto");
 
 const usersRoutes = require("./modules/users/users.routes");
 const cursosRoutes = require("./modules/courses/cursos.routes");
@@ -11,15 +12,35 @@ const { pool } = require("./shared/database/database");
 const tratarErros = require("./shared/middlewares/tratarErros");
 
 const app = express();
+app.disable("x-powered-by");
+
+app.use((req, res, next) => {
+  req.id = randomUUID();
+  res.setHeader("X-Request-Id", req.id);
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("Referrer-Policy", "no-referrer");
+  res.setHeader("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'");
+  next();
+});
 
 const configuredFrontendOrigin = (() => {
   try {
-    return process.env.FRONTEND_URL ? new URL(process.env.FRONTEND_URL).origin : null;
+    if (!process.env.FRONTEND_URL) return null;
+    const url = new URL(process.env.FRONTEND_URL);
+    if (process.env.NODE_ENV === "production" && url.protocol !== "https:") {
+      throw new Error("FRONTEND_URL precisa usar HTTPS em produção.");
+    }
+    return url.origin;
   } catch {
     console.warn("FRONTEND_URL inválida; a origem configurada não será liberada pelo CORS.");
     return null;
   }
 })();
+
+if (process.env.NODE_ENV === "production" && !configuredFrontendOrigin) {
+  throw new Error("Configure FRONTEND_URL com a origem HTTPS do frontend em produção.");
+}
 
 const allowedOrigins = new Set([
   configuredFrontendOrigin,
@@ -56,7 +77,7 @@ app.use(
       console.warn("CORS bloqueado para:", origin);
       callback(null, false);
     },
-    credentials: true,
+    credentials: false,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"]
   })
@@ -78,7 +99,10 @@ app.get("/health", async (req, res) => {
       mensagem: "API e MySQL funcionando."
     });
   } catch (erro) {
-    console.error("Falha na verificação do MySQL:", erro.message);
+    console.error("Falha na verificação do MySQL:", {
+      requestId: req.id,
+      codigo: erro.code || "ERRO_DE_BANCO"
+    });
 
     return res.status(503).json({
       status: "erro",
@@ -96,7 +120,8 @@ app.use(assessmentsRoutes);
 
 app.use((req, res) => {
   return res.status(404).json({
-    mensagem: "Rota não encontrada."
+    mensagem: "Rota não encontrada.",
+    codigo: "ROTA_NAO_ENCONTRADA"
   });
 });
 

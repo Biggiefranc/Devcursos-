@@ -41,7 +41,9 @@ function atualizarLinksDeNavegacao() {
 atualizarLinksDeNavegacao();
 
 async function buscarJson(url) {
-    const resposta = await fetch(url);
+    const token = await tokenAtual();
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const resposta = await fetch(url, { headers });
     const dados = await resposta.json().catch(() => null);
 
     if (!resposta.ok) {

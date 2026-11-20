@@ -1,29 +1,19 @@
 const progressRepository = require("./progress.repository");
 const usersRepository = require("../users/users.repository");
-
-// Valida IDs recebidos pela API.
-function validarId(id) {
-    const idNumerico = Number(id);
-
-    if (!Number.isInteger(idNumerico) || idNumerico <= 0) {
-        const erro = new Error("Identificador inválido.");
-        erro.statusCode = 400;
-        throw erro;
-    }
-
-    return idNumerico;
-}
+const coursesRepository = require("../courses/cursos.repository");
+const AppError = require("../../shared/errors/AppError");
+const { validarIdPositivo } = require("../../shared/validation/ids");
 
 // Resolve o UID do Firebase para o ID interno do MySQL.
 async function obterUsuarioId(firebaseUid) {
     const usuario = await usersRepository.buscarPorFirebaseUid(firebaseUid);
 
     if (!usuario) {
-        const erro = new Error(
+        throw new AppError(
+            404,
+            "PERFIL_NAO_ENCONTRADO",
             "Perfil não encontrado. Sincronize seu perfil antes de acessar o progresso."
         );
-        erro.statusCode = 404;
-        throw erro;
     }
 
     return usuario.id;
@@ -31,8 +21,13 @@ async function obterUsuarioId(firebaseUid) {
 
 // Lista as aulas concluídas de um curso.
 async function listarProgresso(firebaseUid, cursoId) {
-    const idCurso = validarId(cursoId);
+    const idCurso = validarIdPositivo(cursoId, "ID do curso");
     const usuarioId = await obterUsuarioId(firebaseUid);
+
+    const curso = await coursesRepository.buscarCursoPorId(idCurso);
+    if (!curso) {
+        throw new AppError(404, "CURSO_NAO_ENCONTRADO", "Curso não encontrado.");
+    }
 
     const aulasConcluidas =
         await progressRepository.listarAulasConcluidas(
@@ -45,14 +40,14 @@ async function listarProgresso(firebaseUid, cursoId) {
 
 // Atualiza o estado de conclusão de uma aula.
 async function atualizarConclusao(firebaseUid, aulaId, concluida) {
-    const idAula = validarId(aulaId);
+    const idAula = validarIdPositivo(aulaId, "ID da aula");
 
     if (typeof concluida !== "boolean") {
-        const erro = new Error(
+        throw new AppError(
+            400,
+            "ESTADO_DE_CONCLUSAO_INVALIDO",
             "O campo concluida deve ser verdadeiro ou falso."
         );
-        erro.statusCode = 400;
-        throw erro;
     }
 
     const usuarioId = await obterUsuarioId(firebaseUid);
@@ -60,9 +55,7 @@ async function atualizarConclusao(firebaseUid, aulaId, concluida) {
     const aula = await progressRepository.buscarAulaPorId(idAula);
 
     if (!aula) {
-        const erro = new Error("Aula não encontrada.");
-        erro.statusCode = 404;
-        throw erro;
+        throw new AppError(404, "AULA_NAO_ENCONTRADA", "Aula não encontrada.");
     }
 
     if (concluida) {
@@ -70,11 +63,11 @@ async function atualizarConclusao(firebaseUid, aulaId, concluida) {
             await progressRepository.buscarAulaAnteriorPendente(usuarioId, idAula);
 
         if (aulaAnteriorPendente) {
-            const erro = new Error(
+            throw new AppError(
+                409,
+                "AULA_ANTERIOR_PENDENTE",
                 "Conclua as aulas anteriores antes de avançar neste curso."
             );
-            erro.statusCode = 409;
-            throw erro;
         }
 
         await progressRepository.concluirAula(usuarioId, idAula);

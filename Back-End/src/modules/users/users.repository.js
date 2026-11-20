@@ -56,8 +56,17 @@ async function criar({ firebaseUid, nome, email }) {
     return buscarPorId(resultado.insertId);
 }
 
+async function atualizarEmailPorFirebaseUid(firebaseUid, email) {
+    await pool.execute(
+        "UPDATE usuarios SET email = ? WHERE firebase_uid = ?",
+        [email, firebaseUid]
+    );
+    return buscarPorFirebaseUid(firebaseUid);
+}
+
 module.exports = {
     buscarPorFirebaseUid,
     buscarPorId,
-    criar
+    criar,
+    atualizarEmailPorFirebaseUid
 };

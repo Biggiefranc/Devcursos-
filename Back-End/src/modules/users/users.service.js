@@ -1,15 +1,5 @@
-
 const usersRepository = require("./users.repository");
-
-// Cria erros com informações que o controller poderá utilizar.
-function criarErro(statusCode, codigo, mensagem) {
-    const erro = new Error(mensagem);
-
-    erro.statusCode = statusCode;
-    erro.codigo = codigo;
-
-    return erro;
-}
+const AppError = require("../../shared/errors/AppError");
 
 // Valida e normaliza a identidade fornecida pelo middleware Firebase.
 function validarIdentidade(firebaseUser) {
@@ -19,7 +9,7 @@ function validarIdentidade(firebaseUser) {
         !firebaseUser.uid.trim() ||
         firebaseUser.uid.length > 128
     ) {
-        throw criarErro(
+        throw new AppError(
             401,
             "IDENTIDADE_INVALIDA",
             "Não foi possível identificar o usuário autenticado."
@@ -31,7 +21,7 @@ function validarIdentidade(firebaseUser) {
         !firebaseUser.email.trim() ||
         firebaseUser.email.length > 150
     ) {
-        throw criarErro(
+        throw new AppError(
             400,
             "EMAIL_INVALIDO",
             "A conta Firebase precisa possuir um e-mail válido."
@@ -48,7 +38,7 @@ function validarIdentidade(firebaseUser) {
 // Valida o nome informado para criação de um perfil novo.
 function validarNome(nome) {
     if (typeof nome !== "string") {
-        throw criarErro(
+        throw new AppError(
             400,
             "NOME_OBRIGATORIO",
             "Informe seu nome para criar o perfil."
@@ -58,7 +48,7 @@ function validarNome(nome) {
     const nomeNormalizado = nome.trim();
 
     if (!nomeNormalizado || nomeNormalizado.length > 100) {
-        throw criarErro(
+        throw new AppError(
             400,
             "NOME_INVALIDO",
             "O nome deve possuir entre 1 e 100 caracteres."
@@ -73,7 +63,7 @@ async function sincronizarPerfil({ firebaseUser, nome }) {
     const identidade = validarIdentidade(firebaseUser);
 
     if (!identidade.emailVerified) {
-        throw criarErro(
+        throw new AppError(
             403,
             "EMAIL_NAO_VERIFICADO",
             "Verifique seu e-mail antes de concluir o cadastro."
@@ -84,7 +74,25 @@ async function sincronizarPerfil({ firebaseUser, nome }) {
         await usersRepository.buscarPorFirebaseUid(identidade.uid);
 
     if (usuarioVinculado) {
-        return { usuario: usuarioVinculado, acao: "ja_vinculado" };
+        try {
+            const usuarioAtualizado = await usersRepository.atualizarEmailPorFirebaseUid(
+                identidade.uid,
+                identidade.email
+            );
+            return {
+                usuario: usuarioAtualizado || usuarioVinculado,
+                acao: "ja_vinculado"
+            };
+        } catch (erro) {
+            if (erro.code === "ER_DUP_ENTRY") {
+                throw new AppError(
+                    409,
+                    "EMAIL_JA_CADASTRADO",
+                    "Este e-mail já está vinculado a outro perfil."
+                );
+            }
+            throw erro;
+        }
     }
 
     const nomeNormalizado = validarNome(nome);
@@ -111,7 +119,7 @@ async function sincronizarPerfil({ firebaseUser, nome }) {
                 return { usuario: usuarioAtual, acao: "ja_vinculado" };
             }
 
-            throw criarErro(
+            throw new AppError(
                 409,
                 "EMAIL_JA_CADASTRADO",
                 "Este e-mail já possui um perfil no DevCursos+."
@@ -128,7 +136,7 @@ async function buscarPerfil(firebaseUid) {
     );
 
     if (!usuario) {
-        throw criarErro(
+        throw new AppError(
             404,
             "PERFIL_NAO_ENCONTRADO",
             "Seu perfil ainda não foi sincronizado com o DevCursos+."

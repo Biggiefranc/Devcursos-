@@ -1,6 +1,4 @@
-const path = require("node:path");
-const dotenv = require("dotenv");
-dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
+require("../../config/loadEnv");
 
 const {
     initializeApp,
@@ -18,8 +16,15 @@ function getFirebaseAuthMode() {
         throw new Error("FIREBASE_AUTH_MODE deve ser 'strict' ou 'bypass'.");
     }
 
-    if (configured === "bypass" && process.env.NODE_ENV !== "development") {
-        throw new Error("O bypass do Firebase exige NODE_ENV=development e é proibido fora do desenvolvimento local.");
+    if (configured === "bypass") {
+        const hostsLocais = new Set(["localhost", "127.0.0.1", "::1"]);
+        const bancoLocal = hostsLocais.has(String(process.env.DB_HOST || "").trim().toLowerCase());
+
+        if (process.env.NODE_ENV !== "development" || !bancoLocal) {
+            throw new Error(
+                "O bypass do Firebase exige NODE_ENV=development e DB_HOST local."
+            );
+        }
     }
 
     return configured;

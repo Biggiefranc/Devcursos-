@@ -1,23 +1,17 @@
 const repository = require("./favorites.repository");
 const usersRepository = require("../users/users.repository");
 const coursesRepository = require("../courses/cursos.repository");
-
-function validarId(id) {
-    const numero = Number(id);
-    if (!Number.isSafeInteger(numero) || numero <= 0) {
-        const erro = new Error("Identificador de curso inválido.");
-        erro.statusCode = 400;
-        throw erro;
-    }
-    return numero;
-}
+const AppError = require("../../shared/errors/AppError");
+const { validarIdPositivo } = require("../../shared/validation/ids");
 
 async function obterUsuarioId(firebaseUid) {
     const usuario = await usersRepository.buscarPorFirebaseUid(firebaseUid);
     if (!usuario) {
-        const erro = new Error("Perfil não encontrado. Sincronize seu perfil antes de salvar favoritos.");
-        erro.statusCode = 404;
-        throw erro;
+        throw new AppError(
+            404,
+            "PERFIL_NAO_ENCONTRADO",
+            "Perfil não encontrado. Sincronize seu perfil antes de salvar favoritos."
+        );
     }
     return usuario.id;
 }
@@ -28,19 +22,15 @@ async function listar(firebaseUid) {
 }
 
 async function atualizar(firebaseUid, cursoId, favoritado) {
-    const id = validarId(cursoId);
+    const id = validarIdPositivo(cursoId, "ID do curso");
     if (typeof favoritado !== "boolean") {
-        const erro = new Error("O campo favoritado deve ser verdadeiro ou falso.");
-        erro.statusCode = 400;
-        throw erro;
+        throw new AppError(400, "FAVORITO_INVALIDO", "O campo favoritado deve ser verdadeiro ou falso.");
     }
 
     const usuarioId = await obterUsuarioId(firebaseUid);
     const curso = await coursesRepository.buscarCursoPorId(id);
     if (!curso) {
-        const erro = new Error("Curso não encontrado.");
-        erro.statusCode = 404;
-        throw erro;
+        throw new AppError(404, "CURSO_NAO_ENCONTRADO", "Curso não encontrado.");
     }
 
     if (favoritado) await repository.adicionar(usuarioId, id);
