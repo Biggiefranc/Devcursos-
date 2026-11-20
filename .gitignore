@@ -1,1 +1,7 @@
 ANALISE-E-CORRECOES.md
+
+# Dependências e artefatos gerados
+node_modules/
+**/node_modules/
+dist/
+**/dist/

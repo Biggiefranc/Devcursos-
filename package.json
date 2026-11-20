@@ -3,10 +3,10 @@
   "private": true,
   "scripts": {
     "dev": "node scripts/dev.js",
-    "start": "npm --prefix Back-End run start",
-    "start:back": "npm --prefix Back-End run start",
-    "start:front": "npm --prefix Front-End run dev",
-    "build": "npm --prefix Front-End run build",
-    "test": "npm --prefix Back-End test"
+    "start": "npm --prefix backend run start",
+    "start:back": "npm --prefix backend run start",
+    "start:front": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "test": "npm --prefix backend test"
   }
 }
