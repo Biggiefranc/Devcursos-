@@ -1,0 +1,108 @@
+const { pool } = require("../../shared/database/database");
+
+// Busca as aulas concluídas de um curso por usuário.
+async function listarAulasConcluidas(usuarioId, cursoId) {
+    const sql = `
+        SELECT a.id
+        FROM progresso_aulas pa
+        INNER JOIN aulas a ON a.id = pa.aula_id
+        INNER JOIN modulos m ON m.id = a.modulo_id
+        WHERE pa.usuario_id = ?
+          AND m.curso_id = ?
+          AND pa.concluida = 1
+        ORDER BY a.id ASC
+    `;
+
+    const [resultados] = await pool.execute(sql, [
+        usuarioId,
+        cursoId
+    ]);
+
+    return resultados.map((aula) => Number(aula.id));
+}
+
+// Verifica se uma aula existe.
+async function buscarAulaPorId(aulaId) {
+    const sql = `
+        SELECT id
+        FROM aulas
+        WHERE id = ?
+        LIMIT 1
+    `;
+
+    const [aulas] = await pool.execute(sql, [aulaId]);
+
+    return aulas[0] || null;
+}
+
+// Retorna uma aula anterior ainda não concluída no mesmo curso.
+// A ordem é a mesma usada pela interface: módulo.ordem, aula.ordem e IDs.
+async function buscarAulaAnteriorPendente(usuarioId, aulaId) {
+    const sql = `
+        SELECT anterior.id
+        FROM aulas atual
+        INNER JOIN modulos modulo_atual ON modulo_atual.id = atual.modulo_id
+        INNER JOIN modulos modulo_anterior
+            ON modulo_anterior.curso_id = modulo_atual.curso_id
+        INNER JOIN aulas anterior ON anterior.modulo_id = modulo_anterior.id
+        LEFT JOIN progresso_aulas pa
+            ON pa.aula_id = anterior.id
+           AND pa.usuario_id = ?
+           AND pa.concluida = 1
+        WHERE atual.id = ?
+          AND (
+              modulo_anterior.ordem < modulo_atual.ordem
+              OR (
+                  modulo_anterior.ordem = modulo_atual.ordem
+                  AND (
+                      modulo_anterior.id < modulo_atual.id
+                      OR (
+                          modulo_anterior.id = modulo_atual.id
+                          AND (
+                              anterior.ordem < atual.ordem
+                              OR (anterior.ordem = atual.ordem AND anterior.id < atual.id)
+                          )
+                      )
+                  )
+              )
+          )
+          AND pa.id IS NULL
+        ORDER BY modulo_anterior.ordem ASC, anterior.ordem ASC, anterior.id ASC
+        LIMIT 1
+    `;
+
+    const [aulas] = await pool.execute(sql, [usuarioId, aulaId]);
+    return aulas[0] || null;
+}
+
+// Marca uma aula como concluída.
+async function concluirAula(usuarioId, aulaId) {
+    const sql = `
+        INSERT INTO progresso_aulas (usuario_id, aula_id, concluida)
+        VALUES (?, ?, 1)
+        ON DUPLICATE KEY UPDATE
+            concluida = 1,
+            atualizada_em = CURRENT_TIMESTAMP
+    `;
+
+    await pool.execute(sql, [usuarioId, aulaId]);
+}
+
+// Remove o registro de progresso de uma aula.
+async function desmarcarAula(usuarioId, aulaId) {
+    const sql = `
+        DELETE FROM progresso_aulas
+        WHERE usuario_id = ?
+          AND aula_id = ?
+    `;
+
+    await pool.execute(sql, [usuarioId, aulaId]);
+}
+
+module.exports = {
+    listarAulasConcluidas,
+    buscarAulaPorId,
+    buscarAulaAnteriorPendente,
+    concluirAula,
+    desmarcarAula
+};
