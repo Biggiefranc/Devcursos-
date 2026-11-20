@@ -1,240 +1,310 @@
 import { auth } from "./firebase/firebase-config";
 import { onAuthStateChanged } from "firebase/auth";
 import { requisicaoAPI, encerrarSessao } from "./services/api";
+import { escapeHtml } from "./courseCard";
 
-(() => {
-  const params = new URLSearchParams(location.search);
-  const id = params.get("curso");
-  const root = document.getElementById("courseDetail");
-  const accountLink = document.getElementById("accountLink");
-  let user = null;
-  let completed = new Set();
-  let favorites = new Set();
-  const authReady = new Promise((resolve) => {
-    const unsubscribe = onAuthStateChanged(auth, (usuario) => {
-      unsubscribe();
-      resolve(usuario);
-    });
+const params = new URLSearchParams(location.search);
+const courseId = params.get("curso");
+const root = document.getElementById("courseDetail");
+const breadcrumb = document.getElementById("breadcrumbCourse");
+const accountLink = document.getElementById("accountLink");
+let user = null;
+let favorites = new Set();
+
+const authReady = new Promise((resolve) => {
+  const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    unsubscribe();
+    resolve(currentUser);
   });
+});
 
-  function esc(v) {
-    return String(v ?? "").replace(/[&<>"']/g, c => ({
-      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-    }[c]));
-  }
-  function duration(course) {
-    const horas = Number(course?.duracao_horas);
-    return Number.isFinite(horas) && horas > 0
-      ? `${horas}h de conteúdo`
-      : "Duração não informada";
-  }
-  function illustration(course) {
-    const s = `${course.titulo || ""} ${course.categoria || ""}`.toLowerCase();
-    if (s.includes("python") || s.includes("phyton")) {
-      return `<img class="tech-logo" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python" width="72" height="72">`;
-    }
-    if (s.includes("javascript") || s.includes("js")) {
-      return `<img class="tech-logo" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" alt="JavaScript" width="72" height="72">`;
-    }
-    if (s.includes("web") || s.includes("html")) return `<svg viewBox="0 0 80 80" aria-hidden="true"><rect x="10" y="15" width="60" height="48" rx="4"/><path d="M10 27h60M27 39l-8 7 8 7m26-14 8 7-8 7m-7-16-8 18"/></svg>`;
-    return `<svg viewBox="0 0 80 80" aria-hidden="true"><path d="M14 25 40 12l26 13-26 13-26-13Z"/><path d="M23 31v18c10 9 24 9 34 0V31M66 26v20"/><circle cx="66" cy="50" r="4"/></svg>`;
-  }
-  async function get(path) {
-    return requisicaoAPI(path);
-  }
-  function isLogged() {
-    return Boolean(auth.currentUser || user || localStorage.getItem("devcursos_token"));
-  }
-  function getFavorites() {
-    return [...favorites];
-  }
+const esc = escapeHtml;
+const get = (path) => requisicaoAPI(path);
+const isLogged = () =>
+  Boolean(auth.currentUser || user || localStorage.getItem("devcursos_token"));
 
-  async function loadFavorites() {
-    favorites = new Set();
-    if (!isLogged()) return;
-    const data = await get("/me/favoritos");
-    favorites = new Set((data.favoritos || []).map((item) => String(item.id)));
+function nameFor(userData) {
+  const raw = String(userData?.nome || userData?.email || "").trim();
+  return (
+    (raw.includes("@") ? raw.split("@")[0] : raw)
+      .split(/[ ._-]+/)
+      .filter(Boolean)[0] || "Minha conta"
+  );
+}
+
+async function loadAccount() {
+  if (!isLogged()) {
+    accountLink.href =
+      "login.html?redirect=" +
+      encodeURIComponent(location.pathname + location.search);
+    return;
   }
-  function displayName(data) {
-    let name = String(data?.nome || "").trim();
-    if (!name || name.includes("@")) name = String(data?.email || "").split("@")[0];
-    return name.split(/[ ._-]+/).filter(Boolean)[0] || "Minha conta";
-  }
-  async function updateAccount() {
-    if (!accountLink) return;
-
-    const usuarioSalvo = (() => {
-      try { return JSON.parse(localStorage.getItem("devcursos_user") || "null"); }
-      catch { return null; }
-    })();
-    const tokenSalvo = localStorage.getItem("devcursos_token");
-
-    if (!auth.currentUser && !tokenSalvo) {
-      user = null;
-      localStorage.removeItem("devcursos_user");
-      accountLink.textContent = "Entrar";
-      accountLink.href = `login.html?redirect=${encodeURIComponent(`${location.pathname}${location.search}`)}`;
-      accountLink.onclick = null;
-      return;
-    }
-
-    try {
-      const data = await get("/me");
-      if (!data?.usuario) throw new Error("Sessão inválida");
-      user = data.usuario;
+  try {
+    const [profile, favoriteData] = await Promise.all([
+      get("/me"),
+      get("/me/favoritos"),
+    ]);
+    user = profile.usuario || null;
+    if (user) {
       localStorage.setItem("devcursos_user", JSON.stringify(user));
-      accountLink.textContent = displayName(user);
-      accountLink.href = "#";
-      accountLink.onclick = async event => {
-        event.preventDefault();
-        if (confirm("Deseja sair da sua conta?")) {
-          await encerrarSessao();
-          location.href = "menudashbord.html";
-        }
-      };
-    } catch (error) {
-      const sessaoInvalida = error.status === 401 || error.status === 404;
-      if (sessaoInvalida) {
-        if (auth.currentUser) await encerrarSessao();
-        localStorage.removeItem("devcursos_token");
-        localStorage.removeItem("devcursos_user");
-        user = null;
-        accountLink.textContent = "Entrar";
-        accountLink.href = `login.html?redirect=${encodeURIComponent(`${location.pathname}${location.search}`)}`;
-        accountLink.onclick = null;
-        return;
-      }
-
-      // Falha de rede/servidor não deve encerrar uma sessão válida por engano.
-      user = usuarioSalvo || null;
-      accountLink.textContent = displayName(user || { nome: "Minha conta" });
-      accountLink.href = "#";
-      accountLink.onclick = async event => {
-        event.preventDefault();
-        if (confirm("Deseja sair da sua conta?")) {
-          await encerrarSessao();
-          localStorage.removeItem("devcursos_token");
-          localStorage.removeItem("devcursos_user");
-          location.href = "menudashbord.html";
-        }
-      };
+      accountLink.textContent = nameFor(user);
+      accountLink.href = "menudashbord.html";
     }
+    favorites = new Set(
+      (favoriteData.favoritos || []).map((item) => String(item.id)),
+    );
+  } catch (error) {
+    if (error.status === 401 || error.status === 404) {
+      localStorage.removeItem("devcursos_token");
+      localStorage.removeItem("devcursos_user");
+      await encerrarSessao();
+      user = null;
+      favorites.clear();
+      accountLink.textContent = "Entrar";
+      accountLink.href =
+        "login.html?redirect=" +
+        encodeURIComponent(location.pathname + location.search);
+    } else console.warn("Não foi possível carregar os dados da conta.", error);
   }
-  async function loadProgress(courseId) {
-    completed = new Set();
-    if (!isLogged()) return;
+}
 
-    const data = await get(`/cursos/${encodeURIComponent(courseId)}/progresso`);
-    completed = new Set((data.aulasConcluidas || []).map(String));
-    localStorage.removeItem(`devcursos-progress-${courseId}`);
-  }
+function categorySlug(category) {
+  const value = String(category || "").toLowerCase();
+  if (value.includes("front")) return "frontend";
+  if (value.includes("devops")) return "devops";
+  return "programacao";
+}
 
-  function slugCategoria(categoria) {
-    const texto = String(categoria || '').trim().toLowerCase();
-    if (texto.includes('program')) return 'programacao';
-    if (texto.includes('front')) return 'frontend';
-    if (texto.includes('devops') || texto.includes('dev ops')) return 'devops';
-    return 'programacao';
-  }
+function metadata(course, modules) {
+  const hours = Number(course.duracao_horas);
+  const duration =
+    Number.isFinite(hours) && hours > 0 ? hours + " horas" : "Não informada";
+  const technology =
+    Array.isArray(course.tecnologias) && course.tecnologias.length
+      ? course.tecnologias.join(" · ")
+      : "Não informadas";
+  const project = course.projeto_final
+    ? esc(course.projeto_final)
+    : "Não cadastrado";
+  return (
+    '<div class="detail-meta"><span>NÍVEL ' +
+    esc(course.nivel || "Não informado") +
+    "</span><span>DURAÇÃO " +
+    duration +
+    "</span><span>TECNOLOGIAS " +
+    esc(technology) +
+    "</span><span>PROJETO FINAL " +
+    project +
+    "</span><span>" +
+    modules.length +
+    " MÓDULOS</span></div>"
+  );
+}
 
-  function render(course, modules) {
-    const allLessons = modules.flatMap(m => m.aulas || []);
-    const total = allLessons.length;
-    const done = allLessons.filter(a => completed.has(String(a.id))).length;
-    const percent = total ? Math.round(done / total * 100) : 0;
-    const fav = getFavorites().includes(String(course.id));
-    const categoria = encodeURIComponent(slugCategoria(course.categoria));
-    const start = isLogged()
-      ? `<a class="primary-button" href="cursos.html?curso=${encodeURIComponent(course.id)}">Começar agora</a>`
-      : `<a class="login-button" href="login.html?redirect=${encodeURIComponent(`cursos.html?curso=${course.id}`)}">Entrar</a>`;
-    root.innerHTML = `
-      <section class="detail-main">
-        <div class="detail-actions">
-          <a class="text-button" href="menudashbord.html?categoria=${categoria}">← Voltar ao catálogo</a>
-          <button id="favoriteBtn" class="favorite ${fav ? "active" : ""}" type="button" aria-pressed="${fav}">${fav ? "♥ Favoritado" : "♡ Favoritar curso"}</button>
-        </div>
-        <div class="course-hero">
-          <div class="course-art">${illustration(course)}</div>
-          <div><p class="muted">${esc(course.categoria || "Curso")}${course.nivel ? " · " + esc(course.nivel) : ""}</p>
-            <h1>${esc(course.titulo || "Curso")}</h1>
-            <p>${esc(duration(course))}</p>
-            <p>${esc(course.descricao || "Este curso apresenta os conceitos essenciais da área e acompanha você ao longo dos módulos.")}</p>
-          </div>
-        </div>
-        <h2 class="module-heading">Módulos</h2>
-        <div id="modules">${modules.length ? modules.map((m, i) => `<section class="module ${i === 0 ? "open" : ""}">
-          <button class="module-toggle" type="button" aria-expanded="${i === 0}"><span>${i + 1}. ${esc(m.titulo || "Introdução")}</span><span aria-hidden="true">🔽</span></button>
-          <div class="lesson-list">${(m.aulas || []).length ? m.aulas.map((a, j) => {
-      const isDone = completed.has(String(a.id));
-      const href = isLogged()
-        ? `cursos.html?curso=${encodeURIComponent(course.id)}&aula=${encodeURIComponent(a.id)}`
-        : `login.html?redirect=${encodeURIComponent(`cursos.html?curso=${course.id}&aula=${a.id}`)}`;
-      return `<a class="lesson ${isDone ? "completed" : ""}" href="${href}"><span>${i + 1}.${j + 1} &nbsp; ${esc(a.titulo || `Aula ${j + 1}`)}</span><span aria-label="${isDone ? "Concluída" : "Pendente"}">${isDone ? "✓" : ""}</span></a>`;
-    }).join("") : `<p class="small-note">As aulas deste módulo ainda não foram cadastradas.</p>`}</div>
-        </section>`).join("") : `<p class="notice">Este curso ainda não possui módulos cadastrados.</p>`}</div>
-        <div class="enroll-row"><p class="small-note">${isLogged() ? `${done} de ${total} aulas concluídas.` : "Seu progresso aparecerá aqui quando você entrar na sua conta."}</p>${start}</div>
-      </section>
-      <aside class="progress-panel"><h3>Seu progresso</h3><div class="progress-number">${percent}%</div><div class="progress-track"><div class="progress-fill" style="width:${percent}%"></div></div><p class="small-note">${done} de ${total} aulas concluídas</p></aside>`;
-    document.getElementById("favoriteBtn").addEventListener("click", async (event) => {
+function render(course, modules) {
+  breadcrumb.textContent = course.titulo || "Formação";
+  document.title = (course.titulo || "Formação") + " | DevCursos+";
+  const lessonsTotal = modules.reduce(
+    (sum, module) => sum + (module.aulas || []).length,
+    0,
+  );
+  const favorite = favorites.has(String(course.id));
+  const startTarget = "cursos.html?curso=" + encodeURIComponent(course.id);
+  const startHref = isLogged()
+    ? startTarget
+    : "login.html?redirect=" + encodeURIComponent(startTarget);
+
+  const moduleMarkup = modules.length
+    ? modules
+        .map((module, index) => {
+          const lessons = module.aulas || [];
+          return (
+            '<details class="detail-module"' +
+            (index === 0 ? " open" : "") +
+            ">" +
+            '<summary class="detail-module-toggle"><span class="detail-module-index">' +
+            String(index + 1).padStart(2, "0") +
+            '</span><span class="detail-module-name">' +
+            esc(module.titulo || "Módulo " + (index + 1)) +
+            '</span><span class="detail-module-count">' +
+            lessons.length +
+            (lessons.length === 1 ? " AULA" : " AULAS") +
+            "</span></summary>" +
+            '<div class="detail-lesson-list">' +
+            (lessons.length
+              ? lessons
+                  .map((lesson, lessonIndex) => {
+                    const target =
+                      startTarget + "&aula=" + encodeURIComponent(lesson.id);
+                    const href = isLogged()
+                      ? target
+                      : "login.html?redirect=" + encodeURIComponent(target);
+                    return (
+                      '<a class="detail-lesson" href="' +
+                      href +
+                      '"><span>' +
+                      String(index + 1).padStart(2, "0") +
+                      "." +
+                      String(lessonIndex + 1).padStart(2, "0") +
+                      "  " +
+                      esc(lesson.titulo || "Aula") +
+                      '</span><span class="lesson-meta">ABRIR AULA</span></a>'
+                    );
+                  })
+                  .join("")
+              : '<p class="aside-note">Este módulo ainda não tem aulas publicadas.</p>') +
+            "</div></details>"
+          );
+        })
+        .join("")
+    : '<p class="inline-error">O currículo desta formação ainda não foi publicado.</p>';
+
+  root.innerHTML =
+    '<div class="course-detail-layout">' +
+    '<section class="course-detail-main">' +
+    '<div class="detail-topline"><span>' +
+    esc(course.categoria || "Formação") +
+    '</span><button type="button" class="favorite" id="favoriteBtn" aria-pressed="' +
+    favorite +
+    '">' +
+    (favorite ? "Salvo na sua lista" : "Salvar formação") +
+    "</button></div>" +
+    "<h1>" +
+    esc(course.titulo || "Formação") +
+    "</h1>" +
+    '<p class="course-detail-description">' +
+    esc(
+      course.descricao ||
+        "Consulte os módulos e encontre o ponto de partida para esta formação.",
+    ) +
+    "</p>" +
+    metadata(course, modules) +
+    '<div class="detail-actions"><a class="button button-primary" href="' +
+    startHref +
+    '">' +
+    (isLogged() ? "Começar a estudar" : "Entrar para estudar") +
+    '</a><a class="button button-outline" href="catalogo.html">Voltar ao catálogo</a></div>' +
+    '<div class="curriculum-heading"><h2>O que você vai estudar</h2><span>' +
+    lessonsTotal +
+    " AULAS / " +
+    modules.length +
+    ' MÓDULOS</span></div><div class="detail-modules">' +
+    moduleMarkup +
+    "</div></section>" +
+    '<aside class="detail-aside"><h2>Sobre esta formação</h2>' +
+    '<div class="aside-row"><span>Área</span><b>' +
+    esc(course.categoria || "Não informada") +
+    "</b></div>" +
+    '<div class="aside-row"><span>Nível</span><b>' +
+    esc(course.nivel || "Não informado") +
+    "</b></div>" +
+    '<div class="aside-row"><span>Currículo</span><b>' +
+    modules.length +
+    " módulos</b></div>" +
+    '<div class="aside-row"><span>Aulas</span><b>' +
+    lessonsTotal +
+    " aulas</b></div>" +
+    '<p class="aside-note">A duração, tecnologias e projeto final aparecem quando esses dados estão cadastrados pela equipe do curso.</p></aside></div>';
+
+  document
+    .getElementById("favoriteBtn")
+    .addEventListener("click", async (event) => {
       if (!isLogged()) {
-        location.href = `login.html?redirect=${encodeURIComponent(`${location.pathname}${location.search}`)}`;
+        location.href =
+          "login.html?redirect=" +
+          encodeURIComponent(location.pathname + location.search);
         return;
       }
       const button = event.currentTarget;
-      const key = String(course.id);
-      const favoritado = !favorites.has(key);
       button.disabled = true;
+      const next = !favorites.has(String(course.id));
       try {
-        await requisicaoAPI(`/cursos/${encodeURIComponent(key)}/favorito`, {
-          method: "PUT",
-          body: JSON.stringify({ favoritado })
-        });
-        if (favoritado) favorites.add(key);
-        else favorites.delete(key);
-        render(course, modules);
+        await requisicaoAPI(
+          "/cursos/" + encodeURIComponent(course.id) + "/favorito",
+          {
+            method: "PUT",
+            body: JSON.stringify({ favoritado: next }),
+          },
+        );
+        if (next) favorites.add(String(course.id));
+        else favorites.delete(String(course.id));
+        button.setAttribute("aria-pressed", String(next));
+        button.textContent = next ? "Salvo na sua lista" : "Salvar formação";
       } catch (error) {
-        console.error("Não foi possível atualizar o favorito:", error);
-        alert(error.message || "Não foi possível atualizar seus favoritos.");
+        button.textContent = error.message || "Não foi possível salvar";
+        window.setTimeout(() => {
+          button.textContent = favorites.has(String(course.id))
+            ? "Salvo na sua lista"
+            : "Salvar formação";
+        }, 2200);
+      } finally {
         button.disabled = false;
       }
     });
-    root.querySelectorAll(".module-toggle").forEach(btn => btn.addEventListener("click", () => {
-      const section = btn.closest(".module"); const open = section.classList.toggle("open");
-      btn.setAttribute("aria-expanded", String(open));
-    }));
-  }
-  async function init() {
-    // file:// tem uma origem diferente e não compartilha a sessão do Live Server.
-    if (location.protocol === "file:") {
-      root.innerHTML = `<p class="notice">Abra o catálogo pelo Live Server para manter a sessão e carregar o curso corretamente: <a href="http://localhost:5173/menudashbord.html">abrir DevCursos+</a>.</p>`;
-      return;
-    }
 
-    try {
-      await authReady;
-      await updateAccount();
-      await loadFavorites();
-    } catch (error) {
-      console.warn("Não foi possível validar a conta no momento:", error);
-    }
+  accountLink.addEventListener(
+    "click",
+    async (event) => {
+      if (!isLogged() || accountLink.href.includes("login.html")) return;
+      event.preventDefault();
+      if (!confirm("Deseja sair da sua conta?")) return;
+      await encerrarSessao();
+      localStorage.removeItem("devcursos_token");
+      localStorage.removeItem("devcursos_user");
+      location.href = "index.html";
+    },
+    { once: true },
+  );
+}
 
-    if (!id) {
-      root.innerHTML = `<p class="notice">Selecione um curso no <a href="menudashbord.html">catálogo</a> para visualizar os módulos e o progresso.</p>`;
-      return;
-    }
-    try {
-      localStorage.removeItem("devcursos-favoritos");
-      const course = await get(`/cursos/${encodeURIComponent(id)}`);
-      const modulesData = await get(`/cursos/${encodeURIComponent(id)}/modulos`);
-      const modules = await Promise.all((Array.isArray(modulesData) ? modulesData : []).map(async m => {
-        const lessons = await get(`/modulos/${encodeURIComponent(m.id)}/aulas`);
-        return { ...m, aulas: Array.isArray(lessons) ? lessons : [] };
-      }));
-      await loadProgress(course.id);
-      render(course, modules);
-    } catch (e) {
-      root.innerHTML = `<p class="notice">${esc(e.message)} Confira se o backend está ativo.</p>`;
-    }
+async function loadCourse() {
+  await authReady;
+  if (!courseId) {
+    root.innerHTML =
+      '<div class="inline-error"><p>Escolha uma formação para consultar o currículo.</p><a class="button button-primary" href="catalogo.html">Abrir catálogo</a></div>';
+    return;
   }
-  init();
-})();
+
+  try {
+    const accountPromise = loadAccount();
+    let coursePromise;
+    let modulesPromise;
+    if (Boolean(auth.currentUser)) {
+      coursePromise = get(
+        "/cursos/" + encodeURIComponent(courseId) + "/conteudo",
+      );
+      modulesPromise = coursePromise.then((course) =>
+        Array.isArray(course.modulos) ? course.modulos : [],
+      );
+    } else {
+      coursePromise = get("/cursos/" + encodeURIComponent(courseId));
+      modulesPromise = get(
+        "/cursos/" + encodeURIComponent(courseId) + "/modulos",
+      ).then((items) =>
+        Promise.all(
+          (Array.isArray(items) ? items : []).map(async (module) => ({
+            ...module,
+            aulas: await get(
+              "/modulos/" + encodeURIComponent(module.id) + "/aulas",
+            ),
+          })),
+        ),
+      );
+    }
+    const [accountResult, course, modules] = await Promise.all([
+      accountPromise,
+      coursePromise,
+      modulesPromise,
+    ]);
+    void accountResult;
+    render(course, modules);
+  } catch (error) {
+    console.error("Não foi possível carregar a formação.", error);
+    root.innerHTML =
+      '<div class="inline-error"><p>' +
+      esc(error.message || "Não foi possível carregar esta formação.") +
+      '</p><a class="button button-outline" href="catalogo.html">Voltar ao catálogo</a></div>';
+  }
+}
+
+loadCourse();
