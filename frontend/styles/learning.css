@@ -172,14 +172,9 @@
   font-size: 8px;
 }
 .detail-aside {
-  position: fixed;
-  z-index: 5;
-  top: 50%;
-  right: max(24px, calc((100vw - var(--page)) / 2));
-  width: 270px;
-  max-height: calc(100svh - 120px);
-  overflow: auto;
-  transform: translateY(-50%);
+  position: static;
+  align-self: start;
+  width: 100%;
   padding: 22px;
   background: #211829;
   border: 1px solid #493750;
