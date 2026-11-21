@@ -27,13 +27,18 @@
         <a href="index.html#metodo">Método</a
         ><a href="catalogo.html" aria-current="page">Formações</a
         ><a href="index.html#plataforma">Plataforma</a
-        ><a class="nav-mobile-link" href="login.html">Entrar</a>
+          ><a class="nav-mobile-link" data-session-guest href="login.html">Entrar</a
+          ><a class="nav-mobile-link" data-session-guest href="cadastro.html">Criar conta</a
+          ><a class="nav-mobile-link" data-session-member href="menudashbord.html" hidden>Meu espaço</a
+          ><button class="nav-mobile-link session-sign-out" data-session-member data-session-sign-out type="button" hidden>Sair</button>
       </nav>
       <div class="header-actions">
-        <a class="text-link" href="login.html">Entrar</a
-        ><a class="button button-small button-quiet" href="cadastro.html"
+        <a class="text-link" data-session-guest href="login.html">Entrar</a
+        ><a class="button button-small button-quiet" data-session-guest href="cadastro.html"
           >Criar conta</a
         >
+        <a class="text-link" data-session-member href="menudashbord.html" hidden>Meu espaço</a>
+        <button class="button button-small button-quiet" data-session-member data-session-sign-out type="button" hidden>Sair</button>
       </div>
     </header>
     <main class="catalog-page">

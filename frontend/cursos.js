@@ -36,11 +36,8 @@ const brandLink = document.getElementById("brandLink");
 const backLink = document.getElementById("backLink");
 
 function atualizarLinksDeNavegacao() {
-  const destinoCurso = cursoId
-    ? `visualizarcurso.html?curso=${encodeURIComponent(cursoId)}`
-    : "menudashbord.html";
-  if (brandLink) brandLink.href = destinoCurso;
-  if (backLink) backLink.href = destinoCurso;
+  if (brandLink) brandLink.href = "menudashbord.html";
+  if (backLink) backLink.href = "menudashbord.html";
 }
 
 atualizarLinksDeNavegacao();
@@ -184,7 +181,7 @@ function renderizarMarkdown(markdown) {
         );
 
         if (match) {
-          const nivel = match[1].length;
+          const nivel = Math.min(match[1].length + 1, 6);
           const titulo = renderizarInlineMarkdown(match[2].trim());
           const restante = match[3]?.trim();
 
@@ -317,8 +314,13 @@ async function concluirAula(key) {
 function destacarNaLateral(key) {
   document.querySelectorAll(".aula-btn").forEach((b) => {
     b.classList.toggle("ativa", String(b.dataset.key) === String(key));
-    if (String(b.dataset.key) === String(key))
-      b.closest(".modulo")?.classList.add("aberto");
+    if (String(b.dataset.key) === String(key)) {
+      const modulo = b.closest(".modulo");
+      modulo?.classList.add("aberto");
+      modulo
+        ?.querySelector(".modulo-btn")
+        ?.setAttribute("aria-expanded", "true");
+    }
   });
 }
 
@@ -372,15 +374,26 @@ function montarMenu() {
     return botao;
   };
 
-  const criarModulo = (titulo, botoes) => {
+  const criarModulo = (titulo, botoes, index) => {
     const box = criarElemento("div", "modulo");
     const botaoModulo = criarElemento("button", "modulo-btn");
-    botaoModulo.type = "button";
-    botaoModulo.append(criarElemento("span", "", titulo));
-    botaoModulo.addEventListener("click", () => box.classList.toggle("aberto"));
     const lista = criarElemento("div", "aulas");
+    lista.id = `modulo-aulas-${index + 1}`;
+    botaoModulo.classList.add("curriculum-module-toggle");
+    botaoModulo.setAttribute("aria-controls", lista.id);
+    botaoModulo.setAttribute("aria-expanded", String(index === 0));
+    botaoModulo.type = "button";
+    botaoModulo.append(
+      criarElemento("span", "module-number", String(index + 1).padStart(2, "0")),
+      criarElemento("span", "module-title", titulo),
+    );
+    botaoModulo.addEventListener("click", () => {
+      const aberto = box.classList.toggle("aberto");
+      botaoModulo.setAttribute("aria-expanded", String(aberto));
+    });
     lista.append(...botoes);
     box.append(botaoModulo, lista);
+    if (index === 0) box.classList.add("aberto");
     menu.appendChild(box);
   };
 
@@ -390,10 +403,15 @@ function montarMenu() {
       modulo.aulas.map((aula) =>
         criarBotaoAula(String(aula.id), aula.titulo || "Aula"),
       ),
+      mi,
     );
   });
 
-  criarModulo("Avaliação final", [criarBotaoAula(PROVA.id, PROVA.titulo)]);
+  criarModulo(
+    "Avaliação final",
+    [criarBotaoAula(PROVA.id, PROVA.titulo)],
+    curso.modulos.length,
+  );
 }
 
 function criarSecaoAula(aula, modulo) {

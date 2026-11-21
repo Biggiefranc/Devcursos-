@@ -1,17 +1,18 @@
 :root {
   color-scheme: dark;
-  --black: #0c0c0f;
-  --ink: #111115;
-  --panel: #17171c;
-  --panel-2: #1e1d24;
-  --line: #34323b;
-  --line-soft: #28272e;
-  --white: #f5f2f7;
-  --silver: #c1bdc7;
-  --muted: #89848f;
-  --purple: #b39aca;
-  --purple-bright: #c7a9e3;
-  --purple-deep: #785a91;
+  --black: #110d15;
+  --ink: #17111c;
+  --panel: #211829;
+  --panel-2: #2b2035;
+  --line: #493750;
+  --line-soft: #36283f;
+  --white: #f8f3fb;
+  --silver: #d0c2d8;
+  --muted: #a496ad;
+  --purple: #a37bbc;
+  --purple-bright: #d2b4e5;
+  --purple-deep: #5d3e72;
+  --purple-surface: #1d1525;
   --green: #a3c8b3;
   --red: #e3a0a8;
   --mono: ui-monospace, "SFMono-Regular", Consolas, monospace;
@@ -36,7 +37,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 body::selection {
-  background: #8d6da6;
+  background: #76528e;
   color: #fff;
 }
 a {
@@ -63,7 +64,7 @@ svg {
   display: none !important;
 }
 ::selection {
-  background: #614b70;
+  background: #76528e;
   color: white;
 }
 .mono-label,

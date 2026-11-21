@@ -17,6 +17,17 @@ async function buscarCursoPorId(id) {
     return curso;
 }
 
+async function buscarEstruturaPorCurso(id) {
+    const cursoId = validarIdPositivo(id, "ID do curso");
+    const estrutura = await repository.buscarEstruturaPorCurso(cursoId);
+
+    if (!estrutura) {
+        throw new AppError(404, "CURSO_NAO_ENCONTRADO", "Curso não encontrado.");
+    }
+
+    return estrutura;
+}
+
 async function buscarConteudoPorCurso(id) {
     const cursoId = validarIdPositivo(id, "ID do curso");
     const curso = await repository.buscarConteudoPorCurso(cursoId);
@@ -64,6 +75,7 @@ async function buscarAulaPorId(id) {
 module.exports = {
     listarCursos,
     buscarCursoPorId,
+    buscarEstruturaPorCurso,
     buscarConteudoPorCurso,
     listarModulosPorCurso,
     listarAulasPorModulo,

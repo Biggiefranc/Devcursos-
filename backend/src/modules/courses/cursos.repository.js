@@ -1,13 +1,89 @@
 const { pool } = require("../../shared/database/database");
 
+function normalizarTecnologias(value) {
+    if (Array.isArray(value)) return value.map(String).filter(Boolean);
+    if (!value) return [];
+
+    try {
+        const parsed = JSON.parse(String(value));
+        if (Array.isArray(parsed)) return parsed.map(String).filter(Boolean);
+    } catch {
+        // Compatibilidade com registros antigos preenchidos como texto separado por vírgulas.
+    }
+
+    return String(value).split(/[,;]+/).map((item) => item.trim()).filter(Boolean);
+}
+
+function normalizarCurso(course) {
+    if (!course) return null;
+    return {
+        ...course,
+        duracao_horas: course.duracao_horas == null ? null : Number(course.duracao_horas),
+        tecnologias: normalizarTecnologias(course.tecnologias)
+    };
+}
+
+function agruparCurso(rows) {
+    if (rows.length === 0) return null;
+
+    const course = {
+        id: rows[0].curso_id,
+        titulo: rows[0].curso_titulo,
+        descricao: rows[0].curso_descricao,
+        categoria: rows[0].categoria,
+        nivel: rows[0].nivel,
+        duracao_horas: rows[0].duracao_horas,
+        tecnologias: normalizarTecnologias(rows[0].tecnologias),
+        projeto_final: rows[0].projeto_final,
+        data_criacao: rows[0].data_criacao,
+        modulos: []
+    };
+    const modulesById = new Map();
+
+    for (const row of rows) {
+        if (row.modulo_id === null) continue;
+
+        let module = modulesById.get(row.modulo_id);
+        if (!module) {
+            module = {
+                id: row.modulo_id,
+                curso_id: course.id,
+                titulo: row.modulo_titulo,
+                descricao: row.modulo_descricao,
+                ordem: row.modulo_ordem,
+                aulas: []
+            };
+            modulesById.set(row.modulo_id, module);
+            course.modulos.push(module);
+        }
+
+        if (row.aula_id !== null) {
+            const lesson = {
+                id: row.aula_id,
+                modulo_id: module.id,
+                titulo: row.aula_titulo,
+                descricao: row.aula_descricao,
+                ordem: row.aula_ordem
+            };
+            if (Object.hasOwn(row, "aula_conteudo")) lesson.conteudo = row.aula_conteudo;
+            if (Object.hasOwn(row, "video_url")) lesson.video_url = row.video_url;
+            if (Object.hasOwn(row, "material_url")) lesson.material_url = row.material_url;
+            module.aulas.push(lesson);
+        }
+    }
+
+    return course;
+}
+
 async function listarCursos() {
     const [cursos] = await pool.execute(`
-        SELECT id, titulo, descricao, categoria, nivel, data_criacao
+        SELECT id, titulo, descricao, categoria, nivel,
+               duracao_horas, tecnologias, projeto_final, data_criacao
         FROM cursos
         ORDER BY id DESC
     `);
 
-    return cursos;
+    return cursos.map(normalizarCurso);
 }
 
 async function buscarCursoPorId(id) {
@@ -18,77 +94,47 @@ async function buscarCursoPorId(id) {
             descricao,
             categoria,
             nivel,
+            duracao_horas,
+            tecnologias,
+            projeto_final,
             data_criacao
         FROM cursos
         WHERE id = ?
     `, [id]);
 
-    return cursos[0] || null;
+    return normalizarCurso(cursos[0] || null);
 }
 
-// Carrega a estrutura completa do curso em uma consulta para evitar N+1 no cliente.
+const SELECT_CURSO_COM_MODULOS_E_AULAS = `
+    SELECT c.id AS curso_id, c.titulo AS curso_titulo,
+           c.descricao AS curso_descricao, c.categoria, c.nivel,
+           c.duracao_horas, c.tecnologias, c.projeto_final, c.data_criacao,
+           m.id AS modulo_id, m.titulo AS modulo_titulo,
+           m.descricao AS modulo_descricao, m.ordem AS modulo_ordem,
+           a.id AS aula_id, a.titulo AS aula_titulo,
+           a.descricao AS aula_descricao, a.ordem AS aula_ordem
+    FROM cursos c
+    LEFT JOIN modulos m ON m.curso_id = c.id
+    LEFT JOIN aulas a ON a.modulo_id = m.id
+    WHERE c.id = ?
+    ORDER BY m.ordem ASC, m.id ASC, a.ordem ASC, a.id ASC`;
+
+// Estrutura pública para a página de currículo; não inclui o corpo das aulas.
+async function buscarEstruturaPorCurso(cursoId) {
+    const [rows] = await pool.execute(SELECT_CURSO_COM_MODULOS_E_AULAS, [cursoId]);
+    return agruparCurso(rows);
+}
+
+// Conteúdo integral, disponível somente pela rota autenticada.
 async function buscarConteudoPorCurso(cursoId) {
     const [rows] = await pool.execute(
-        `SELECT c.id AS curso_id, c.titulo AS curso_titulo,
-                c.descricao AS curso_descricao, c.categoria, c.nivel,
-                c.data_criacao, m.id AS modulo_id, m.titulo AS modulo_titulo,
-                m.descricao AS modulo_descricao, m.ordem AS modulo_ordem,
-                a.id AS aula_id, a.titulo AS aula_titulo,
-                a.descricao AS aula_descricao, a.conteudo AS aula_conteudo,
-                a.video_url, a.material_url, a.ordem AS aula_ordem
-         FROM cursos c
-         LEFT JOIN modulos m ON m.curso_id = c.id
-         LEFT JOIN aulas a ON a.modulo_id = m.id
-         WHERE c.id = ?
-         ORDER BY m.ordem ASC, m.id ASC, a.ordem ASC, a.id ASC`,
+        `${SELECT_CURSO_COM_MODULOS_E_AULAS.replace(
+            "a.descricao AS aula_descricao, a.ordem AS aula_ordem",
+            "a.descricao AS aula_descricao, a.conteudo AS aula_conteudo, a.video_url, a.material_url, a.ordem AS aula_ordem"
+        )}`,
         [cursoId]
     );
-
-    if (rows.length === 0) return null;
-
-    const curso = {
-        id: rows[0].curso_id,
-        titulo: rows[0].curso_titulo,
-        descricao: rows[0].curso_descricao,
-        categoria: rows[0].categoria,
-        nivel: rows[0].nivel,
-        data_criacao: rows[0].data_criacao,
-        modulos: []
-    };
-    const modulosPorId = new Map();
-
-    for (const row of rows) {
-        if (row.modulo_id === null) continue;
-
-        let modulo = modulosPorId.get(row.modulo_id);
-        if (!modulo) {
-            modulo = {
-                id: row.modulo_id,
-                curso_id: curso.id,
-                titulo: row.modulo_titulo,
-                descricao: row.modulo_descricao,
-                ordem: row.modulo_ordem,
-                aulas: []
-            };
-            modulosPorId.set(row.modulo_id, modulo);
-            curso.modulos.push(modulo);
-        }
-
-        if (row.aula_id !== null) {
-            modulo.aulas.push({
-                id: row.aula_id,
-                modulo_id: modulo.id,
-                titulo: row.aula_titulo,
-                descricao: row.aula_descricao,
-                conteudo: row.aula_conteudo,
-                video_url: row.video_url,
-                material_url: row.material_url,
-                ordem: row.aula_ordem
-            });
-        }
-    }
-
-    return curso;
+    return agruparCurso(rows);
 }
 
 async function listarModulosPorCurso(cursoId) {
@@ -165,6 +211,7 @@ async function buscarAulaPorId(id) {
 module.exports = {
     listarCursos,
     buscarCursoPorId,
+    buscarEstruturaPorCurso,
     buscarConteudoPorCurso,
     listarModulosPorCurso,
     buscarModuloPorId,

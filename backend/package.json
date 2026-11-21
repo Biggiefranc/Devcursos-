@@ -7,7 +7,8 @@
     "test": "node --test exemplo.test.js src",
     "start": "node src/server.js",
     "dev": "node ./scripts/clear-stale-dev.js 3001 && nodemon src/server.js",
-    "import": "node importar.js"
+    "import": "node importar.js",
+    "migrate:course-metadata": "node scripts/migrate-course-metadata.js"
   },
   "keywords": [],
   "author": "",
