@@ -63,6 +63,9 @@ function agruparCurso(rows) {
                 modulo_id: module.id,
                 titulo: row.aula_titulo,
                 descricao: row.aula_descricao,
+                duracao_minutos: row.aula_duracao_minutos == null
+                    ? null
+                    : Number(row.aula_duracao_minutos),
                 ordem: row.aula_ordem
             };
             if (Object.hasOwn(row, "aula_conteudo")) lesson.conteudo = row.aula_conteudo;
@@ -112,7 +115,9 @@ const SELECT_CURSO_COM_MODULOS_E_AULAS = `
            m.id AS modulo_id, m.titulo AS modulo_titulo,
            m.descricao AS modulo_descricao, m.ordem AS modulo_ordem,
            a.id AS aula_id, a.titulo AS aula_titulo,
-           a.descricao AS aula_descricao, a.ordem AS aula_ordem
+           a.descricao AS aula_descricao,
+           a.duracao_minutos AS aula_duracao_minutos,
+           a.ordem AS aula_ordem
     FROM cursos c
     LEFT JOIN modulos m ON m.curso_id = c.id
     LEFT JOIN aulas a ON a.modulo_id = m.id
@@ -122,18 +127,6 @@ const SELECT_CURSO_COM_MODULOS_E_AULAS = `
 // Estrutura pública para a página de currículo; não inclui o corpo das aulas.
 async function buscarEstruturaPorCurso(cursoId) {
     const [rows] = await pool.execute(SELECT_CURSO_COM_MODULOS_E_AULAS, [cursoId]);
-    return agruparCurso(rows);
-}
-
-// Conteúdo integral, disponível somente pela rota autenticada.
-async function buscarConteudoPorCurso(cursoId) {
-    const [rows] = await pool.execute(
-        `${SELECT_CURSO_COM_MODULOS_E_AULAS.replace(
-            "a.descricao AS aula_descricao, a.ordem AS aula_ordem",
-            "a.descricao AS aula_descricao, a.conteudo AS aula_conteudo, a.video_url, a.material_url, a.ordem AS aula_ordem"
-        )}`,
-        [cursoId]
-    );
     return agruparCurso(rows);
 }
 
@@ -170,6 +163,7 @@ async function listarAulasPorModulo(moduloId) {
             modulo_id,
             titulo,
             descricao,
+            duracao_minutos,
             ordem
         FROM aulas
         WHERE modulo_id = ?
@@ -190,19 +184,23 @@ async function contarAulasPorCurso(cursoId) {
     return Number(rows[0]?.total || 0);
 }
 
-async function buscarAulaPorId(id) {
+async function buscarAulaParaEstudoPorId(id) {
     const [aulas] = await pool.execute(`
         SELECT
-            id,
-            modulo_id,
-            titulo,
-            descricao,
-            conteudo,
-            video_url,
-            material_url,
-            ordem
-        FROM aulas
-        WHERE id = ?
+            a.id,
+            a.modulo_id,
+            m.curso_id,
+            m.titulo AS modulo_titulo,
+            a.titulo,
+            a.descricao,
+            a.conteudo,
+            a.video_url,
+            a.material_url,
+            a.duracao_minutos,
+            a.ordem
+        FROM aulas a
+        INNER JOIN modulos m ON m.id = a.modulo_id
+        WHERE a.id = ?
     `, [id]);
 
     return aulas[0] || null;
@@ -211,11 +209,12 @@ async function buscarAulaPorId(id) {
 module.exports = {
     listarCursos,
     buscarCursoPorId,
+    normalizarCurso,
+    normalizarTecnologias,
     buscarEstruturaPorCurso,
-    buscarConteudoPorCurso,
     listarModulosPorCurso,
     buscarModuloPorId,
     listarAulasPorModulo,
     contarAulasPorCurso,
-    buscarAulaPorId
+    buscarAulaParaEstudoPorId
 };

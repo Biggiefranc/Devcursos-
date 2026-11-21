@@ -20,6 +20,7 @@ export default defineConfig({
         cadastro: "cadastro.html",
         cursos: "cursos.html",
         menudashbord: "menudashbord.html",
+        salvos: "salvos.html",
         recuperarsenha: "recuperarsenha.html",
         visualizarcurso: "visualizarcurso.html",
         legado: "tela.html",

@@ -11,10 +11,22 @@ router.get(
     controller.listarProgresso
 );
 
+router.get(
+    "/me/progresso",
+    autenticar,
+    controller.listarResumo
+);
+
 router.put(
     "/aulas/:id/conclusao",
     autenticar,
     controller.atualizarConclusao
+);
+
+router.delete(
+    "/cursos/:id/progresso",
+    autenticar,
+    controller.reiniciarProgresso
 );
 
 module.exports = router;

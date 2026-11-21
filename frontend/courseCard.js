@@ -18,14 +18,20 @@ export function courseCard(course, index = 0, options = {}) {
   const level = escapeHtml(course.nivel || "Não informado");
   const hours = Number(course.duracao_horas);
   const duration =
-    Number.isFinite(hours) && hours > 0 ? hours + "h" : "Não informada";
+    Number.isFinite(hours) && hours > 0
+      ? hours < 1
+        ? Math.round(hours * 60) + " MIN"
+        : new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 }).format(
+            hours,
+          ) + " H"
+      : "A DEFINIR";
   const technologies =
     Array.isArray(course.tecnologias) && course.tecnologias.length
       ? course.tecnologias.slice(0, 4).map(escapeHtml).join(" · ")
-      : "Não informadas";
+      : "A DEFINIR";
   const project = course.projeto_final
     ? escapeHtml(course.projeto_final)
-    : "Não cadastrado";
+    : "A DEFINIR";
   const description = escapeHtml(
     course.descricao ||
       "Consulte o currículo desta formação e comece pelo módulo inicial.",

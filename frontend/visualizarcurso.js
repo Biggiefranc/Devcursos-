@@ -39,11 +39,11 @@ async function loadAccount() {
     return;
   }
   try {
-    const [profile, favoriteData] = await Promise.all([
+    const [profileData, favoriteData] = await Promise.all([
       get("/me"),
       get("/me/favoritos"),
     ]);
-    user = profile.usuario || null;
+    user = profileData.usuario || null;
     if (user) {
       localStorage.setItem("devcursos_user", JSON.stringify(user));
       accountLink.textContent = nameFor(user);
@@ -77,14 +77,20 @@ function categorySlug(category) {
 function metadata(course, modules) {
   const hours = Number(course.duracao_horas);
   const duration =
-    Number.isFinite(hours) && hours > 0 ? hours + " horas" : "Não informada";
+    Number.isFinite(hours) && hours > 0
+      ? hours < 1
+        ? Math.round(hours * 60) + " minutos"
+        : new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 }).format(
+            hours,
+          ) + " horas"
+      : "A definir";
   const technology =
     Array.isArray(course.tecnologias) && course.tecnologias.length
       ? course.tecnologias.join(" · ")
-      : "Não informadas";
+      : "A definir";
   const project = course.projeto_final
     ? esc(course.projeto_final)
-    : "Não cadastrado";
+    : "A definir";
   return (
     '<div class="detail-meta"><span>NÍVEL ' +
     esc(course.nivel || "Não informado") +
@@ -147,7 +153,11 @@ function render(course, modules) {
                       String(lessonIndex + 1).padStart(2, "0") +
                       "  " +
                       esc(lesson.titulo || "Aula") +
-                      '</span><span class="lesson-meta">ABRIR AULA</span></a>'
+                      '</span><span class="lesson-meta">' +
+                      (Number(lesson.duracao_minutos) > 0
+                        ? Number(lesson.duracao_minutos) + " MIN · "
+                        : "") +
+                      "ABRIR AULA</span></a>"
                     );
                   })
                   .join("")
@@ -203,7 +213,7 @@ function render(course, modules) {
     '<div class="aside-row"><span>Aulas</span><b>' +
     lessonsTotal +
     " aulas</b></div>" +
-    '<p class="aside-note">Os dados ainda não publicados pela equipe aparecem como “Não cadastrado”.</p></aside></div>';
+    '<p class="aside-note">Os dados que ainda não foram publicados aparecem como “A definir”.</p></aside></div>';
 
   document
     .getElementById("favoriteBtn")
@@ -257,7 +267,7 @@ function render(course, modules) {
 }
 
 async function loadCourse() {
-  const firebaseUser = await authReady;
+  await authReady;
   if (!courseId) {
     root.innerHTML =
       '<div class="inline-error"><p>Escolha uma formação para consultar o currículo.</p><a class="button button-primary" href="catalogo.html">Abrir catálogo</a></div>';
@@ -266,21 +276,9 @@ async function loadCourse() {
 
   try {
     const accountPromise = loadAccount();
-    const curriculumPromise = firebaseUser
-      ? get("/cursos/" + encodeURIComponent(courseId) + "/conteudo").catch(
-          async (error) => {
-            if (error.status !== 401 && error.status !== 403) throw error;
-            await encerrarSessao();
-            localStorage.removeItem("devcursos_token");
-            localStorage.removeItem("devcursos_user");
-            user = null;
-            favorites.clear();
-            return get(
-              "/cursos/" + encodeURIComponent(courseId) + "/estrutura",
-            );
-          },
-        )
-      : get("/cursos/" + encodeURIComponent(courseId) + "/estrutura");
+    const curriculumPromise = get(
+      "/cursos/" + encodeURIComponent(courseId) + "/estrutura",
+    );
     const [accountResult, curriculum] = await Promise.all([
       accountPromise,
       curriculumPromise,

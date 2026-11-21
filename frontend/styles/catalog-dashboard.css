@@ -137,6 +137,11 @@
 .app-nav a:hover {
   color: var(--white);
 }
+.app-nav a[aria-current="page"] {
+  text-decoration: underline;
+  text-decoration-color: var(--purple);
+  text-underline-offset: 7px;
+}
 .app-account {
   display: flex;
   align-items: center;
@@ -149,6 +154,56 @@
   border: 0;
   background: none;
   cursor: pointer;
+}
+.saved-page .dashboard-welcome h1 span {
+  color: #aa95b8;
+}
+.saved-course-grid {
+  align-items: stretch;
+}
+.saved-course-entry {
+  position: relative;
+  min-width: 0;
+}
+.saved-course-entry .course-card {
+  height: 100%;
+}
+.saved-remove {
+  position: absolute;
+  z-index: 3;
+  top: 12px;
+  right: 12px;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid #6a566f;
+  background: #1a1420;
+  color: #d0c2d8;
+  font: 8px var(--mono);
+  cursor: pointer;
+}
+.saved-remove:hover,
+.saved-remove:focus-visible {
+  border-color: var(--purple-bright);
+  color: var(--white);
+}
+.saved-empty {
+  grid-column: 1 / -1;
+  min-height: 250px;
+  padding: 38px;
+  border: 1px solid var(--line);
+  background: #1b1421;
+}
+.saved-empty h3 {
+  margin: 18px 0 8px;
+  font-size: 22px;
+}
+.saved-empty p {
+  max-width: 460px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.saved-empty .button {
+  margin-top: 14px;
 }
 .dashboard {
   max-width: var(--page);
@@ -166,6 +221,12 @@
   letter-spacing: -0.07em;
   line-height: 1.06;
   font-weight: 550;
+}
+.dashboard-welcome h1 span,
+.continue-section .section-heading h2 em,
+.dashboard-catalog .section-heading h2 em {
+  color: #aa95b8;
+  font-style: normal;
 }
 .dashboard-welcome > p:last-child {
   margin: 0;

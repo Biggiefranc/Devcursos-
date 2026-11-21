@@ -1,4 +1,5 @@
 const service = require("./cursos.service");
+const progressService = require("../progress/progress.service");
 
 async function listarCursos(req, res) {
     return res.json(await service.listarCursos());
@@ -9,7 +10,8 @@ async function buscarCursoPorId(req, res) {
 }
 
 async function buscarConteudoPorCurso(req, res) {
-    return res.json(await service.buscarConteudoPorCurso(req.params.id));
+    // Compatibilidade com clientes antigos: o endpoint não entrega o corpo integral das aulas.
+    return res.json(await service.buscarEstruturaPorCurso(req.params.id));
 }
 
 async function buscarEstruturaPorCurso(req, res) {
@@ -25,7 +27,10 @@ async function listarAulasPorModulo(req, res) {
 }
 
 async function buscarAulaPorId(req, res) {
-    return res.json(await service.buscarAulaPorId(req.params.id));
+    return res.json(await progressService.buscarAulaLiberada(
+        req.firebaseUser.uid,
+        req.params.id
+    ));
 }
 
 module.exports = {
