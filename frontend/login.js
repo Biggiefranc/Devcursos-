@@ -29,6 +29,7 @@ const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("senha");
 const loginError = document.getElementById("loginMsg");
 const passwordButton = document.querySelector(".toggle-senha");
+const rememberSession = document.getElementById("rememberSession");
 
 const recForm = document.getElementById("recForm");
 const recEmail = document.getElementById("recEmail");
@@ -73,7 +74,7 @@ loginForm.addEventListener("submit", async (event) => {
   mostrarMensagem(loginError, "");
 
   try {
-    await configurarPersistencia(true);
+    await configurarPersistencia(Boolean(rememberSession?.checked));
 
     const credencial = await signInWithEmailAndPassword(
       auth,
@@ -165,7 +166,7 @@ async function autenticarComGoogle() {
   if (botaoGoogle) botaoGoogle.disabled = true;
 
   try {
-    await configurarPersistencia(true);
+    await configurarPersistencia(Boolean(rememberSession?.checked));
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
     const nome = user.displayName || user.email?.split("@")[0] || "Aluno";

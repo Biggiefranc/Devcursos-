@@ -201,6 +201,17 @@
     padding: 13px 0;
     border-bottom: 1px solid #ffffff0b;
   }
+  .main-nav .session-sign-out {
+    width: 100%;
+    padding: 13px 0;
+    border: 0;
+    border-bottom: 1px solid #ffffff0b;
+    background: transparent;
+    color: #c8c0cb;
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
+  }
   .nav-mobile-link {
     display: block;
   }
@@ -409,8 +420,29 @@
   }
   .curriculum-list {
     display: flex;
+    align-items: flex-start;
     overflow-x: auto;
     padding: 8px 7px 0;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+    scrollbar-color: #5d4868 transparent;
+  }
+  .modulo {
+    flex: 0 0 min(78vw, 290px);
+    align-self: flex-start;
+    scroll-snap-align: start;
+  }
+  .modulo-btn {
+    min-height: 48px;
+    padding: 10px 11px;
+  }
+  .modulo .aulas {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .modulo:not(.aberto) > .aulas {
+    display: none;
   }
   .curriculum-module-heading {
     display: none;
@@ -420,15 +452,15 @@
     gap: 3px;
   }
   .aula-btn {
-    min-width: 150px;
-    grid-template-columns: 22px 1fr;
-    padding: 8px;
+    min-width: 0;
+    grid-template-columns: 22px minmax(0, 1fr);
+    padding: 9px 10px;
     border: 0;
-    border-bottom: 2px solid transparent;
+    border-left: 2px solid transparent;
   }
   .aula-btn.ativa {
     border: 0;
-    border-bottom: 2px solid #b18fc8;
+    border-left: 2px solid #b18fc8;
   }
   .aula-status {
     display: none;
@@ -445,18 +477,24 @@
   .auth-form-side {
     min-height: 100svh;
     padding: 25px 24px;
+    justify-content: flex-start;
+    gap: 30px;
   }
   .auth-form-wrap {
-    margin: 46px auto;
+    margin: 0 auto;
   }
   .auth-visual {
     display: none;
   }
   .auth-page .steps {
-    margin: 15px auto -30px;
+    grid-template-columns: minmax(0, 1fr) 18px minmax(0, 1fr);
+    gap: 7px;
+    margin-bottom: 22px;
+    font-size: 8px;
   }
   .auth-legal {
-    margin-top: 20px;
+    margin-top: auto;
+    padding-top: 12px;
   }
   .app-header {
     height: 62px;

@@ -5,21 +5,34 @@ const mysql = require("mysql2/promise");
 require("./src/config/env");
 const { DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME, DB_SSL, DB_SSL_CA } = require("./src/config/env");
 
+function normalizarTecnologias(value) {
+    if (Array.isArray(value)) return value.map((item) => String(item).trim()).filter(Boolean);
+    if (typeof value !== "string" || !value.trim()) return null;
+    return value.split(/[,;]+/).map((item) => item.trim()).filter(Boolean);
+}
+
 async function obterOuCriarCurso(db, dados) {
+    const duracaoHoras = Number(dados.duracao_horas);
+    const tecnologias = normalizarTecnologias(dados.tecnologias);
+    const metadados = [
+        Number.isFinite(duracaoHoras) && duracaoHoras > 0 ? duracaoHoras : null,
+        tecnologias ? JSON.stringify(tecnologias) : null,
+        String(dados.projeto_final || "").trim() || null
+    ];
     const [existentes] = await db.execute(
         "SELECT id FROM cursos WHERE titulo = ? LIMIT 1",
         [dados.titulo]
     );
     if (existentes[0]) {
         await db.execute(
-            "UPDATE cursos SET descricao = ?, categoria = ?, nivel = ? WHERE id = ?",
-            [dados.descricao || null, dados.categoria || null, dados.nivel || "Iniciante", existentes[0].id]
+            "UPDATE cursos SET descricao = ?, categoria = ?, nivel = ?, duracao_horas = ?, tecnologias = ?, projeto_final = ? WHERE id = ?",
+            [dados.descricao || null, dados.categoria || null, dados.nivel || "Iniciante", ...metadados, existentes[0].id]
         );
         return existentes[0].id;
     }
     const [resultado] = await db.execute(
-        "INSERT INTO cursos (titulo, descricao, categoria, nivel) VALUES (?, ?, ?, ?)",
-        [dados.titulo, dados.descricao || null, dados.categoria || null, dados.nivel || "Iniciante"]
+        "INSERT INTO cursos (titulo, descricao, categoria, nivel, duracao_horas, tecnologias, projeto_final) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [dados.titulo, dados.descricao || null, dados.categoria || null, dados.nivel || "Iniciante", ...metadados]
     );
     return resultado.insertId;
 }
@@ -108,19 +121,38 @@ async function importarCursos() {
                             aulaFile.content,
                             aulaFile.data.video_url || null,
                             aulaFile.data.material_url || null,
+                            Number.isInteger(Number(aulaFile.data.duracao)) && Number(aulaFile.data.duracao) > 0
+                                ? Number(aulaFile.data.duracao)
+                                : null,
                             Number(aulaFile.data.ordem) || 1
                         ];
                         if (existentes[0]) {
                             await db.execute(
-                                "UPDATE aulas SET descricao = ?, conteudo = ?, video_url = ?, material_url = ?, ordem = ? WHERE id = ?",
+                                "UPDATE aulas SET descricao = ?, conteudo = ?, video_url = ?, material_url = ?, duracao_minutos = ?, ordem = ? WHERE id = ?",
                                 [...valores, existentes[0].id]
                             );
                         } else {
                             await db.execute(
-                                "INSERT INTO aulas (modulo_id, titulo, descricao, conteudo, video_url, material_url, ordem) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                                "INSERT INTO aulas (modulo_id, titulo, descricao, conteudo, video_url, material_url, duracao_minutos, ordem) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                                 [moduloId, aulaFile.data.titulo, ...valores]
                             );
                         }
+                    }
+                }
+
+                if (!(Number(cursoFile.data.duracao_horas) > 0)) {
+                    const [[duration]] = await db.execute(
+                        `SELECT SUM(a.duracao_minutos) AS minutos
+                         FROM aulas a
+                         INNER JOIN modulos m ON m.id = a.modulo_id
+                         WHERE m.curso_id = ?`,
+                        [cursoId]
+                    );
+                    if (duration.minutos != null) {
+                        await db.execute(
+                            "UPDATE cursos SET duracao_horas = ROUND(? / 60, 2) WHERE id = ?",
+                            [Number(duration.minutos), cursoId]
+                        );
                     }
                 }
                 await db.commit();

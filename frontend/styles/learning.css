@@ -176,8 +176,8 @@
   top: 110px;
   height: max-content;
   padding: 22px;
-  background: #17151b;
-  border: 1px solid #37313d;
+  background: #211829;
+  border: 1px solid #493750;
 }
 .detail-aside h2 {
   margin: 0 0 19px;
@@ -207,7 +207,7 @@
 }
 /* Study workspace */
 .study-site {
-  background: #101013;
+  background: #130f19;
   min-height: 100vh;
 }
 .study-header {
@@ -220,8 +220,8 @@
   align-items: center;
   gap: 28px;
   padding: 0 27px;
-  background: rgba(14, 14, 17, 0.9);
-  border-bottom: 1px solid #302d34;
+  background: rgba(27, 19, 34, 0.93);
+  border-bottom: 1px solid #493750;
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
 }
@@ -248,12 +248,12 @@
   margin: auto;
 }
 .curriculum-panel {
-  border-right: 1px solid #302d34;
+  border-right: 1px solid #493750;
   padding: 27px 0 40px;
 }
 .curriculum-head {
   padding: 0 21px 20px;
-  border-bottom: 1px solid #302d34;
+  border-bottom: 1px solid #493750;
 }
 .curriculum-head h2 {
   margin: 10px 0 7px;
@@ -263,6 +263,55 @@
 .curriculum-count {
   color: #77717c;
   font-size: 8px;
+}
+.modulo {
+  border-bottom: 1px solid #33273b;
+}
+.modulo-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 11px;
+  padding: 13px 17px;
+  border: 0;
+  background: transparent;
+  color: #d6c9de;
+  text-align: left;
+  font: 11px/1.45 var(--sans);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.module-number {
+  flex: 0 0 25px;
+  color: #9a82a7;
+  font: 9px var(--mono);
+  letter-spacing: 0.08em;
+}
+.module-title {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow-wrap: anywhere;
+}
+.modulo-btn::after {
+  content: "+";
+  flex: 0 0 auto;
+  color: #b99bd0;
+  font: 14px/1 var(--mono);
+}
+.modulo.aberto > .modulo-btn::after {
+  content: "−";
+}
+.modulo-btn:hover,
+.modulo.aberto > .modulo-btn {
+  background: #261c30;
+  color: #f5ecfa;
+}
+.modulo:not(.aberto) > .aulas {
+  display: none;
+}
+.modulo.aberto > .aulas {
+  animation: expand-in 0.24s var(--ease) both;
 }
 .curriculum-list {
   padding-top: 11px;
@@ -315,8 +364,11 @@
   font-size: 8px;
 }
 .aula-title {
-  font-size: 9px;
-  line-height: 1.45;
+  min-width: 0;
+  color: #cbc0d1;
+  font-size: 11px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 .aula-status {
   color: #9cb8a4;
@@ -424,8 +476,8 @@
 }
 .prova-secao {
   padding: 21px;
-  background: #19171c;
-  border: 1px solid #37313d;
+  background: #211829;
+  border: 1px solid #493750;
 }
 .questao {
   margin: 20px 0;

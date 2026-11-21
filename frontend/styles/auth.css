@@ -1,7 +1,7 @@
 /* Auth, preserving the animated two-column identity */
 .auth-page {
   min-height: 100vh;
-  background: #100f13;
+  background: #17111e;
 }
 .auth-layout {
   min-height: 100vh;
@@ -14,8 +14,8 @@
   flex-direction: column;
   justify-content: space-between;
   padding: 35px clamp(28px, 5vw, 82px);
-  background: #111115;
-  border-right: 1px solid #312b36;
+  background: #1c1424;
+  border-right: 1px solid #493750;
 }
 .auth-wordmark {
   align-self: flex-start;
@@ -141,26 +141,29 @@
   animation: auth-view-in 0.5s var(--ease) both;
 }
 .auth-page .steps {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr);
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   max-width: 435px;
   width: 100%;
-  margin: 0 auto -20px;
+  margin: 0 auto 25px;
   color: #89818c;
-  font-size: 8px;
+  font-size: 9px;
 }
 .auth-page .step {
   display: flex;
   align-items: center;
-  gap: 7px;
-  white-space: nowrap;
+  gap: 8px;
+  min-width: 0;
+  line-height: 1.4;
 }
 .auth-page .step b {
   display: grid;
   place-items: center;
-  width: 21px;
-  height: 21px;
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
   border: 1px solid #514956;
   border-radius: 50%;
   color: #a997b3;
@@ -175,13 +178,28 @@
 }
 .auth-page .step-linha {
   height: 1px;
-  flex: 1;
+  width: 100%;
   background: #46404b;
 }
 .field-help {
   margin: 7px 0;
   color: #79727e;
   font-size: 9px;
+}
+.remember-session {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 12px;
+  color: #b7a9c0;
+  font-size: 10px;
+  cursor: pointer;
+}
+.remember-session input {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: var(--purple);
 }
 .msg {
   min-height: 15px;
@@ -201,10 +219,10 @@
   background:
     radial-gradient(
       ellipse at 51% 50%,
-      rgba(100, 71, 119, 0.25),
+      rgba(115, 72, 144, 0.38),
       transparent 56%
     ),
-    linear-gradient(130deg, #141117, #19131e 50%, #100f13);
+    linear-gradient(130deg, #2a1b36, #21172b 50%, #17111e);
 }
 .auth-visual::before {
   content: "";
@@ -302,7 +320,7 @@
   gap: 8px 10px;
   padding: 15px;
   border: 1px solid #38313d;
-  background: #100f12;
+  background: #17111e;
   color: #aaa2ae;
   font: 9px/1.5 var(--mono);
 }

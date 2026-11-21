@@ -20,8 +20,7 @@ const authReady = new Promise((resolve) => {
 
 const esc = escapeHtml;
 const get = (path) => requisicaoAPI(path);
-const isLogged = () =>
-  Boolean(auth.currentUser || user || localStorage.getItem("devcursos_token"));
+const isLogged = () => Boolean(auth.currentUser || user);
 
 function nameFor(userData) {
   const raw = String(userData?.nome || userData?.email || "").trim();
@@ -204,7 +203,7 @@ function render(course, modules) {
     '<div class="aside-row"><span>Aulas</span><b>' +
     lessonsTotal +
     " aulas</b></div>" +
-    '<p class="aside-note">A duração, tecnologias e projeto final aparecem quando esses dados estão cadastrados pela equipe do curso.</p></aside></div>';
+    '<p class="aside-note">Os dados ainda não publicados pela equipe aparecem como “Não cadastrado”.</p></aside></div>';
 
   document
     .getElementById("favoriteBtn")
@@ -258,7 +257,7 @@ function render(course, modules) {
 }
 
 async function loadCourse() {
-  await authReady;
+  const firebaseUser = await authReady;
   if (!courseId) {
     root.innerHTML =
       '<div class="inline-error"><p>Escolha uma formação para consultar o currículo.</p><a class="button button-primary" href="catalogo.html">Abrir catálogo</a></div>';
@@ -267,37 +266,31 @@ async function loadCourse() {
 
   try {
     const accountPromise = loadAccount();
-    let coursePromise;
-    let modulesPromise;
-    if (Boolean(auth.currentUser)) {
-      coursePromise = get(
-        "/cursos/" + encodeURIComponent(courseId) + "/conteudo",
-      );
-      modulesPromise = coursePromise.then((course) =>
-        Array.isArray(course.modulos) ? course.modulos : [],
-      );
-    } else {
-      coursePromise = get("/cursos/" + encodeURIComponent(courseId));
-      modulesPromise = get(
-        "/cursos/" + encodeURIComponent(courseId) + "/modulos",
-      ).then((items) =>
-        Promise.all(
-          (Array.isArray(items) ? items : []).map(async (module) => ({
-            ...module,
-            aulas: await get(
-              "/modulos/" + encodeURIComponent(module.id) + "/aulas",
-            ),
-          })),
-        ),
-      );
-    }
-    const [accountResult, course, modules] = await Promise.all([
+    const curriculumPromise = firebaseUser
+      ? get("/cursos/" + encodeURIComponent(courseId) + "/conteudo").catch(
+          async (error) => {
+            if (error.status !== 401 && error.status !== 403) throw error;
+            await encerrarSessao();
+            localStorage.removeItem("devcursos_token");
+            localStorage.removeItem("devcursos_user");
+            user = null;
+            favorites.clear();
+            return get(
+              "/cursos/" + encodeURIComponent(courseId) + "/estrutura",
+            );
+          },
+        )
+      : get("/cursos/" + encodeURIComponent(courseId) + "/estrutura");
+    const [accountResult, curriculum] = await Promise.all([
       accountPromise,
-      coursePromise,
-      modulesPromise,
+      curriculumPromise,
     ]);
     void accountResult;
-    render(course, modules);
+
+    render(
+      curriculum,
+      Array.isArray(curriculum.modulos) ? curriculum.modulos : [],
+    );
   } catch (error) {
     console.error("Não foi possível carregar a formação.", error);
     root.innerHTML =

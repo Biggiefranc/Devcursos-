@@ -12,6 +12,10 @@ async function buscarConteudoPorCurso(req, res) {
     return res.json(await service.buscarConteudoPorCurso(req.params.id));
 }
 
+async function buscarEstruturaPorCurso(req, res) {
+    return res.json(await service.buscarEstruturaPorCurso(req.params.id));
+}
+
 async function listarModulosPorCurso(req, res) {
     return res.json(await service.listarModulosPorCurso(req.params.id));
 }
@@ -27,6 +31,7 @@ async function buscarAulaPorId(req, res) {
 module.exports = {
     listarCursos,
     buscarCursoPorId,
+    buscarEstruturaPorCurso,
     buscarConteudoPorCurso,
     listarModulosPorCurso,
     listarAulasPorModulo,

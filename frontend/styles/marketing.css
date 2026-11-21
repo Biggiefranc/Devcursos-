@@ -89,8 +89,8 @@
 }
 .button-primary {
   color: #fff;
-  background: linear-gradient(108deg, #70528a 0%, #9876ad 54%, #b395c4 100%);
-  box-shadow: 0 7px 30px rgba(139, 102, 165, 0.15);
+  background: linear-gradient(108deg, #68447e 0%, #835c9a 54%, #a17db7 100%);
+  box-shadow: 0 7px 30px rgba(139, 102, 165, 0.22);
 }
 .button-primary:hover {
   box-shadow: 0 12px 42px rgba(173, 137, 198, 0.28);
@@ -108,7 +108,7 @@
 .button-quiet:hover,
 .button-outline:hover {
   border-color: var(--purple);
-  background: #201b25;
+    background: #2a2032;
 }
 .button-text {
   color: var(--silver);
@@ -131,10 +131,10 @@
   background:
     radial-gradient(
       ellipse 600px 480px at 86% 46%,
-      rgba(111, 78, 132, 0.2),
+      rgba(125, 82, 151, 0.42),
       transparent 70%
     ),
-    linear-gradient(112deg, #0c0c0f 0%, #111014 57%, #151019 100%);
+    linear-gradient(112deg, #24182d 0%, #1a1421 53%, #110d15 100%);
 }
 .hero-home::after {
   content: "";
@@ -446,7 +446,7 @@
   padding: 118px max(32px, calc((100vw - var(--page)) / 2));
 }
 .intro-band {
-  background: #111115;
+  background: #191220;
   border-bottom: 1px solid var(--line-soft);
 }
 .section-kicker > span {
@@ -654,7 +654,7 @@
   font-size: 8px;
 }
 .catalog-preview {
-  background: #0d0d10;
+  background: #15101b;
 }
 .section-heading .underlined-link {
   margin-bottom: 6px;
@@ -672,8 +672,8 @@
   display: flex;
   flex-direction: column;
   padding: 22px;
-  background: #151419;
-  border: 1px solid #39343e;
+  background: #201728;
+  border: 1px solid #48364f;
   overflow: hidden;
   transition:
     border-color 0.3s,
@@ -692,8 +692,8 @@
   transition: transform 0.45s;
 }
 .course-card:hover {
-  border-color: #79628b;
-  background: #1a171e;
+  border-color: #a17db7;
+  background: #291d33;
   transform: translateY(-5px);
 }
 .course-card:hover::after {
@@ -808,7 +808,7 @@
   grid-template-columns: 0.8fr 1.1fr;
   gap: 9vw;
   align-items: center;
-  background: #151419;
+  background: #1d1525;
 }
 .platform-copy h2 {
   margin: 24px 0 18px;

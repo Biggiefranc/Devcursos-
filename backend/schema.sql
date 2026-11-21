@@ -11,6 +11,9 @@ CREATE TABLE IF NOT EXISTS cursos (
   descricao     TEXT,
   categoria     VARCHAR(100) DEFAULT NULL,
   nivel         VARCHAR(50)  DEFAULT NULL,
+  duracao_horas DECIMAL(6,2) DEFAULT NULL,
+  tecnologias   JSON DEFAULT NULL,
+  projeto_final TEXT DEFAULT NULL,
   data_criacao  TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -34,6 +37,7 @@ CREATE TABLE IF NOT EXISTS aulas (
   conteudo      TEXT NOT NULL,
   video_url     VARCHAR(500) DEFAULT NULL,
   material_url  VARCHAR(500) DEFAULT NULL,
+  duracao_minutos SMALLINT UNSIGNED DEFAULT NULL,
   ordem         INT NOT NULL DEFAULT 1,
   PRIMARY KEY (id),
   KEY idx_aulas_modulo (modulo_id),
