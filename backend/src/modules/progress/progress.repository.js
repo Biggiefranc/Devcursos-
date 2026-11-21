@@ -21,6 +21,47 @@ async function listarAulasConcluidas(usuarioId, cursoId) {
     return resultados.map((aula) => Number(aula.id));
 }
 
+async function listarResumoPorUsuario(usuarioId) {
+    const [rows] = await pool.execute(
+        `SELECT m.curso_id, a.id AS aula_id, a.titulo AS aula_titulo,
+                CASE WHEN pa.concluida = 1 THEN 1 ELSE 0 END AS concluida
+         FROM modulos m
+         INNER JOIN aulas a ON a.modulo_id = m.id
+         LEFT JOIN progresso_aulas pa
+            ON pa.aula_id = a.id
+           AND pa.usuario_id = ?
+           AND pa.concluida = 1
+         ORDER BY m.curso_id ASC, m.ordem ASC, m.id ASC,
+                  a.ordem ASC, a.id ASC`,
+        [usuarioId]
+    );
+
+    const resumo = new Map();
+    for (const row of rows) {
+        const courseId = Number(row.curso_id);
+        if (!resumo.has(courseId)) {
+            resumo.set(courseId, {
+                cursoId: courseId,
+                totalAulas: 0,
+                aulasConcluidas: 0,
+                proximaAula: null
+            });
+        }
+        const course = resumo.get(courseId);
+        course.totalAulas += 1;
+        if (Number(row.concluida) === 1) {
+            course.aulasConcluidas += 1;
+        } else if (!course.proximaAula) {
+            course.proximaAula = {
+                id: Number(row.aula_id),
+                titulo: row.aula_titulo
+            };
+        }
+    }
+
+    return [...resumo.values()];
+}
+
 // Verifica se uma aula existe.
 async function buscarAulaPorId(aulaId) {
     const sql = `
@@ -39,7 +80,7 @@ async function buscarAulaPorId(aulaId) {
 // A ordem é a mesma usada pela interface: módulo.ordem, aula.ordem e IDs.
 async function buscarAulaAnteriorPendente(usuarioId, aulaId) {
     const sql = `
-        SELECT anterior.id
+        SELECT anterior.id, anterior.titulo
         FROM aulas atual
         INNER JOIN modulos modulo_atual ON modulo_atual.id = atual.modulo_id
         INNER JOIN modulos modulo_anterior
@@ -99,10 +140,23 @@ async function desmarcarAula(usuarioId, aulaId) {
     await pool.execute(sql, [usuarioId, aulaId]);
 }
 
+async function reiniciarPorCurso(usuarioId, cursoId) {
+    await pool.execute(
+        `DELETE pa
+         FROM progresso_aulas pa
+         INNER JOIN aulas a ON a.id = pa.aula_id
+         INNER JOIN modulos m ON m.id = a.modulo_id
+         WHERE pa.usuario_id = ? AND m.curso_id = ?`,
+        [usuarioId, cursoId]
+    );
+}
+
 module.exports = {
     listarAulasConcluidas,
+    listarResumoPorUsuario,
     buscarAulaPorId,
     buscarAulaAnteriorPendente,
     concluirAula,
-    desmarcarAula
+    desmarcarAula,
+    reiniciarPorCurso
 };

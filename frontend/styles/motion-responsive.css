@@ -160,6 +160,12 @@
     grid-template-columns: minmax(0, 1fr) 230px;
     gap: 30px;
   }
+  .detail-aside {
+    position: static;
+    width: auto;
+    max-height: none;
+    transform: none;
+  }
   .auth-layout {
     grid-template-columns: minmax(390px, 0.88fr) minmax(0, 1.12fr);
   }
@@ -388,6 +394,9 @@
     gap: 14px;
     padding: 0 14px;
   }
+  .study-site {
+    grid-template-rows: 60px minmax(0, 1fr) 38px;
+  }
   .study-back {
     display: none;
   }
@@ -399,17 +408,20 @@
   }
   .study-layout {
     grid-template-columns: 1fr;
+    grid-template-rows: minmax(145px, 32svh) minmax(0, 1fr);
   }
   .curriculum-panel {
+    min-height: 0;
+    overflow-y: auto;
     border-right: 0;
     border-bottom: 1px solid #302d34;
-    padding: 13px 0;
+    padding: 0 0 8px;
   }
   .curriculum-head {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 0 15px 11px;
+    padding: 12px 15px 11px;
   }
   .curriculum-head h2 {
     margin: 0;
@@ -419,27 +431,19 @@
     margin-left: auto;
   }
   .curriculum-list {
-    display: flex;
-    align-items: flex-start;
-    overflow-x: auto;
-    padding: 8px 7px 0;
-    scroll-snap-type: x proximity;
-    scrollbar-width: thin;
-    scrollbar-color: #5d4868 transparent;
+    display: grid;
+    overflow: visible;
+    padding: 0 7px;
   }
   .modulo {
-    flex: 0 0 min(78vw, 290px);
-    align-self: flex-start;
-    scroll-snap-align: start;
+    min-width: 0;
   }
   .modulo-btn {
-    min-height: 48px;
+    min-height: 42px;
     padding: 10px 11px;
   }
   .modulo .aulas {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
+    display: grid;
   }
   .modulo:not(.aberto) > .aulas {
     display: none;
@@ -448,12 +452,12 @@
     display: none;
   }
   .aulas {
-    display: flex;
-    gap: 3px;
+    display: grid;
+    gap: 0;
   }
   .aula-btn {
     min-width: 0;
-    grid-template-columns: 22px minmax(0, 1fr);
+    grid-template-columns: 22px minmax(0, 1fr) auto;
     padding: 9px 10px;
     border: 0;
     border-left: 2px solid transparent;
@@ -463,13 +467,34 @@
     border-left: 2px solid #b18fc8;
   }
   .aula-status {
-    display: none;
+    display: block;
+    font-size: 6px;
   }
   .lesson-main {
-    padding: 36px 21px 70px;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 28px 18px 44px;
+  }
+  .lesson-navigation {
+    align-items: stretch;
+    flex-direction: column-reverse;
+    gap: 9px;
+    margin-top: 32px;
+  }
+  .lesson-next,
+  .lesson-previous {
+    justify-content: center;
+    width: 100%;
   }
   .study-footer {
-    padding: 11px 15px;
+    min-height: 38px;
+    padding: 6px 12px;
+    gap: 12px;
+    font-size: 7px;
+  }
+  .study-reset {
+    font-size: 7px;
   }
   .auth-layout {
     grid-template-columns: 1fr;
@@ -497,17 +522,27 @@
     padding-top: 12px;
   }
   .app-header {
-    height: 62px;
+    min-height: 62px;
+    height: auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
     padding: 0 17px;
-    gap: 22px;
+    gap: 12px;
   }
   .app-nav {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-content: center;
+    padding: 8px 0 12px;
+    border-top: 1px solid var(--line-soft);
     gap: 13px;
   }
   .app-nav a {
     font-size: 9px;
   }
   .app-account {
+    grid-column: 2;
+    grid-row: 1;
     gap: 10px;
     font-size: 8px;
   }

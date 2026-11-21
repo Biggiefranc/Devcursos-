@@ -22,12 +22,15 @@ let feitas = new Set();
 let respostasProva = {};
 let avaliacao = null;
 let tentativaProva = null;
+let aulaAtualId = null;
+let renderVersion = 0;
+let provaCarregada = false;
 let mensagemAvaliacao =
   "Esta avaliação ainda não foi configurada para o curso.";
 
 const parametros = new URLSearchParams(window.location.search);
 const cursoId = parametros.get("curso");
-const aulaSelecionada =
+const aulaSolicitada =
   parametros.get("aula") ||
   (window.location.hash.match(/aula-(.+)/) || [])[1] ||
   "";
@@ -37,7 +40,12 @@ const backLink = document.getElementById("backLink");
 
 function atualizarLinksDeNavegacao() {
   if (brandLink) brandLink.href = "menudashbord.html";
-  if (backLink) backLink.href = "menudashbord.html";
+  if (backLink) {
+    backLink.href = cursoId
+      ? "visualizarcurso.html?curso=" + encodeURIComponent(cursoId)
+      : "catalogo.html";
+    backLink.textContent = "Currículo";
+  }
 }
 
 atualizarLinksDeNavegacao();
@@ -48,6 +56,8 @@ function criarElemento(tag, classe, texto) {
   if (texto !== undefined) elemento.textContent = texto;
   return elemento;
 }
+
+pagina.tabIndex = -1;
 
 async function tokenAtual() {
   if (auth.currentUser) {
@@ -93,23 +103,25 @@ async function salvarConclusaoDaAula(aulaId, concluida) {
 
 /* A avaliação e as tentativas são consultadas/enviadas ao servidor. */
 async function carregarProva() {
-  respostasProva = {};
-  tentativaProva = null;
-  avaliacao = null;
+  if (provaCarregada) return;
   mensagemAvaliacao = "Esta avaliação ainda não foi configurada para o curso.";
-  localStorage.removeItem(`devcursos-prova-${cursoId}`);
 
   try {
     avaliacao = await requisicaoAPI(
       `/cursos/${encodeURIComponent(cursoId)}/avaliacao`,
     );
+    provaCarregada = true;
     PROVA.titulo = avaliacao.titulo || "Avaliação final";
     PROVA.minimoAcertos = Number(avaliacao.minimoAcertos || 0);
+    montarMenu(PROVA.id);
+    document.title = `${PROVA.titulo} | ${curso.titulo || "Formação"} | DevCursos+`;
   } catch (erro) {
     if (erro.status === 404 || erro.status === 409) {
+      provaCarregada = true;
       mensagemAvaliacao = erro.message || mensagemAvaliacao;
       return;
     }
+    provaCarregada = false;
     throw erro;
   }
 }
@@ -224,30 +236,16 @@ function renderizarMarkdown(markdown) {
     .join("");
 }
 
-function idDaSecao(key) {
-  return key === PROVA.id ? "prova-final" : `aula-${key}`;
-}
-
 function indiceDaAula(key) {
   return todas.findIndex((aula) => String(aula.id) === String(key));
-}
-
-function ultimaAulaLiberada() {
-  let ultimo = -1;
-  for (let i = 0; i < todas.length; i += 1) {
-    if (feitas.has(String(todas[i].id))) {
-      ultimo = i;
-    } else {
-      break;
-    }
-  }
-  return ultimo;
 }
 
 function aulaLiberada(key) {
   const indice = indiceDaAula(key);
   if (indice === -1) return false;
-  return indice <= ultimaAulaLiberada() + 1;
+  return todas
+    .slice(0, indice)
+    .every((aula) => feitas.has(String(aula.id)));
 }
 
 function provaLiberada() {
@@ -255,76 +253,22 @@ function provaLiberada() {
 }
 
 function atualizarProgresso() {
-  const total = Math.max(todas.length, 1);
   const concluidos = todas.filter((a) => feitas.has(String(a.id))).length;
-  textoProg.textContent = concluidos + " de " + total + " aulas concluídas";
+  textoProg.textContent = concluidos + " de " + todas.length + " aulas concluídas";
 }
 
-function atualizarUI(key) {
-  document.querySelectorAll(".aula-btn").forEach((b) => {
-    if (b.dataset.key !== key) return;
-    const feita = feitas.has(String(key));
-    b.classList.toggle("concluida", feita);
-    const status = b.querySelector(".aula-status");
-    if (status) status.textContent = feita ? "CONCLUÍDA" : "";
-  });
-  atualizarProgresso();
+function primeiraAulaPendente() {
+  return todas.find((aula) => !feitas.has(String(aula.id))) || null;
 }
 
-async function concluirAula(key) {
-  const chave = String(key);
-  if (chave === PROVA.id) {
-    alert("A avaliação deste curso ainda não foi configurada no servidor.");
-    return;
-  }
-
-  if (feitas.has(chave)) return;
-  if (!aulaLiberada(chave)) {
-    alert("Complete a aula anterior para desbloquear esta etapa.");
-    return;
-  }
-
-  const botao = document.querySelector(
-    `.btn-concluir[data-key="${CSS.escape(chave)}"]`,
+function moduloDaAula(key) {
+  const aula = todas[indiceDaAula(key)];
+  return curso.modulos.find(
+    (modulo) => String(modulo.id) === String(aula?.modulo_id),
   );
-  if (botao) botao.disabled = true;
-
-  try {
-    const token = await tokenAtual();
-    if (!token)
-      throw new Error(
-        "Sua sessão expirou. Entre novamente para salvar o progresso.",
-      );
-
-    // O servidor confirma a gravação antes que a interface altere o estado.
-    await salvarConclusaoDaAula(chave, true);
-    feitas.add(chave);
-    atualizarUI(chave);
-    montarMenu();
-    renderTudo();
-  } catch (erro) {
-    console.error("Não foi possível salvar a conclusão da aula:", erro);
-    alert(
-      erro.message || "Não foi possível salvar seu progresso. Tente novamente.",
-    );
-    if (botao) botao.disabled = false;
-  }
 }
 
-function destacarNaLateral(key) {
-  document.querySelectorAll(".aula-btn").forEach((b) => {
-    b.classList.toggle("ativa", String(b.dataset.key) === String(key));
-    if (String(b.dataset.key) === String(key)) {
-      const modulo = b.closest(".modulo");
-      modulo?.classList.add("aberto");
-      modulo
-        ?.querySelector(".modulo-btn")
-        ?.setAttribute("aria-expanded", "true");
-    }
-  });
-}
-
-function montarMenu() {
+function montarMenu(keyAtual = aulaAtualId) {
   tituloCurso.textContent = curso.titulo || "Curso";
   menu.replaceChildren();
 
@@ -334,12 +278,23 @@ function montarMenu() {
     const botao = criarElemento(
       "button",
       "aula-btn" +
+        (String(keyAtual) === String(key) ? " ativa" : "") +
         (concluida ? " concluida" : "") +
         (bloqueada ? " bloqueada" : ""),
     );
     botao.type = "button";
     botao.dataset.key = key;
-    botao.disabled = bloqueada && !concluida;
+    botao.setAttribute("aria-disabled", String(bloqueada && !concluida));
+    if (String(keyAtual) === String(key)) botao.setAttribute("aria-current", "step");
+    if (bloqueada && !concluida) {
+      const index = indiceDaAula(key);
+      const required = index >= 0
+        ? todas.slice(0, index).find((aula) => !feitas.has(String(aula.id)))
+        : primeiraAulaPendente();
+      botao.title = required
+        ? "Conclua “" + required.titulo + "” para desbloquear."
+        : "Conclua as aulas anteriores para desbloquear.";
+    }
     const lessonIndex = todas.findIndex(
       (lesson) => String(lesson.id) === String(key),
     );
@@ -350,26 +305,14 @@ function montarMenu() {
         lessonIndex >= 0 ? String(lessonIndex + 1).padStart(2, "0") : "AV",
       ),
       criarElemento("span", "aula-title", titulo),
-      criarElemento("span", "aula-status", concluida ? "CONCLUÍDA" : ""),
+      criarElemento(
+        "span",
+        "aula-status",
+        concluida ? "CONCLUÍDA" : bloqueada ? "BLOQUEADA" : "LIBERADA",
+      ),
     );
     botao.addEventListener("click", () => {
-      if (key === PROVA.id) {
-        if (!provaLiberada()) {
-          alert(
-            "Você precisa concluir todas as aulas antes da avaliação final.",
-          );
-          return;
-        }
-      } else if (!aulaLiberada(key)) {
-        alert("Complete a aula anterior para desbloquear esta etapa.");
-        return;
-      }
-
-      const secaoId = idDaSecao(key);
-      window.location.hash = secaoId;
-      document
-        .getElementById(secaoId)
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      void selecionarAula(key);
     });
     return botao;
   };
@@ -381,7 +324,10 @@ function montarMenu() {
     lista.id = `modulo-aulas-${index + 1}`;
     botaoModulo.classList.add("curriculum-module-toggle");
     botaoModulo.setAttribute("aria-controls", lista.id);
-    botaoModulo.setAttribute("aria-expanded", String(index === 0));
+    const moduloAtivo = botoes.some(
+      (botao) => String(botao.dataset.key) === String(keyAtual),
+    );
+    botaoModulo.setAttribute("aria-expanded", String(moduloAtivo));
     botaoModulo.type = "button";
     botaoModulo.append(
       criarElemento("span", "module-number", String(index + 1).padStart(2, "0")),
@@ -393,7 +339,7 @@ function montarMenu() {
     });
     lista.append(...botoes);
     box.append(botaoModulo, lista);
-    if (index === 0) box.classList.add("aberto");
+    if (moduloAtivo || (!keyAtual && index === 0)) box.classList.add("aberto");
     menu.appendChild(box);
   };
 
@@ -417,18 +363,23 @@ function montarMenu() {
 function criarSecaoAula(aula, modulo) {
   const key = String(aula.id);
   const sec = criarElemento("section", "aula-secao");
-  sec.id = idDaSecao(key);
+  sec.id = "lesson-content";
   sec.dataset.key = key;
-
-  const bloqueada = !aulaLiberada(key);
-  if (bloqueada) {
-    sec.classList.add("bloqueada");
-  }
 
   sec.append(
     criarElemento("p", "trilha", modulo.titulo || ""),
     criarElemento("h1", "", aula.titulo || ""),
   );
+  sec.querySelector("h1")?.setAttribute("tabindex", "-1");
+  if (Number(aula.duracao_minutos) > 0) {
+    sec.appendChild(
+      criarElemento(
+        "p",
+        "lesson-duration",
+        "DURAÇÃO ESTIMADA · " + Number(aula.duracao_minutos) + " MIN",
+      ),
+    );
+  }
 
   const corpo = criarElemento("div", "corpo-aula");
   const conteudo = String(aula.conteudo ?? "");
@@ -441,18 +392,57 @@ function criarSecaoAula(aula, modulo) {
   }
   sec.appendChild(corpo);
 
-  const acao = criarElemento("button", "btn-concluir", "Concluir aula");
-  acao.type = "button";
-  acao.dataset.acao = "concluir-aula";
-  acao.dataset.key = key;
-  acao.disabled = bloqueada || feitas.has(key);
-  if (feitas.has(key)) {
-    acao.textContent = "Aula concluída";
+  const footer = criarElemento("nav", "lesson-navigation");
+  footer.setAttribute("aria-label", "Navegação entre aulas");
+  const index = indiceDaAula(key);
+  const previous = index > 0 ? todas[index - 1] : null;
+  if (previous) {
+    const back = criarElemento("button", "lesson-previous", "Aula anterior");
+    back.type = "button";
+    back.addEventListener("click", () => void selecionarAula(previous.id));
+    footer.appendChild(back);
+  } else {
+    const curriculum = criarElemento("a", "lesson-previous", "Voltar ao currículo");
+    curriculum.href = "visualizarcurso.html?curso=" + encodeURIComponent(cursoId);
+    footer.appendChild(curriculum);
   }
-  acao.addEventListener("click", async () => {
-    await concluirAula(key);
+
+  const next = todas[index + 1];
+  const advance = criarElemento(
+    "button",
+    "lesson-next",
+    next ? "Siga para a próxima aula" : "Finalizar formação",
+  );
+  advance.type = "button";
+  advance.addEventListener("click", async () => {
+    advance.disabled = true;
+    try {
+      if (!feitas.has(key)) {
+        await salvarConclusaoDaAula(key, true);
+        feitas.add(key);
+        atualizarProgresso();
+        montarMenu(key);
+      }
+      await selecionarAula(next ? next.id : PROVA.id);
+    } catch (error) {
+      console.error("Não foi possível avançar a aula:", error);
+      if (error.status === 409) await carregarConclusoes();
+      montarMenu(key);
+      pagina.prepend(criarElemento("p", "lesson-save-error", error.message));
+      advance.disabled = false;
+    }
   });
-  sec.appendChild(acao);
+  footer.appendChild(advance);
+  sec.appendChild(footer);
+  if (!feitas.has(key)) {
+    sec.appendChild(
+      criarElemento(
+        "p",
+        "lesson-step-note",
+        "Ao avançar, esta aula será registrada como concluída.",
+      ),
+    );
+  }
   return sec;
 }
 
@@ -532,7 +522,7 @@ function desenharProva(sec) {
 
 function criarSecaoProva() {
   const sec = criarElemento("section", "aula-secao prova-secao");
-  sec.id = idDaSecao(PROVA.id);
+  sec.id = "lesson-content";
   sec.dataset.key = PROVA.id;
 
   if (!provaLiberada()) {
@@ -592,58 +582,152 @@ function criarSecaoProva() {
   return sec;
 }
 
-function renderTudo() {
-  pagina.replaceChildren();
-  curso.modulos.forEach((modulo, mi) => {
-    pagina.appendChild(
-      criarElemento("h2", "modulo-head", modulo.titulo || `Módulo ${mi + 1}`),
-    );
-    modulo.aulas.forEach((aula) =>
-      pagina.appendChild(criarSecaoAula(aula, modulo)),
-    );
-  });
-  pagina.appendChild(criarSecaoProva());
-
-  document.querySelectorAll(".aula-secao").forEach((secao) => {
-    if (secao.dataset.key && secao.dataset.key !== PROVA.id) {
-      observador.observe(secao);
-    }
-  });
+function atualizarHistoricoAula(key, modo) {
+  if (!modo) return;
+  const url = new URL(window.location.href);
+  url.searchParams.set("aula", String(key));
+  url.hash = "";
+  window.history[modo === "replace" ? "replaceState" : "pushState"](
+    { aula: String(key) },
+    "",
+    url,
+  );
 }
 
-const observador = new IntersectionObserver(
-  (entradas) => {
-    entradas.forEach((en) => {
-      if (!en.isIntersecting) return;
-      const key = en.target.dataset.key;
-      if (key) destacarNaLateral(key);
-    });
-  },
-  { root: null, rootMargin: "-68px 0px -55% 0px", threshold: 0 },
-);
+function criarAulaBloqueada(key, mensagemServidor = "") {
+  const index = indiceDaAula(key);
+  const aula = todas[index];
+  const necessaria =
+    index >= 0
+      ? todas.slice(0, index).find((item) => !feitas.has(String(item.id)))
+      : primeiraAulaPendente();
+  const module = aula ? moduloDaAula(key) : null;
+  const section = criarElemento("section", "lesson-locked");
+  section.setAttribute("role", "status");
+  section.append(
+    criarElemento("p", "section-kicker", "ACESSO EM ETAPAS"),
+    criarElemento("h1", "", "Esta aula ainda está bloqueada."),
+    criarElemento(
+      "p",
+      "lesson-lock-message",
+      mensagemServidor ||
+        (necessaria
+          ? "Conclua “" + necessaria.titulo + "” para liberar a próxima aula."
+          : "Conclua as aulas anteriores para continuar."),
+    ),
+  );
+  section.querySelector("h1")?.setAttribute("tabindex", "-1");
+
+  const preview = criarElemento("div", "lesson-locked-preview");
+  preview.setAttribute("aria-hidden", "true");
+  preview.append(
+    criarElemento("span", "section-kicker", module?.titulo || "CURRÍCULO"),
+    criarElemento("strong", "", aula?.titulo || PROVA.titulo),
+    criarElemento("span", "locked-content-line", "Conteúdo disponível após a aula anterior"),
+  );
+  section.appendChild(preview);
+
+  if (necessaria) {
+    const action = criarElemento("button", "lesson-next", "Ir para a aula liberada");
+    action.type = "button";
+    action.addEventListener("click", () => void selecionarAula(necessaria.id));
+    section.appendChild(action);
+  }
+  return section;
+}
+
+async function selecionarAula(key, { historyMode = "push", focar = true } = {}) {
+  const id = String(key);
+  if (id !== PROVA.id && indiceDaAula(id) < 0) return;
+  if (id === aulaAtualId && historyMode === "push") return;
+
+  aulaAtualId = id;
+  renderVersion += 1;
+  const versao = renderVersion;
+  atualizarHistoricoAula(id, historyMode);
+  montarMenu(id);
+  pagina.setAttribute("aria-busy", "true");
+  pagina.replaceChildren();
+
+  if (id === PROVA.id && !provaLiberada()) {
+    pagina.appendChild(criarAulaBloqueada(id));
+    if (focar) pagina.querySelector("h1")?.focus({ preventScroll: true });
+    pagina.removeAttribute("aria-busy");
+    return;
+  }
+  if (id !== PROVA.id && !aulaLiberada(id)) {
+    pagina.appendChild(criarAulaBloqueada(id));
+    if (focar) pagina.querySelector("h1")?.focus({ preventScroll: true });
+    pagina.removeAttribute("aria-busy");
+    return;
+  }
+
+  pagina.innerHTML =
+    '<div class="detail-skeleton" aria-label="Carregando conteúdo"><span class="skeleton-line short"></span><span class="skeleton-line wide"></span><span class="skeleton-line medium"></span><span class="skeleton-block"></span></div>';
+
+  try {
+    if (id === PROVA.id) {
+      await carregarProva();
+      if (versao !== renderVersion) return;
+      pagina.replaceChildren(criarSecaoProva());
+    } else {
+      const lesson = await requisicaoAPI(
+        "/aulas/" + encodeURIComponent(id),
+      );
+      if (versao !== renderVersion) return;
+      const module = curso.modulos.find(
+        (item) => String(item.id) === String(lesson.modulo_id),
+      );
+      if (!module) throw new Error("O módulo desta aula não foi encontrado.");
+      pagina.replaceChildren(criarSecaoAula(lesson, module));
+      document.title =
+        lesson.titulo + " | " + (curso.titulo || "Formação") + " | DevCursos+";
+    }
+    const areaRolagem = pagina.closest(".lesson-main");
+    if (areaRolagem) areaRolagem.scrollTop = 0;
+    if (focar) {
+      pagina.querySelector("h1")?.focus({ preventScroll: true });
+    }
+  } catch (error) {
+    if (versao !== renderVersion) return;
+    if (error.status === 409 || (id === PROVA.id && error.status === 403)) {
+      try {
+        await carregarConclusoes();
+      } catch (progressError) {
+        console.warn("Não foi possível atualizar o progresso.", progressError);
+      }
+      montarMenu(id);
+      pagina.replaceChildren(criarAulaBloqueada(id, error.message));
+    } else {
+      mostrarErro(error.message || "Não foi possível carregar esta aula.");
+    }
+  } finally {
+    if (versao === renderVersion) pagina.removeAttribute("aria-busy");
+  }
+}
+
+window.addEventListener("popstate", () => {
+  const key = new URLSearchParams(window.location.search).get("aula");
+  if (key) void selecionarAula(key, { historyMode: null, focar: false });
+});
 
 btnReiniciar.addEventListener("click", async () => {
   if (!confirm("Zerar todo o progresso deste curso?")) return;
   btnReiniciar.disabled = true;
 
   try {
-    await Promise.all(
-      todas.map((aula) =>
-        requisicaoAPI("/aulas/" + encodeURIComponent(aula.id) + "/conclusao", {
-          method: "PUT",
-          body: JSON.stringify({ concluida: false }),
-        }),
-      ),
+    await requisicaoAPI(
+      "/cursos/" + encodeURIComponent(cursoId) + "/progresso",
+      { method: "DELETE" },
     );
     feitas = new Set();
     respostasProva = {};
     tentativaProva = null;
+    avaliacao = null;
+    provaCarregada = false;
     localStorage.removeItem("devcursos-feitas");
-    await carregarProva();
-    montarMenu();
-    renderTudo();
     atualizarProgresso();
-    location.hash = "";
+    await selecionarAula(todas[0]?.id, { historyMode: "replace" });
   } catch (erro) {
     console.error("Erro ao reiniciar progresso:", erro);
     alert(
@@ -657,9 +741,8 @@ btnReiniciar.addEventListener("click", async () => {
         erroAtualizacao,
       );
     }
-    montarMenu();
-    renderTudo();
     atualizarProgresso();
+    if (aulaAtualId) await selecionarAula(aulaAtualId, { historyMode: "replace" });
   } finally {
     btnReiniciar.disabled = false;
   }
@@ -678,6 +761,7 @@ function mostrarErro(mensagem) {
     '<div class="inline-error"><p>' +
     texto +
     '</p><a class="button button-outline" href="catalogo.html">Voltar ao catálogo</a></div>';
+  pagina.removeAttribute("aria-busy");
 }
 
 async function iniciarCurso() {
@@ -688,12 +772,13 @@ async function iniciarCurso() {
   }
 
   try {
-    const contentPromise = requisicaoAPI(
-      "/cursos/" + encodeURIComponent(cursoId) + "/conteudo",
-    );
-    const progressPromise = carregarConclusoes();
-    const assessmentPromise = carregarProva();
-    curso = await contentPromise;
+    const [curriculum] = await Promise.all([
+      requisicaoAPI(
+        "/cursos/" + encodeURIComponent(cursoId) + "/estrutura",
+      ),
+      carregarConclusoes(),
+    ]);
+    curso = curriculum;
     curso.modulos = Array.isArray(curso.modulos) ? curso.modulos : [];
     tituloCurso.textContent = curso.titulo || "Formação";
     const lessonsCount = curso.modulos.reduce(
@@ -712,7 +797,6 @@ async function iniciarCurso() {
     });
 
     if (!todas.length) {
-            void Promise.allSettled([progressPromise, assessmentPromise]);
       pagina.innerHTML =
         '<div class="inline-error"><p>Esta formação ainda não tem aulas publicadas.</p><a class="button button-outline" href="visualizarcurso.html?curso=' +
         encodeURIComponent(cursoId) +
@@ -720,25 +804,14 @@ async function iniciarCurso() {
       return;
     }
 
-    await Promise.all([progressPromise, assessmentPromise]);
-    montarMenu();
-    renderTudo();
-
-    const alvo = decodeURIComponent(
-      aulaSelecionada ||
-        (window.location.hash.match(/aula-(.+)/) || [])[1] ||
-        "",
-    );
-    if (alvo) {
-      const secao = document.getElementById("aula-" + alvo);
-      if (secao) {
-        window.setTimeout(
-          () => secao.scrollIntoView({ behavior: "smooth", block: "start" }),
-          160,
-        );
-        destacarNaLateral(alvo);
-      }
-    }
+    atualizarProgresso();
+    const hashAula = window.location.hash.match(/^#aula-(.+)$/)?.[1] || "";
+    const solicitada = aulaSolicitada || hashAula;
+    const target =
+      solicitada === PROVA.id || indiceDaAula(solicitada) >= 0
+        ? solicitada
+        : primeiraAulaPendente()?.id || PROVA.id;
+    await selecionarAula(target, { historyMode: "replace", focar: false });
   } catch (erro) {
     console.error("Erro ao carregar a formação:", erro);
     mostrarErro(
@@ -758,7 +831,7 @@ aguardarAuth
   .then(async (usuario) => {
     if (!usuario) {
       localStorage.removeItem("devcursos_token");
-      const destino = `cursos.html?curso=${encodeURIComponent(cursoId || "")}`;
+      const destino = window.location.pathname + window.location.search;
       window.location.href = `login.html?redirect=${encodeURIComponent(destino)}`;
       return;
     }

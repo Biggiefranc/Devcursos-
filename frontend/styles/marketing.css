@@ -921,21 +921,17 @@
   margin: 50px 0 0 auto;
   border-top: 1px solid var(--line);
 }
-.faq-list details {
+.faq-item {
   border-bottom: 1px solid var(--line);
 }
-.faq-list summary {
+.faq-item h3 {
   position: relative;
-  list-style: none;
+  margin: 0;
   padding: 21px 42px 21px 0;
-  cursor: pointer;
   font-size: 14px;
   font-weight: 550;
 }
-.faq-list summary::-webkit-details-marker {
-  display: none;
-}
-.faq-list summary::after {
+.faq-item h3::after {
   content: "";
   position: absolute;
   right: 9px;
@@ -945,18 +941,49 @@
   border-right: 1px solid #ae97c0;
   border-bottom: 1px solid #ae97c0;
   transform: rotate(45deg);
-  transition: transform 0.25s;
+  transition: transform 0.25s var(--ease), top 0.25s var(--ease);
 }
-.faq-list details[open] summary::after {
-  transform: rotate(225deg);
-  top: 29px;
-}
-.faq-list details p {
+.faq-item p {
   max-width: 680px;
-  margin: -4px 0 22px;
+  max-height: 0;
+  overflow: hidden;
+  margin: 0;
   color: #96909b;
   font-size: 12px;
   line-height: 1.9;
+  opacity: 0;
+  transform: translateY(-5px);
+  transition:
+    max-height 0.35s var(--ease),
+    opacity 0.25s ease,
+    transform 0.35s var(--ease),
+    margin 0.35s var(--ease);
+}
+.faq-item:hover p,
+.faq-item:focus-visible p,
+.faq-item:focus-within p {
+  max-height: 160px;
+  margin: -4px 0 22px;
+  opacity: 1;
+  transform: translateY(0);
+}
+.faq-item:hover h3::after,
+.faq-item:focus-visible h3::after,
+.faq-item:focus-within h3::after {
+  transform: rotate(225deg);
+  top: 29px;
+}
+.faq-item:focus-visible {
+  outline: 2px solid var(--purple-bright);
+  outline-offset: 5px;
+}
+@media (hover: none) {
+  .faq-item p {
+    max-height: none;
+    margin: -4px 0 22px;
+    opacity: 1;
+    transform: none;
+  }
 }
 .closing-cta {
   position: relative;

@@ -18,10 +18,22 @@ async function obterUsuario(firebaseUid) {
 }
 
 async function buscarPorCurso(firebaseUid, cursoId) {
-    await obterUsuario(firebaseUid);
+    const usuario = await obterUsuario(firebaseUid);
     const idCurso = validarIdPositivo(cursoId, "ID do curso");
     const curso = await coursesRepository.buscarCursoPorId(idCurso);
     if (!curso) throw new AppError(404, "CURSO_NAO_ENCONTRADO", "Curso não encontrado.");
+
+    const [totalAulas, aulasConcluidas] = await Promise.all([
+        coursesRepository.contarAulasPorCurso(idCurso),
+        progressRepository.listarAulasConcluidas(usuario.id, idCurso)
+    ]);
+    if (totalAulas === 0 || aulasConcluidas.length < totalAulas) {
+        throw new AppError(
+            403,
+            "CURSO_NAO_CONCLUIDO",
+            "Conclua todas as aulas do curso antes de abrir a avaliação."
+        );
+    }
 
     const avaliacao = await repository.buscarPorCurso(idCurso);
     if (!avaliacao) {

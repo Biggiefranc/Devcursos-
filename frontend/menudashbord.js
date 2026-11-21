@@ -43,18 +43,11 @@ function renderContinue(items) {
   if (!items.length) return;
   continueSection.hidden = false;
   continueGrid.innerHTML = items
-    .map(({ course, progress, lesson }, index) => {
-      const total = (course.modulos || []).reduce(
-        (sum, module) => sum + (module.aulas || []).length,
-        0,
-      );
-      const done = (progress.aulasConcluidas || []).length;
+    .map(({ course, summary }, index) => {
+      const total = summary.totalAulas;
+      const done = summary.aulasConcluidas;
       const percent = total ? Math.round((done / total) * 100) : 0;
-      const next =
-        lesson ||
-        (course.modulos || [])
-          .flatMap((module) => module.aulas || [])
-          .find(Boolean);
+      const next = summary.proximaAula;
       const nextTitle = next ? next.titulo : "Abrir currículo";
       return (
         '<article class="continue-card" data-reveal><span class="course-index">EM ANDAMENTO / ' +
@@ -88,9 +81,13 @@ function renderContinue(items) {
 async function loadDashboard(user) {
   try {
     localStorage.setItem("devcursos_token", await user.getIdToken());
-    const [profile, coursesData] = await Promise.all([
+    const [profile, coursesData, progressData] = await Promise.all([
       requisicaoAPI("/me"),
       requisicaoAPI("/cursos"),
+      requisicaoAPI("/me/progresso").catch((error) => {
+        console.warn("Não foi possível carregar o resumo de progresso.", error);
+        return { cursos: [] };
+      }),
     ]);
     const profileName =
       profile?.usuario?.nome ||
@@ -99,7 +96,8 @@ async function loadDashboard(user) {
       "Estudante";
     const firstName = profileName.trim().split(/\s+/)[0];
     nameNode.textContent = firstName;
-    welcome.textContent = "Olá, " + firstName + ". Vamos avançar?";
+    welcome.innerHTML =
+      "Olá, <span>" + escape(firstName) + "</span>. Vamos avançar?";
     localStorage.setItem(
       "devcursos_user",
       JSON.stringify(
@@ -117,40 +115,21 @@ async function loadDashboard(user) {
       return;
     }
 
-    const studyRecords = await Promise.all(
-      courses.map(async (course) => {
-        try {
-          const [content, progress] = await Promise.all([
-            requisicaoAPI(
-              "/cursos/" + encodeURIComponent(course.id) + "/conteudo",
-            ),
-            requisicaoAPI(
-              "/cursos/" + encodeURIComponent(course.id) + "/progresso",
-            ),
-          ]);
-          const completed = new Set(
-            (progress.aulasConcluidas || []).map((id) => String(id)),
-          );
-          const lessons = (content.modulos || []).flatMap(
-            (module) => module.aulas || [],
-          );
-          const next = lessons.find(
-            (lesson) => !completed.has(String(lesson.id)),
-          );
-          return completed.size > 0 && next
-            ? { course: content, progress, lesson: next }
-            : null;
-        } catch (error) {
-          if (error.status !== 404)
-            console.warn(
-              "Não foi possível carregar o progresso da formação.",
-              error,
-            );
-          return null;
-        }
-      }),
+    const summaries = new Map(
+      (progressData.cursos || []).map((summary) => [
+        String(summary.cursoId),
+        summary,
+      ]),
     );
-    renderContinue(studyRecords.filter(Boolean));
+    const studyRecords = courses
+      .map((course) => {
+        const summary = summaries.get(String(course.id));
+        return summary?.aulasConcluidas > 0 && summary.proximaAula
+          ? { course, summary }
+          : null;
+      })
+      .filter(Boolean);
+    renderContinue(studyRecords);
     courseGrid
       .querySelectorAll("[data-reveal]")
       .forEach((node) =>

@@ -38,6 +38,54 @@ async function listarProgresso(firebaseUid, cursoId) {
     return { aulasConcluidas };
 }
 
+async function listarResumo(firebaseUid) {
+    const usuarioId = await obterUsuarioId(firebaseUid);
+    return progressRepository.listarResumoPorUsuario(usuarioId);
+}
+
+// Entrega apenas uma aula por vez e verifica no servidor se as anteriores foram concluídas.
+async function buscarAulaLiberada(firebaseUid, aulaId) {
+    const idAula = validarIdPositivo(aulaId, "ID da aula");
+    const usuarioId = await obterUsuarioId(firebaseUid);
+    const aula = await coursesRepository.buscarAulaParaEstudoPorId(idAula);
+
+    if (!aula) {
+        throw new AppError(404, "AULA_NAO_ENCONTRADA", "Aula não encontrada.");
+    }
+
+    const anteriorPendente = await progressRepository.buscarAulaAnteriorPendente(
+        usuarioId,
+        idAula
+    );
+    if (anteriorPendente) {
+        throw new AppError(
+            409,
+            "AULA_ANTERIOR_PENDENTE",
+            `Conclua “${anteriorPendente.titulo}” para desbloquear esta aula.`
+        );
+    }
+
+    return {
+        ...aula,
+        duracao_minutos: aula.duracao_minutos == null
+            ? null
+            : Number(aula.duracao_minutos)
+    };
+}
+
+async function reiniciarProgresso(firebaseUid, cursoId) {
+    const idCurso = validarIdPositivo(cursoId, "ID do curso");
+    const usuarioId = await obterUsuarioId(firebaseUid);
+    const curso = await coursesRepository.buscarCursoPorId(idCurso);
+
+    if (!curso) {
+        throw new AppError(404, "CURSO_NAO_ENCONTRADO", "Curso não encontrado.");
+    }
+
+    await progressRepository.reiniciarPorCurso(usuarioId, idCurso);
+    return { cursoId: idCurso, reiniciado: true };
+}
+
 // Atualiza o estado de conclusão de uma aula.
 async function atualizarConclusao(firebaseUid, aulaId, concluida) {
     const idAula = validarIdPositivo(aulaId, "ID da aula");
@@ -83,5 +131,8 @@ async function atualizarConclusao(firebaseUid, aulaId, concluida) {
 
 module.exports = {
     listarProgresso,
+    listarResumo,
+    buscarAulaLiberada,
+    reiniciarProgresso,
     atualizarConclusao
 };
