@@ -1,6 +1,6 @@
 # Configuração de avaliações por curso
 
-O projeto possui agora a estrutura de persistência e os endpoints para avaliações finais. O conteúdo das questões não é incluído automaticamente porque o pacote original não contém um banco de questões confiável por curso.
+O projeto possui estrutura de persistência e endpoints para avaliações finais. As questões ficam versionadas junto aos materiais em `backend/conteudo/<curso>/avaliacao.json`; cursos sem esse arquivo ainda não têm avaliação configurada.
 
 ## Regras implementadas
 
@@ -42,4 +42,16 @@ Repita os passos 2 e 3 para cada questão. Não execute o modelo com os marcador
 - `GET /cursos/:cursoId/avaliacao`: retorna a avaliação e as alternativas públicas, sem revelar a alternativa correta.
 - `POST /avaliacoes/:id/tentativas`: recebe `{ "respostas": [{ "questaoId": 1, "alternativaId": 2 }] }`, verifica a conclusão das aulas, corrige no servidor e retorna o resultado da tentativa.
 
-Ambos exigem token Firebase válido e e-mail verificado. Não existe ainda painel administrativo para cadastrar/editar as questões; o cadastro é manual no banco.
+Ambos exigem token Firebase válido e e-mail verificado. Ainda não há painel administrativo para cadastrar ou editar questões; o cadastro pode ser feito no banco ou sincronizado por arquivo JSON, conforme a seção abaixo.
+
+## Importar avaliações versionadas em arquivo
+
+Para cadastrar uma avaliação a partir do conteúdo do repositório, coloque um `avaliacao.json` dentro da pasta do curso, ao lado de `curso.md`. O arquivo deve conter `titulo`, `minimo_acertos`, `ativa` e `questoes`; cada questão contém `enunciado` e pelo menos duas alternativas, com exatamente uma alternativa `correta: true`.
+
+Depois de importar primeiro os cursos e as aulas, execute:
+
+```bash
+npm --prefix backend run import:avaliacoes
+```
+
+O script sincroniza as questões em uma transação. Se a avaliação já tiver tentativas registradas, ele preserva as questões existentes para não invalidar respostas e resultados anteriores.

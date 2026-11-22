@@ -166,7 +166,7 @@ function renderizarInlineMarkdown(texto) {
 }
 
 function renderizarMarkdown(markdown) {
-  const texto = String(markdown ?? "").replace(/\r\n/g, "\n");
+  const texto = String(markdown ?? "").replace(/(?:\r\n|\r|\n)/g, "\n");
   const blocos = texto.split(/\n\s*\n/).filter((bloco) => bloco.trim());
 
   return blocos
@@ -186,6 +186,34 @@ function renderizarMarkdown(markdown) {
       }
 
       const blocoLimpo = bloco.trim();
+
+      // --- ADICIONE ESTE BLOCO PARA RENDERIZAR VÍDEOS DO YOUTUBE ---
+      const matchYoutube = blocoLimpo.match(
+        /^!\[([^\]]*)\]\(https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})(?:[?&]([^\s)]*))?\)$/,
+      );
+
+      if (matchYoutube) {
+        const titulo = escaparHtml(matchYoutube[1] || "Vídeo do YouTube");
+        const videoId = matchYoutube[2];
+        const paramsRaw = matchYoutube[3] || "";
+        const params = new URLSearchParams(paramsRaw);
+
+        // Converte &t=18s (link comum) para ?start=18 (padrão do player embed)
+        if (params.has("t")) {
+          const segundos = parseInt(params.get("t"), 10);
+          if (!Number.isNaN(segundos)) {
+            params.delete("t");
+            params.set("start", String(segundos));
+          }
+        }
+        params.delete("pp");
+
+        const queryString = params.toString();
+        const embedUrl = `https://www.youtube.com/embed/${videoId}${queryString ? `?${queryString}` : ""}`;
+
+        return `<div class="video-wrapper" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;margin:1.5rem 0;"><iframe src="${embedUrl}" title="${titulo}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+      }
+      // -------------------------------------------------------------
 
       if (/^#{1,6}[ \t]+/.test(blocoLimpo)) {
         const match = blocoLimpo.match(
@@ -209,8 +237,8 @@ function renderizarMarkdown(markdown) {
             .split("\n")
             .map((linha) => linha.replace(/^>\s?/, "").trim())
             .filter(Boolean)
-            .join("<br>"),
-        );
+            .join("\n"),
+        ).replace(/\n/g, "<br>");
         return `<blockquote>${conteudo}</blockquote>`;
       }
 
@@ -231,10 +259,12 @@ function renderizarMarkdown(markdown) {
         return `<ul>${htmlLista}</ul>`;
       }
 
-      return `<p>${renderizarInlineMarkdown(bloco.replace(/\n/g, "<br>"))}</p>`;
+      // Aproveita para corrigir também o <br> que aparecia escrito nos parágrafos
+      return `<p>${renderizarInlineMarkdown(bloco).replace(/\n/g, "<br>")}</p>`;
     })
     .join("");
 }
+
 
 function indiceDaAula(key) {
   return todas.findIndex((aula) => String(aula.id) === String(key));

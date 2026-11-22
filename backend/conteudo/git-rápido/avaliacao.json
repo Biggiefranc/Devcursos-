@@ -1,0 +1,322 @@
+{
+  "titulo": "Avaliação final — Git e GitHub",
+  "minimo_acertos": 12,
+  "ativa": true,
+  "questoes": [
+    {
+      "enunciado": "Você quer registrar commits e histórico na própria máquina. Qual ferramenta faz esse trabalho?",
+      "alternativas": [
+        {
+          "texto": "Git",
+          "correta": true
+        },
+        {
+          "texto": "GitHub",
+          "correta": false
+        },
+        {
+          "texto": "Uma pull request",
+          "correta": false
+        },
+        {
+          "texto": "Uma issue",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Você editou dois arquivos, mas quer incluir somente README.md no próximo commit. Qual sequência dá controle sobre essa seleção?",
+      "alternativas": [
+        {
+          "texto": "git add README.md e depois git commit",
+          "correta": true
+        },
+        {
+          "texto": "git push README.md e depois git commit",
+          "correta": false
+        },
+        {
+          "texto": "git clone README.md e depois git merge",
+          "correta": false
+        },
+        {
+          "texto": "git status README.md e depois git pull",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Qual comando mostra as alterações que já estão preparadas para o próximo commit?",
+      "alternativas": [
+        {
+          "texto": "git diff --staged",
+          "correta": true
+        },
+        {
+          "texto": "git remote -v",
+          "correta": false
+        },
+        {
+          "texto": "git branch -vv",
+          "correta": false
+        },
+        {
+          "texto": "git fetch --staged",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "O que a configuração user.email do Git define?",
+      "alternativas": [
+        {
+          "texto": "O endereço associado à autoria dos commits; ela não autentica a conta do GitHub",
+          "correta": true
+        },
+        {
+          "texto": "A senha usada para fazer push",
+          "correta": false
+        },
+        {
+          "texto": "O endereço do repositório remoto",
+          "correta": false
+        },
+        {
+          "texto": "O e-mail que recebe notificações de issues",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Um arquivo .env já foi commitado e agora você adicionou .env ao .gitignore. O que acontece?",
+      "alternativas": [
+        {
+          "texto": "O Git continua rastreando o arquivo já commitado; a regra não apaga o histórico",
+          "correta": true
+        },
+        {
+          "texto": "O Git remove automaticamente todas as versões do arquivo",
+          "correta": false
+        },
+        {
+          "texto": "O arquivo é apagado do computador",
+          "correta": false
+        },
+        {
+          "texto": "O GitHub revoga automaticamente as credenciais do arquivo",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Você vai trabalhar isoladamente em uma melhoria de documentação. Qual comando cria uma branch e já muda para ela?",
+      "alternativas": [
+        {
+          "texto": "git switch -c docs/melhoria",
+          "correta": true
+        },
+        {
+          "texto": "git remote add docs/melhoria",
+          "correta": false
+        },
+        {
+          "texto": "git clone docs/melhoria",
+          "correta": false
+        },
+        {
+          "texto": "git revert docs/melhoria",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Durante um merge, o Git marca um arquivo como conflitante. Qual é o próximo passo correto?",
+      "alternativas": [
+        {
+          "texto": "Ler as versões, editar o resultado desejado, remover os marcadores, preparar o arquivo e concluir o merge",
+          "correta": true
+        },
+        {
+          "texto": "Apagar o repositório e clonar de novo sem revisar as mudanças",
+          "correta": false
+        },
+        {
+          "texto": "Deixar os marcadores no arquivo e fazer push",
+          "correta": false
+        },
+        {
+          "texto": "Executar git push --force para escolher uma das versões",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Você preparou o arquivo errado, mas quer manter as alterações no diretório de trabalho. Qual comando o retira do staging?",
+      "alternativas": [
+        {
+          "texto": "git restore --staged caminho/do/arquivo",
+          "correta": true
+        },
+        {
+          "texto": "git restore caminho/do/arquivo",
+          "correta": false
+        },
+        {
+          "texto": "git clean -fd",
+          "correta": false
+        },
+        {
+          "texto": "git reset --hard",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Um commit já compartilhado precisa ser desfeito sem reescrever a linha do tempo compartilhada. Qual opção é mais apropriada?",
+      "alternativas": [
+        {
+          "texto": "git revert <commit>",
+          "correta": true
+        },
+        {
+          "texto": "git reset --hard <commit>",
+          "correta": false
+        },
+        {
+          "texto": "git clean -fd",
+          "correta": false
+        },
+        {
+          "texto": "git branch -D main",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "No comando git remote add origin URL, o que significa origin?",
+      "alternativas": [
+        {
+          "texto": "Um nome convencional dado àquele remoto; não é uma palavra especial do Git",
+          "correta": true
+        },
+        {
+          "texto": "O nome obrigatório de toda branch principal",
+          "correta": false
+        },
+        {
+          "texto": "O endereço do computador local",
+          "correta": false
+        },
+        {
+          "texto": "Uma senha criada pelo GitHub",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Um repositório já existe no GitHub e você quer começar a trabalhar com seus arquivos e histórico localmente. Qual comando é adequado?",
+      "alternativas": [
+        {
+          "texto": "git clone URL",
+          "correta": true
+        },
+        {
+          "texto": "git init URL",
+          "correta": false
+        },
+        {
+          "texto": "git commit URL",
+          "correta": false
+        },
+        {
+          "texto": "git restore URL",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Qual descrição diferencia corretamente fetch e pull no fluxo comum?",
+      "alternativas": [
+        {
+          "texto": "fetch atualiza referências remotas locais; pull busca e integra mudanças à branch atual",
+          "correta": true
+        },
+        {
+          "texto": "fetch publica commits; pull cria uma nova conta no GitHub",
+          "correta": false
+        },
+        {
+          "texto": "fetch apaga a branch local; pull apaga a remota",
+          "correta": false
+        },
+        {
+          "texto": "Os dois comandos sempre fazem exatamente a mesma operação",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Seu push foi rejeitado porque o remoto tem commits que sua branch ainda não integrou. O que fazer primeiro?",
+      "alternativas": [
+        {
+          "texto": "Conferir status, buscar as referências com fetch e entender a divergência antes de integrar",
+          "correta": true
+        },
+        {
+          "texto": "Usar push --force imediatamente",
+          "correta": false
+        },
+        {
+          "texto": "Apagar o remoto e criar outro com o mesmo nome",
+          "correta": false
+        },
+        {
+          "texto": "Renomear todos os commits locais",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Ao abrir uma pull request, o que são base e compare?",
+      "alternativas": [
+        {
+          "texto": "Base é a branch que receberá as mudanças; compare é a branch que contém a proposta",
+          "correta": true
+        },
+        {
+          "texto": "Base é a branch que contém a proposta; compare é a branch que receberá as mudanças",
+          "correta": false
+        },
+        {
+          "texto": "Base é o nome do remoto; compare é a senha do repositório",
+          "correta": false
+        },
+        {
+          "texto": "São dois nomes para a mesma issue",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Qual é um bom uso de uma issue no GitHub?",
+      "alternativas": [
+        {
+          "texto": "Registrar e acompanhar uma tarefa, problema, ideia ou pergunta com contexto",
+          "correta": true
+        },
+        {
+          "texto": "Substituir todos os commits locais",
+          "correta": false
+        },
+        {
+          "texto": "Guardar uma chave privada para a equipe",
+          "correta": false
+        },
+        {
+          "texto": "Mesclar automaticamente qualquer branch",
+          "correta": false
+        }
+      ]
+    }
+  ]
+}
