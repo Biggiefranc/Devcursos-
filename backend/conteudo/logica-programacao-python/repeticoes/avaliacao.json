@@ -1,0 +1,112 @@
+{
+  "titulo": "Avaliação do módulo 4 — Repetições",
+  "minimo_acertos": 4,
+  "ativa": true,
+  "questoes": [
+    {
+      "enunciado": "Em um while, o que normalmente evita que a repetição fique infinita?",
+      "alternativas": [
+        {
+          "texto": "Atualizar os dados usados na condição até ela ficar falsa.",
+          "correta": true
+        },
+        {
+          "texto": "Apagar a condição do laço.",
+          "correta": false
+        },
+        {
+          "texto": "Colocar um print depois do while.",
+          "correta": false
+        },
+        {
+          "texto": "Usar sempre uma variável chamada contador.",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Quantas vezes o bloco de for n in range(1, 5) roda?",
+      "alternativas": [
+        {
+          "texto": "4 vezes: para 1, 2, 3 e 4.",
+          "correta": true
+        },
+        {
+          "texto": "5 vezes: para 1, 2, 3, 4 e 5.",
+          "correta": false
+        },
+        {
+          "texto": "1 vez.",
+          "correta": false
+        },
+        {
+          "texto": "Nenhuma vez.",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Por que iniciar soma = 0 antes de acumular números?",
+      "alternativas": [
+        {
+          "texto": "Zero é o valor neutro da adição e não altera a primeira soma.",
+          "correta": true
+        },
+        {
+          "texto": "O zero faz o laço parar.",
+          "correta": false
+        },
+        {
+          "texto": "A variável só pode guardar números pares.",
+          "correta": false
+        },
+        {
+          "texto": "Python exige que toda variável comece em zero.",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "O que continue faz dentro de um laço?",
+      "alternativas": [
+        {
+          "texto": "Pula o restante da repetição atual e segue para a próxima.",
+          "correta": true
+        },
+        {
+          "texto": "Encerra todo o programa.",
+          "correta": false
+        },
+        {
+          "texto": "Repete a mesma instrução para sempre.",
+          "correta": false
+        },
+        {
+          "texto": "Apaga o contador.",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Quando dois laços são aninhados, o que acontece normalmente?",
+      "alternativas": [
+        {
+          "texto": "Para cada volta do laço externo, o interno percorre suas voltas.",
+          "correta": true
+        },
+        {
+          "texto": "Os dois laços são unidos em uma única condição.",
+          "correta": false
+        },
+        {
+          "texto": "O laço interno só roda uma vez no programa.",
+          "correta": false
+        },
+        {
+          "texto": "O laço externo deixa de existir.",
+          "correta": false
+        }
+      ]
+    }
+  ]
+}

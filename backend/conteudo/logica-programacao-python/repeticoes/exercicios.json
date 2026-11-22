@@ -1,0 +1,124 @@
+{
+  "aulas": {
+    "01-repita-com-while.md": {
+      "titulo": "Repita até chegar ao limite",
+      "enunciado": "Use while para mostrar os números 1, 2, 3 e 4, cada um em uma linha.",
+      "codigo_inicial": "numero = 1\nwhile numero <= 4:\n    # Mostre o valor atual.\n    # Atualize o número para o laço avançar.\n",
+      "avaliador": {
+        "tipo": "saida",
+        "casos": [
+          {
+            "entradas": [],
+            "saida_esperada": "1\n2\n3\n4"
+          }
+        ]
+      }
+    },
+    "02-condicao-de-parada.md": {
+      "titulo": "Pare quando a resposta for fim",
+      "enunciado": "Leia respostas e repita a mensagem Você escreveu: RESPOSTA até a pessoa digitar fim. A palavra fim encerra sem ser repetida.",
+      "codigo_inicial": "resposta = input(\"Digite algo ou fim: \")\nwhile resposta != \"fim\":\n    # Mostre a resposta e leia outra.\n    pass\n",
+      "avaliador": {
+        "tipo": "saida",
+        "casos": [
+          {
+            "entradas": [
+              "oi",
+              "python",
+              "fim"
+            ],
+            "saida_esperada": "Digite algo ou fim: Você escreveu: oi\nDigite algo ou fim: Você escreveu: python\nDigite algo ou fim: "
+          },
+          {
+            "entradas": [
+              "fim"
+            ],
+            "saida_esperada": "Digite algo ou fim: "
+          }
+        ]
+      }
+    },
+    "03-percorra-com-for-e-range.md": {
+      "titulo": "Percorra uma faixa de números",
+      "enunciado": "Use for e range para mostrar os múltiplos de 3 entre 3 e 15, incluindo 15.",
+      "codigo_inicial": "# Escreva um for com range e mostre cada múltiplo de 3.\n",
+      "avaliador": {
+        "tipo": "saida",
+        "casos": [
+          {
+            "entradas": [],
+            "saida_esperada": "3\n6\n9\n12\n15"
+          }
+        ]
+      }
+    },
+    "04-contadores-e-acumuladores.md": {
+      "titulo": "Conte e acumule valores",
+      "enunciado": "Leia três números e mostre a soma. Use um acumulador iniciado em zero e atualize-o dentro de uma repetição.",
+      "codigo_inicial": "soma = 0\nfor repeticao in range(3):\n    numero = int(input(\"Número: \"))\n    # Atualize o acumulador.\n# Mostre a soma.\n",
+      "avaliador": {
+        "tipo": "saida",
+        "casos": [
+          {
+            "entradas": [
+              "4",
+              "5",
+              "6"
+            ],
+            "saida_esperada": "Número: Número: Número: 15"
+          },
+          {
+            "entradas": [
+              "-2",
+              "2",
+              "10"
+            ],
+            "saida_esperada": "Número: Número: Número: 10"
+          }
+        ]
+      }
+    },
+    "05-break-e-continue.md": {
+      "titulo": "Pule valores e encerre o laço",
+      "enunciado": "Percorra de 1 a 8. Ignore o número 3 e encerre ao chegar em 6. Mostre os números visitados.",
+      "codigo_inicial": "for numero in range(1, 9):\n    # Pule 3 e encerre quando chegar a 6.\n    print(numero)\n",
+      "avaliador": {
+        "tipo": "saida",
+        "casos": [
+          {
+            "entradas": [],
+            "saida_esperada": "1\n2\n4\n5"
+          }
+        ]
+      }
+    },
+    "06-repeticoes-aninhadas.md": {
+      "titulo": "Desenhe uma pequena tabela",
+      "enunciado": "Use dois laços para mostrar uma grade 2 por 3 formada por pontos: três pontos em cada uma de duas linhas.",
+      "codigo_inicial": "# Escreva dois for: um para as linhas e outro para as colunas.\n",
+      "avaliador": {
+        "tipo": "saida",
+        "casos": [
+          {
+            "entradas": [],
+            "saida_esperada": "...\n..."
+          }
+        ]
+      }
+    },
+    "07-oficina-repeticoes.md": {
+      "titulo": "Some uma sequência sem erro de limite",
+      "enunciado": "Use for, range e um acumulador para somar todos os inteiros de 1 a 100, inclusive. Mostre o total.",
+      "codigo_inicial": "soma = 0\n# Repita pelos valores de 1 a 100 e acumule.\nprint(soma)\n",
+      "avaliador": {
+        "tipo": "saida",
+        "casos": [
+          {
+            "entradas": [],
+            "saida_esperada": "5050"
+          }
+        ]
+      }
+    }
+  }
+}

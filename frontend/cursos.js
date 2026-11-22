@@ -2,12 +2,7 @@ import { auth } from "./firebase/firebase-config";
 import { onAuthStateChanged } from "firebase/auth";
 import { requisicaoAPI, encerrarSessao } from "./services/api";
 
-/* A correção da avaliação é feita exclusivamente pelo Back-End. */
-const PROVA = {
-  id: "prova-final",
-  titulo: "Avaliação final",
-  minimoAcertos: 0,
-};
+const PROVA = { id: "prova-final", titulo: "Avaliação final", minimoAcertos: 0 };
 const LETRAS = ["A", "B", "C", "D", "E", "F"];
 
 const tituloCurso = document.getElementById("tituloCurso");
@@ -19,14 +14,20 @@ const btnReiniciar = document.getElementById("btnReiniciar");
 let curso = null;
 let todas = [];
 let feitas = new Set();
+let exerciciosConcluidos = new Set();
+let avaliacoesAprovadas = new Set();
+let avaliacaoAtualMeta = null;
 let respostasProva = {};
 let avaliacao = null;
 let tentativaProva = null;
 let aulaAtualId = null;
 let renderVersion = 0;
 let provaCarregada = false;
-let mensagemAvaliacao =
-  "Esta avaliação ainda não foi configurada para o curso.";
+let mensagemAvaliacao = "Esta avaliação ainda não está configurada.";
+let workerPython = null;
+let workerPronto = null;
+let proximoIdExecucao = 1;
+const execucoesPendentes = new Map();
 
 const parametros = new URLSearchParams(window.location.search);
 const cursoId = parametros.get("curso");
@@ -81,6 +82,12 @@ async function carregarConclusoes() {
       `/cursos/${encodeURIComponent(cursoId)}/progresso`,
     );
     feitas = new Set((dados.aulasConcluidas || []).map(String));
+    exerciciosConcluidos = new Set(
+      (dados.exerciciosConcluidos || []).map(String),
+    );
+    avaliacoesAprovadas = new Set(
+      (dados.avaliacoesAprovadas || []).map(String),
+    );
     localStorage.removeItem("devcursos-feitas");
   } catch (erro) {
     if (erro.status === 401) {
@@ -101,29 +108,26 @@ async function salvarConclusaoDaAula(aulaId, concluida) {
   });
 }
 
-/* A avaliação e as tentativas são consultadas/enviadas ao servidor. */
-async function carregarProva() {
-  if (provaCarregada) return;
-  mensagemAvaliacao = "Esta avaliação ainda não foi configurada para o curso.";
+function chaveAvaliacao(avaliacao) {
+  if (String(curso?.avaliacaoFinal?.id) === String(avaliacao.id)) return PROVA.id;
+  return `avaliacao-${avaliacao.id}`;
+}
 
-  try {
-    avaliacao = await requisicaoAPI(
-      `/cursos/${encodeURIComponent(cursoId)}/avaliacao`,
-    );
-    provaCarregada = true;
-    PROVA.titulo = avaliacao.titulo || "Avaliação final";
-    PROVA.minimoAcertos = Number(avaliacao.minimoAcertos || 0);
-    montarMenu(PROVA.id);
-    document.title = `${PROVA.titulo} | ${curso.titulo || "Formação"} | DevCursos+`;
-  } catch (erro) {
-    if (erro.status === 404 || erro.status === 409) {
-      provaCarregada = true;
-      mensagemAvaliacao = erro.message || mensagemAvaliacao;
-      return;
-    }
-    provaCarregada = false;
-    throw erro;
-  }
+function obterAvaliacaoPorChave(key) {
+  return avaliacaoPorChave(key);
+}
+
+async function carregarAvaliacao(meta) {
+  avaliacaoAtualMeta = meta;
+  avaliacao = await requisicaoAPI(
+    `/avaliacoes/${encodeURIComponent(meta.id)}`,
+  );
+  respostasProva = {};
+  tentativaProva = null;
+  PROVA.titulo = avaliacao.titulo || meta.titulo || "Avaliação";
+  PROVA.minimoAcertos = Number(avaliacao.minimoAcertos || 0);
+  provaCarregada = true;
+  document.title = `${meta.titulo} | ${curso.titulo || "Formação"} | DevCursos+`;
 }
 
 /* ----- Renderização ----- */
@@ -273,18 +277,102 @@ function indiceDaAula(key) {
 function aulaLiberada(key) {
   const indice = indiceDaAula(key);
   if (indice === -1) return false;
-  return todas
+  const aula = todas[indice];
+  const aulasAnteriores = todas
     .slice(0, indice)
     .every((aula) => feitas.has(String(aula.id)));
+  const avaliacoesAnteriores = curso.modulos
+    .slice(0, aula.mi)
+    .every((modulo) => !modulo.avaliacao || avaliacoesAprovadas.has(String(modulo.avaliacao.id)));
+  return aulasAnteriores && avaliacoesAnteriores;
+}
+
+function avaliacaoLiberada(meta) {
+  if (!meta) return false;
+  if (meta.final || String(curso?.avaliacaoFinal?.id) === String(meta.id)) {
+    return todas.length > 0
+      && todas.every((aula) => feitas.has(String(aula.id)))
+      && curso.modulos.every(
+        (modulo) => !modulo.avaliacao || avaliacoesAprovadas.has(String(modulo.avaliacao.id)),
+      );
+  }
+  const indexModulo = curso.modulos.findIndex(
+    (modulo) => String(modulo.id) === String(meta.moduloId),
+  );
+  if (indexModulo < 0) return false;
+  const modulo = curso.modulos[indexModulo];
+  return (modulo.aulas || []).every((aula) => feitas.has(String(aula.id)))
+    && curso.modulos.slice(0, indexModulo).every(
+      (anterior) => !anterior.avaliacao || avaliacoesAprovadas.has(String(anterior.avaliacao.id)),
+    );
+}
+
+function avaliacaoPorChave(key) {
+  if (key === PROVA.id) {
+    return curso?.avaliacaoFinal
+      ? { ...curso.avaliacaoFinal, final: true }
+      : null;
+  }
+  if (!String(key).startsWith("avaliacao-")) return null;
+  const id = String(key).slice("avaliacao-".length);
+  for (const modulo of curso?.modulos || []) {
+    if (String(modulo.avaliacao?.id) === id) {
+      return { ...modulo.avaliacao, moduloId: modulo.id, moduloTitulo: modulo.titulo };
+    }
+  }
+  return null;
+}
+
+function proximoItemAposAula(indice) {
+  const aula = todas[indice];
+  if (!aula) return null;
+  const modulo = curso.modulos[aula.mi];
+  const ultimaAula = (modulo?.aulas || []).at(-1);
+  if (ultimaAula && String(ultimaAula.id) === String(aula.id)) {
+    if (modulo.avaliacao && !avaliacoesAprovadas.has(String(modulo.avaliacao.id))) {
+      return chaveAvaliacao(modulo.avaliacao);
+    }
+    if (todas[indice + 1]) return String(todas[indice + 1].id);
+    if (curso.avaliacaoFinal) return PROVA.id;
+    return null;
+  }
+  return todas[indice + 1] ? String(todas[indice + 1].id) : null;
+}
+
+function proximoItemAposAvaliacao(meta) {
+  if (meta.final || String(curso?.avaliacaoFinal?.id) === String(meta.id)) return null;
+  const index = curso.modulos.findIndex(
+    (modulo) => String(modulo.id) === String(meta.moduloId),
+  );
+  const moduloSeguinte = curso.modulos[index + 1];
+  if (moduloSeguinte?.aulas?.length) return String(moduloSeguinte.aulas[0].id);
+  return curso.avaliacaoFinal ? PROVA.id : null;
+}
+
+function primeiroItemPendente() {
+  for (const modulo of curso.modulos) {
+    const aula = (modulo.aulas || []).find(
+      (item) => !feitas.has(String(item.id)),
+    );
+    if (aula) return String(aula.id);
+    if (modulo.avaliacao && !avaliacoesAprovadas.has(String(modulo.avaliacao.id))) {
+      return chaveAvaliacao(modulo.avaliacao);
+    }
+  }
+  return curso.avaliacaoFinal
+    ? PROVA.id
+    : todas[0] ? String(todas[0].id) : null;
 }
 
 function provaLiberada() {
-  return todas.length > 0 && todas.every((aula) => feitas.has(String(aula.id)));
+  return avaliacaoLiberada(curso?.avaliacaoFinal ? { ...curso.avaliacaoFinal, final: true } : null);
 }
 
 function atualizarProgresso() {
   const concluidos = todas.filter((a) => feitas.has(String(a.id))).length;
-  textoProg.textContent = concluidos + " de " + todas.length + " aulas concluídas";
+  const totalAvaliacoes = (curso?.modulos || []).filter((modulo) => modulo.avaliacao).length
+    + (curso?.avaliacaoFinal ? 1 : 0);
+  textoProg.textContent = `${concluidos} de ${todas.length} aulas · ${avaliacoesAprovadas.size} de ${totalAvaliacoes} avaliações`;
 }
 
 function primeiraAulaPendente() {
@@ -302,43 +390,33 @@ function montarMenu(keyAtual = aulaAtualId) {
   tituloCurso.textContent = curso.titulo || "Curso";
   menu.replaceChildren();
 
-  const criarBotaoAula = (key, titulo) => {
-    const bloqueada = key !== PROVA.id ? !aulaLiberada(key) : !provaLiberada();
-    const concluida = feitas.has(String(key));
+  const criarBotao = ({ key, titulo, tipo, concluida, liberada }) => {
+    const bloqueada = !liberada && !concluida;
     const botao = criarElemento(
       "button",
       "aula-btn" +
         (String(keyAtual) === String(key) ? " ativa" : "") +
         (concluida ? " concluida" : "") +
-        (bloqueada ? " bloqueada" : ""),
+        (bloqueada ? " bloqueada" : "") +
+        (tipo === "avaliacao" ? " avaliacao-btn" : ""),
     );
     botao.type = "button";
     botao.dataset.key = key;
-    botao.setAttribute("aria-disabled", String(bloqueada && !concluida));
+    botao.setAttribute("aria-disabled", String(bloqueada));
     if (String(keyAtual) === String(key)) botao.setAttribute("aria-current", "step");
-    if (bloqueada && !concluida) {
-      const index = indiceDaAula(key);
-      const required = index >= 0
-        ? todas.slice(0, index).find((aula) => !feitas.has(String(aula.id)))
-        : primeiraAulaPendente();
-      botao.title = required
-        ? "Conclua “" + required.titulo + "” para desbloquear."
-        : "Conclua as aulas anteriores para desbloquear.";
-    }
-    const lessonIndex = todas.findIndex(
-      (lesson) => String(lesson.id) === String(key),
-    );
+    const lessonIndex = tipo === "aula" ? indiceDaAula(key) : -1;
     botao.append(
       criarElemento(
         "span",
         "lesson-number",
-        lessonIndex >= 0 ? String(lessonIndex + 1).padStart(2, "0") : "AV",
+        tipo === "avaliacao" ? "AV" : String(lessonIndex + 1).padStart(2, "0"),
       ),
       criarElemento("span", "aula-title", titulo),
       criarElemento(
         "span",
         "aula-status",
-        concluida ? "CONCLUÍDA" : bloqueada ? "BLOQUEADA" : "LIBERADA",
+        concluida ? (tipo === "avaliacao" ? "APROVADA" : "CONCLUÍDA")
+          : bloqueada ? "BLOQUEADA" : tipo === "avaliacao" ? "AVALIAR" : "LIBERADA",
       ),
     );
     botao.addEventListener("click", () => {
@@ -374,20 +452,248 @@ function montarMenu(keyAtual = aulaAtualId) {
   };
 
   curso.modulos.forEach((modulo, mi) => {
+    const botoes = modulo.aulas.map((aula) => criarBotao({
+      key: String(aula.id),
+      titulo: aula.titulo || "Aula",
+      tipo: "aula",
+      concluida: feitas.has(String(aula.id)),
+      liberada: aulaLiberada(String(aula.id)),
+    }));
+    if (modulo.avaliacao) {
+      const meta = { ...modulo.avaliacao, moduloId: modulo.id, moduloTitulo: modulo.titulo };
+      botoes.push(criarBotao({
+        key: chaveAvaliacao(meta),
+        titulo: meta.titulo || "Avaliação do módulo",
+        tipo: "avaliacao",
+        concluida: avaliacoesAprovadas.has(String(meta.id)),
+        liberada: avaliacaoLiberada(meta),
+      }));
+    }
     criarModulo(
       modulo.titulo || `Módulo ${mi + 1}`,
-      modulo.aulas.map((aula) =>
-        criarBotaoAula(String(aula.id), aula.titulo || "Aula"),
-      ),
+      botoes,
       mi,
     );
   });
 
-  criarModulo(
-    "Avaliação final",
-    [criarBotaoAula(PROVA.id, PROVA.titulo)],
-    curso.modulos.length,
+  if (curso.avaliacaoFinal) {
+    const meta = { ...curso.avaliacaoFinal, final: true };
+    criarModulo("Avaliação final", [criarBotao({
+      key: PROVA.id,
+      titulo: meta.titulo || PROVA.titulo,
+      tipo: "avaliacao",
+      concluida: avaliacoesAprovadas.has(String(meta.id)),
+      liberada: provaLiberada(),
+    })], curso.modulos.length);
+  }
+}
+
+function obterWorkerPython() {
+  if (workerPython) return workerPronto;
+
+  const endereco = new URL(
+    `${import.meta.env.BASE_URL}python-worker.js`,
+    window.location.origin,
   );
+  workerPython = new Worker(endereco, { type: "module" });
+  workerPronto = new Promise((resolve, reject) => {
+    const limite = window.setTimeout(() => {
+      workerPython?.terminate();
+      workerPython = null;
+      workerPronto = null;
+      reject(new Error("O Python demorou para carregar. Confira a conexão e tente de novo."));
+    }, 90000);
+
+    workerPython.addEventListener("message", function receber(evento) {
+      const dados = evento.data || {};
+      if (dados.tipo === "pronto") {
+        window.clearTimeout(limite);
+        workerPython.removeEventListener("message", receber);
+        resolve();
+        return;
+      }
+      if (dados.tipo === "falha") {
+        window.clearTimeout(limite);
+        workerPython.removeEventListener("message", receber);
+        workerPython?.terminate();
+        workerPython = null;
+        workerPronto = null;
+        reject(new Error("Não foi possível carregar o interpretador Python: " + dados.mensagem));
+      }
+    });
+
+    workerPython.addEventListener("message", (evento) => {
+      const { id, resultado, erro } = evento.data || {};
+      const pendente = execucoesPendentes.get(id);
+      if (!pendente) return;
+      execucoesPendentes.delete(id);
+      window.clearTimeout(pendente.timer);
+      if (erro) {
+        const problema = new Error("Python encontrou um erro. Leia a mensagem e corrija o código.");
+        problema.detalhe = erro;
+        pendente.reject(problema);
+      } else {
+        pendente.resolve(resultado);
+      }
+    });
+
+    workerPython.addEventListener("error", (evento) => {
+      const problema = new Error("O interpretador Python foi interrompido. Tente executar novamente.");
+      for (const pendente of execucoesPendentes.values()) {
+        window.clearTimeout(pendente.timer);
+        pendente.reject(problema);
+      }
+      execucoesPendentes.clear();
+      workerPython?.terminate();
+      workerPython = null;
+      workerPronto = null;
+      evento.preventDefault();
+    });
+  });
+  return workerPronto;
+}
+
+async function executarPythonNoNavegador(codigo, avaliador) {
+  await obterWorkerPython();
+  const id = proximoIdExecucao++;
+  return new Promise((resolve, reject) => {
+    const timer = window.setTimeout(() => {
+      execucoesPendentes.delete(id);
+      workerPython?.terminate();
+      workerPython = null;
+      workerPronto = null;
+      reject(new Error("A execução passou de 8 segundos e foi interrompida. Confira se o laço tem uma condição de parada."));
+    }, 8000);
+    execucoesPendentes.set(id, { resolve, reject, timer });
+    workerPython.postMessage({ id, codigo, avaliador });
+  });
+}
+
+function criarEditorInterativo(exercicio, aula, avancar) {
+  const painel = criarElemento("section", "interactive-exercise");
+  painel.append(
+    criarElemento("p", "section-kicker", "PRÁTICA NO EDITOR"),
+    criarElemento("h2", "", exercicio.titulo || "Agora é sua vez"),
+    criarElemento("p", "exercise-prompt", exercicio.enunciado || ""),
+  );
+  const label = criarElemento("label", "exercise-editor-label", "Seu código Python");
+  const editor = criarElemento("textarea", "exercise-editor");
+  editor.id = `exercise-code-${exercicio.id}`;
+  editor.setAttribute("spellcheck", "false");
+  editor.setAttribute("autocapitalize", "off");
+  editor.setAttribute("autocomplete", "off");
+  editor.setAttribute("autocorrect", "off");
+  editor.setAttribute("wrap", "off");
+  editor.setAttribute("aria-label", "Editor de código Python do exercício");
+  editor.rows = 12;
+  label.htmlFor = editor.id;
+
+  const storageKey = `devcursos-exercicio-${exercicio.id}`;
+  editor.value = localStorage.getItem(storageKey) ?? exercicio.codigoInicial ?? "";
+  editor.addEventListener("input", () => localStorage.setItem(storageKey, editor.value));
+
+  const botoes = criarElemento("div", "exercise-actions");
+  const executar = criarElemento("button", "lesson-next exercise-run", "Executar e verificar");
+  const restaurar = criarElemento("button", "lesson-previous exercise-restore", "Restaurar exemplo inicial");
+  executar.type = "button";
+  restaurar.type = "button";
+
+  const estado = criarElemento("p", "exercise-status");
+  estado.setAttribute("role", "status");
+  estado.setAttribute("aria-live", "polite");
+  const saida = criarElemento("pre", "exercise-output");
+  saida.hidden = true;
+  saida.setAttribute("aria-label", "Saída do programa");
+
+  botoes.append(executar, restaurar);
+  painel.append(label, editor, botoes, estado, saida);
+  if (exerciciosConcluidos.has(String(aula.id))) {
+    estado.classList.add("sucesso");
+    estado.textContent = "✓ Exercício concluído. Você pode executá-lo de novo para praticar.";
+  }
+
+  restaurar.addEventListener("click", () => {
+    editor.value = exercicio.codigoInicial || "";
+    localStorage.setItem(storageKey, editor.value);
+    estado.className = "exercise-status";
+    estado.textContent = "Código inicial restaurado.";
+    saida.hidden = true;
+    editor.focus();
+  });
+
+  const conferir = async () => {
+    if (executar.disabled) return;
+    if (!editor.value.trim()) {
+      estado.className = "exercise-status erro";
+      estado.textContent = "Escreva uma solução antes de executar.";
+      editor.focus();
+      return;
+    }
+    if (editor.value.length > 12000) {
+      estado.className = "exercise-status erro";
+      estado.textContent = "O editor aceita até 12.000 caracteres.";
+      return;
+    }
+
+    executar.disabled = true;
+    restaurar.disabled = true;
+    estado.className = "exercise-status carregando";
+    estado.textContent = "Preparando Python no navegador. Na primeira execução, o interpretador precisa ser carregado.";
+    saida.hidden = true;
+    try {
+      const resultado = await executarPythonNoNavegador(editor.value, exercicio.avaliador);
+      saida.textContent = resultado.saidas
+        .map((texto, index) => `Caso ${index + 1}:\n${texto || "(sem saída)"}`)
+        .join("\n\n");
+      saida.hidden = false;
+      const registro = await requisicaoAPI(
+        `/aulas/${encodeURIComponent(aula.id)}/exercicio/tentativas`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            aprovado: Boolean(resultado.passou),
+            totalCasos: Number(resultado.total),
+            acertos: Number(resultado.acertos),
+          }),
+        },
+      );
+
+      if (registro.aprovado) {
+        exerciciosConcluidos.add(String(aula.id));
+        estado.className = "exercise-status sucesso";
+        estado.textContent = `✓ Correto: ${registro.acertos} de ${registro.totalCasos} casos passaram. A próxima etapa foi liberada.`;
+        avancar.disabled = false;
+        const aviso = painel.parentElement.querySelector(".lesson-step-note");
+        if (aviso) aviso.textContent = "Prática concluída. Você já pode seguir para a próxima etapa.";
+        atualizarProgresso();
+        montarMenu(aulaAtualId);
+      } else {
+        estado.className = "exercise-status erro";
+        estado.textContent = `Ainda não passou: ${registro.acertos} de ${registro.totalCasos} casos. Revise o algoritmo e tente novamente.`;
+      }
+    } catch (erro) {
+      estado.className = "exercise-status erro";
+      estado.textContent = erro.message || "Não foi possível executar o código agora.";
+      saida.textContent = erro.detalhe || "";
+      saida.hidden = !erro.detalhe;
+    } finally {
+      executar.disabled = false;
+      restaurar.disabled = false;
+    }
+  };
+
+  executar.addEventListener("click", () => void conferir());
+  editor.addEventListener("keydown", (evento) => {
+    if (evento.key === "Tab") {
+      evento.preventDefault();
+      editor.setRangeText("    ", editor.selectionStart, editor.selectionEnd, "end");
+      editor.dispatchEvent(new Event("input", { bubbles: true }));
+    } else if ((evento.ctrlKey || evento.metaKey) && evento.key === "Enter") {
+      evento.preventDefault();
+      void conferir();
+    }
+  });
+  return painel;
 }
 
 function criarSecaoAula(aula, modulo) {
@@ -406,7 +712,7 @@ function criarSecaoAula(aula, modulo) {
       criarElemento(
         "p",
         "lesson-duration",
-        "DURAÇÃO ESTIMADA · " + Number(aula.duracao_minutos) + " MIN",
+        "TEMPO DE ESTUDO · " + Number(aula.duracao_minutos) + " MIN",
       ),
     );
   }
@@ -422,9 +728,27 @@ function criarSecaoAula(aula, modulo) {
   }
   sec.appendChild(corpo);
 
+  const index = indiceDaAula(key);
+  const nextKey = proximoItemAposAula(index);
+  const nextMeta = obterAvaliacaoPorChave(nextKey);
+  const advance = criarElemento(
+    "button",
+    "lesson-next",
+    nextKey
+      ? nextMeta ? "Abrir avaliação do módulo" : "Siga para a próxima aula"
+      : "Formação concluída",
+  );
+  advance.type = "button";
+  advance.disabled = Boolean(
+    aula.exercicio && !exerciciosConcluidos.has(key),
+  );
+
+  if (aula.exercicio) {
+    sec.appendChild(criarEditorInterativo(aula.exercicio, aula, advance));
+  }
+
   const footer = criarElemento("nav", "lesson-navigation");
   footer.setAttribute("aria-label", "Navegação entre aulas");
-  const index = indiceDaAula(key);
   const previous = index > 0 ? todas[index - 1] : null;
   if (previous) {
     const back = criarElemento("button", "lesson-previous", "Aula anterior");
@@ -437,14 +761,8 @@ function criarSecaoAula(aula, modulo) {
     footer.appendChild(curriculum);
   }
 
-  const next = todas[index + 1];
-  const advance = criarElemento(
-    "button",
-    "lesson-next",
-    next ? "Siga para a próxima aula" : "Finalizar formação",
-  );
-  advance.type = "button";
   advance.addEventListener("click", async () => {
+    if (advance.disabled) return;
     advance.disabled = true;
     try {
       if (!feitas.has(key)) {
@@ -453,23 +771,31 @@ function criarSecaoAula(aula, modulo) {
         atualizarProgresso();
         montarMenu(key);
       }
-      await selecionarAula(next ? next.id : PROVA.id);
+      if (nextKey) {
+        await selecionarAula(nextKey);
+      } else {
+        sec.appendChild(
+          criarElemento("p", "course-complete-note", "Você concluiu esta formação. Pode voltar às aulas para revisar quando quiser."),
+        );
+      }
     } catch (error) {
       console.error("Não foi possível avançar a aula:", error);
-      if (error.status === 409) await carregarConclusoes();
+      if (error.status === 409 || error.status === 403) await carregarConclusoes();
       montarMenu(key);
-      pagina.prepend(criarElemento("p", "lesson-save-error", error.message));
-      advance.disabled = false;
+      sec.prepend(criarElemento("p", "lesson-save-error", error.message));
+      advance.disabled = Boolean(
+        aula.exercicio && !exerciciosConcluidos.has(key),
+      );
     }
   });
   footer.appendChild(advance);
   sec.appendChild(footer);
-  if (!feitas.has(key)) {
+  if (aula.exercicio && !exerciciosConcluidos.has(key)) {
     sec.appendChild(
       criarElemento(
         "p",
         "lesson-step-note",
-        "Ao avançar, esta aula será registrada como concluída.",
+        "Passe pelos casos de verificação no editor para liberar a próxima etapa.",
       ),
     );
   }
@@ -478,9 +804,10 @@ function criarSecaoAula(aula, modulo) {
 
 function desenharProva(sec) {
   sec.replaceChildren();
+  const meta = avaliacaoAtualMeta || {};
   sec.append(
-    criarElemento("p", "trilha", "Avaliação final"),
-    criarElemento("h1", "", PROVA.titulo),
+    criarElemento("p", "trilha", meta.final ? "Avaliação final" : meta.moduloTitulo || "Avaliação do módulo"),
+    criarElemento("h1", "", avaliacao?.titulo || meta.titulo || "Avaliação"),
   );
 
   if (
@@ -492,7 +819,7 @@ function desenharProva(sec) {
       criarElemento(
         "p",
         "",
-        `${mensagemAvaliacao} O sistema não exibirá uma prova genérica nem aceitará aprovação registrada apenas no navegador.`,
+        `${mensagemAvaliacao} As respostas serão corrigidas pelo servidor.`,
       ),
     );
     return;
@@ -502,14 +829,14 @@ function desenharProva(sec) {
     criarElemento(
       "p",
       "",
-      `Responda todas as questões. É necessário acertar pelo menos ${PROVA.minimoAcertos} questão(ões). A correção será feita pelo servidor.`,
+      `Responda às questões para revisar os conceitos do módulo. Você precisa acertar pelo menos ${avaliacao.minimoAcertos} de ${avaliacao.questoes.length}.`,
     ),
   );
 
   avaliacao.questoes.forEach((questao, indice) => {
-    const bloco = criarElemento("div", "quiz-q");
+    const bloco = criarElemento("fieldset", "quiz-q");
     bloco.appendChild(
-      criarElemento("h3", "", `${indice + 1}. ${questao.enunciado}`),
+      criarElemento("legend", "", `${indice + 1}. ${questao.enunciado}`),
     );
     const selecionada = String(respostasProva[String(questao.id)] || "");
     (questao.alternativas || []).forEach((alternativa, alternativaIndice) => {
@@ -528,12 +855,33 @@ function desenharProva(sec) {
   });
 
   if (tentativaProva) {
+    const aprovada = Boolean(tentativaProva.aprovada);
     const resultado = criarElemento(
       "p",
-      "quiz-resultado",
-      `${tentativaProva.acertos} de ${tentativaProva.totalQuestoes} acertos. ${tentativaProva.aprovada ? "Avaliação aprovada." : "Avaliação não aprovada."}`,
+      `quiz-resultado ${aprovada ? "sucesso" : "erro"}`,
+      `${tentativaProva.acertos} de ${tentativaProva.totalQuestoes} acertos. ${aprovada ? "Avaliação aprovada." : "Ainda não atingiu o mínimo. Revise o conteúdo e tente de novo."}`,
     );
     sec.appendChild(resultado);
+    if (!aprovada) {
+      const tentar = criarElemento("button", "lesson-previous quiz-retry", "Tentar novamente");
+      tentar.type = "button";
+      tentar.dataset.acao = "tentar-avaliacao";
+      sec.appendChild(tentar);
+    } else {
+      const nextKey = proximoItemAposAvaliacao(meta);
+      if (nextKey) {
+        const seguir = criarElemento(
+          "button",
+          "lesson-next assessment-next",
+          nextKey === PROVA.id ? "Abrir avaliação final" : "Ir para o próximo módulo",
+        );
+        seguir.type = "button";
+        seguir.dataset.proximaEtapa = nextKey;
+        sec.appendChild(seguir);
+      } else {
+        sec.appendChild(criarElemento("p", "course-complete-note", "Curso concluído. Você pode revisar qualquer aula quando quiser."));
+      }
+    }
     return;
   }
 
@@ -550,20 +898,21 @@ function desenharProva(sec) {
   sec.appendChild(botaoEnviar);
 }
 
-function criarSecaoProva() {
+function criarSecaoProva(meta) {
   const sec = criarElemento("section", "aula-secao prova-secao");
   sec.id = "lesson-content";
-  sec.dataset.key = PROVA.id;
+  const key = chaveAvaliacao(meta);
+  sec.dataset.key = key;
 
-  if (!provaLiberada()) {
+  if (!avaliacaoLiberada(meta)) {
     sec.classList.add("bloqueada");
     sec.append(
-      criarElemento("p", "trilha", "Avaliação final"),
-      criarElemento("h1", "", PROVA.titulo),
+      criarElemento("p", "trilha", meta.final ? "Avaliação final" : meta.moduloTitulo || "Avaliação do módulo"),
+      criarElemento("h1", "", meta.titulo || "Avaliação"),
       criarElemento(
         "p",
         "",
-        "Finalize todas as aulas antes de acessar a avaliação final.",
+        meta.final ? "Conclua todas as aulas e as avaliações dos módulos para abrir a prova final." : "Conclua as aulas deste módulo e passe na avaliação anterior para continuar.",
       ),
     );
     return sec;
@@ -578,6 +927,20 @@ function criarSecaoProva() {
     if (opcao && sec.contains(opcao) && !tentativaProva) {
       respostasProva[opcao.dataset.questaoId] = opcao.dataset.alternativaId;
       desenharProva(sec);
+      return;
+    }
+
+    const tentar = alvo?.closest('[data-acao="tentar-avaliacao"]');
+    if (tentar) {
+      respostasProva = {};
+      tentativaProva = null;
+      desenharProva(sec);
+      return;
+    }
+
+    const proxima = alvo?.closest("[data-proxima-etapa]");
+    if (proxima) {
+      void selecionarAula(proxima.dataset.proximaEtapa);
       return;
     }
 
@@ -598,6 +961,11 @@ function criarSecaoProva() {
           body: JSON.stringify({ respostas }),
         },
       );
+      if (tentativaProva.aprovada) {
+        avaliacoesAprovadas.add(String(avaliacao.id));
+        atualizarProgresso();
+        montarMenu(aulaAtualId);
+      }
       desenharProva(sec);
     } catch (erro) {
       console.error("Não foi possível enviar a avaliação:", erro);
@@ -627,23 +995,41 @@ function atualizarHistoricoAula(key, modo) {
 function criarAulaBloqueada(key, mensagemServidor = "") {
   const index = indiceDaAula(key);
   const aula = todas[index];
-  const necessaria =
-    index >= 0
-      ? todas.slice(0, index).find((item) => !feitas.has(String(item.id)))
-      : primeiraAulaPendente();
+  const meta = obterAvaliacaoPorChave(key);
+  const necessaria = index >= 0
+    ? todas.slice(0, index).find((item) => !feitas.has(String(item.id)))
+    : primeiraAulaPendente();
   const module = aula ? moduloDaAula(key) : null;
+  let mensagem = mensagemServidor;
+  if (!mensagem && meta?.final) {
+    const avaliacaoPendente = curso.modulos.find(
+      (item) => item.avaliacao && !avaliacoesAprovadas.has(String(item.avaliacao.id)),
+    );
+    mensagem = avaliacaoPendente
+      ? `Aprove a avaliação de “${avaliacaoPendente.titulo}” antes da prova final.`
+      : "Conclua todas as aulas antes da avaliação final.";
+  } else if (!mensagem && meta) {
+    const moduloAvaliacao = curso.modulos.find(
+      (item) => String(item.id) === String(meta.moduloId),
+    );
+    const aulaPendente = (moduloAvaliacao?.aulas || []).find(
+      (item) => !feitas.has(String(item.id)),
+    );
+    mensagem = aulaPendente
+      ? `Conclua “${aulaPendente.titulo}” antes da avaliação deste módulo.`
+      : "Aprove a avaliação do módulo anterior para continuar.";
+  }
   const section = criarElemento("section", "lesson-locked");
   section.setAttribute("role", "status");
   section.append(
     criarElemento("p", "section-kicker", "ACESSO EM ETAPAS"),
-    criarElemento("h1", "", "Esta aula ainda está bloqueada."),
+    criarElemento("h1", "", meta ? "Avaliação ainda bloqueada." : "Esta aula ainda está bloqueada."),
     criarElemento(
       "p",
       "lesson-lock-message",
-      mensagemServidor ||
-        (necessaria
-          ? "Conclua “" + necessaria.titulo + "” para liberar a próxima aula."
-          : "Conclua as aulas anteriores para continuar."),
+      mensagem || (necessaria
+        ? `Conclua “${necessaria.titulo}” para liberar a próxima etapa.`
+        : "Conclua as etapas anteriores para continuar."),
     ),
   );
   section.querySelector("h1")?.setAttribute("tabindex", "-1");
@@ -651,16 +1037,17 @@ function criarAulaBloqueada(key, mensagemServidor = "") {
   const preview = criarElemento("div", "lesson-locked-preview");
   preview.setAttribute("aria-hidden", "true");
   preview.append(
-    criarElemento("span", "section-kicker", module?.titulo || "CURRÍCULO"),
-    criarElemento("strong", "", aula?.titulo || PROVA.titulo),
-    criarElemento("span", "locked-content-line", "Conteúdo disponível após a aula anterior"),
+    criarElemento("span", "section-kicker", module?.titulo || meta?.moduloTitulo || "CURRÍCULO"),
+    criarElemento("strong", "", aula?.titulo || meta?.titulo || PROVA.titulo),
+    criarElemento("span", "locked-content-line", "Etapa disponível depois da anterior"),
   );
   section.appendChild(preview);
 
-  if (necessaria) {
-    const action = criarElemento("button", "lesson-next", "Ir para a aula liberada");
+  const itemLiberado = primeiroItemPendente();
+  if (itemLiberado && itemLiberado !== key) {
+    const action = criarElemento("button", "lesson-next", "Ir para a etapa liberada");
     action.type = "button";
-    action.addEventListener("click", () => void selecionarAula(necessaria.id));
+    action.addEventListener("click", () => void selecionarAula(itemLiberado));
     section.appendChild(action);
   }
   return section;
@@ -668,7 +1055,8 @@ function criarAulaBloqueada(key, mensagemServidor = "") {
 
 async function selecionarAula(key, { historyMode = "push", focar = true } = {}) {
   const id = String(key);
-  if (id !== PROVA.id && indiceDaAula(id) < 0) return;
+  const meta = obterAvaliacaoPorChave(id);
+  if (!meta && indiceDaAula(id) < 0) return;
   if (id === aulaAtualId && historyMode === "push") return;
 
   aulaAtualId = id;
@@ -679,13 +1067,13 @@ async function selecionarAula(key, { historyMode = "push", focar = true } = {}) 
   pagina.setAttribute("aria-busy", "true");
   pagina.replaceChildren();
 
-  if (id === PROVA.id && !provaLiberada()) {
+  if (meta && !avaliacaoLiberada(meta)) {
     pagina.appendChild(criarAulaBloqueada(id));
     if (focar) pagina.querySelector("h1")?.focus({ preventScroll: true });
     pagina.removeAttribute("aria-busy");
     return;
   }
-  if (id !== PROVA.id && !aulaLiberada(id)) {
+  if (!meta && !aulaLiberada(id)) {
     pagina.appendChild(criarAulaBloqueada(id));
     if (focar) pagina.querySelector("h1")?.focus({ preventScroll: true });
     pagina.removeAttribute("aria-busy");
@@ -696,10 +1084,10 @@ async function selecionarAula(key, { historyMode = "push", focar = true } = {}) 
     '<div class="detail-skeleton" aria-label="Carregando conteúdo"><span class="skeleton-line short"></span><span class="skeleton-line wide"></span><span class="skeleton-line medium"></span><span class="skeleton-block"></span></div>';
 
   try {
-    if (id === PROVA.id) {
-      await carregarProva();
+    if (meta) {
+      await carregarAvaliacao(meta);
       if (versao !== renderVersion) return;
-      pagina.replaceChildren(criarSecaoProva());
+      pagina.replaceChildren(criarSecaoProva(meta));
     } else {
       const lesson = await requisicaoAPI(
         "/aulas/" + encodeURIComponent(id),
@@ -720,7 +1108,7 @@ async function selecionarAula(key, { historyMode = "push", focar = true } = {}) 
     }
   } catch (error) {
     if (versao !== renderVersion) return;
-    if (error.status === 409 || (id === PROVA.id && error.status === 403)) {
+    if (error.status === 409 || error.status === 403) {
       try {
         await carregarConclusoes();
       } catch (progressError) {

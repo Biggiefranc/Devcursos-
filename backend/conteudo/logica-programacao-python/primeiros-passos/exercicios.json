@@ -1,0 +1,96 @@
+{
+  "aulas": {
+    "01-primeiro-programa.md": {
+      "titulo": "Dê uma instrução ao computador",
+      "enunciado": "Faça o programa mostrar a frase exata DevCursos+ começa com lógica.",
+      "codigo_inicial": "# Troque este comentário por uma chamada print que mostre a frase solicitada.\n",
+      "avaliador": {
+        "tipo": "saida",
+        "casos": [
+          {
+            "entradas": [],
+            "saida_esperada": "DevCursos+ começa com lógica."
+          }
+        ]
+      }
+    },
+    "02-instrucoes-em-sequencia.md": {
+      "titulo": "Organize instruções em sequência",
+      "enunciado": "Mostre três passos de uma rotina de estudo, um por linha, na ordem indicada: Ler o enunciado, Planejar os passos, Conferir o resultado.",
+      "codigo_inicial": "# Escreva três instruções print na ordem pedida.\n",
+      "avaliador": {
+        "tipo": "saida",
+        "casos": [
+          {
+            "entradas": [],
+            "saida_esperada": "Ler o enunciado\nPlanejar os passos\nConferir o resultado"
+          }
+        ]
+      }
+    },
+    "03-do-problema-ao-algoritmo.md": {
+      "titulo": "Transforme um problema em passos",
+      "enunciado": "Um ingresso custa 18 reais. Calcule e mostre o preço total de 3 ingressos. Use variáveis com nomes claros.",
+      "codigo_inicial": "preco_ingresso = 18\nquantidade = 3\n# Calcule o total e mostre o resultado.\n",
+      "avaliador": {
+        "tipo": "saida",
+        "casos": [
+          {
+            "entradas": [],
+            "saida_esperada": "54"
+          }
+        ]
+      }
+    },
+    "04-entrada-processamento-saida.md": {
+      "titulo": "Ligue entrada, processamento e saída",
+      "enunciado": "Leia o nome de uma pessoa e mostre a mensagem Olá, NOME!, substituindo NOME pelo texto digitado.",
+      "codigo_inicial": "nome = input(\"Seu nome: \")\n# Use o nome recebido para mostrar a saudação.\n",
+      "avaliador": {
+        "tipo": "saida",
+        "casos": [
+          {
+            "entradas": [
+              "Lia"
+            ],
+            "saida_esperada": "Seu nome: Olá, Lia!"
+          },
+          {
+            "entradas": [
+              "Ravi"
+            ],
+            "saida_esperada": "Seu nome: Olá, Ravi!"
+          }
+        ]
+      }
+    },
+    "05-rastreie-os-passos.md": {
+      "titulo": "Acompanhe o estado das variáveis",
+      "enunciado": "Complete o programa para mostrar o valor final de pontos. Comece em 4, some 3 e depois dobre o valor.",
+      "codigo_inicial": "pontos = 4\npontos = pontos + 3\n# Atualize pontos para o dobro do valor atual e mostre-o.\n",
+      "avaliador": {
+        "tipo": "saida",
+        "casos": [
+          {
+            "entradas": [],
+            "saida_esperada": "14"
+          }
+        ]
+      }
+    },
+    "06-oficina-algoritmo.md": {
+      "titulo": "Resolva um problema inteiro",
+      "enunciado": "Uma pessoa leu 12 páginas pela manhã e 9 à tarde. Calcule e mostre quantas páginas leu no dia usando variáveis.",
+      "codigo_inicial": "paginas_manha = 12\npaginas_tarde = 9\n# Calcule e mostre o total diário.\n",
+      "avaliador": {
+        "tipo": "saida",
+        "casos": [
+          {
+            "entradas": [],
+            "saida_esperada": "21"
+          }
+        ]
+      }
+    }
+  }
+}

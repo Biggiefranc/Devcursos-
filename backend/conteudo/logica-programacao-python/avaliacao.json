@@ -1,0 +1,490 @@
+{
+  "titulo": "Avaliação final — Lógica de Programação",
+  "minimo_acertos": 19,
+  "ativa": true,
+  "questoes": [
+    {
+      "enunciado": "Um programa precisa pedir a quantidade, multiplicar pelo preço e mostrar o total. Qual sequência representa corretamente entrada, processamento e saída?",
+      "alternativas": [
+        {
+          "texto": "Ler quantidade e preço, multiplicar, mostrar o total",
+          "correta": true
+        },
+        {
+          "texto": "Mostrar o total, ler a quantidade, multiplicar",
+          "correta": false
+        },
+        {
+          "texto": "Multiplicar antes de conhecer os valores e nunca mostrar o resultado",
+          "correta": false
+        },
+        {
+          "texto": "Ler o preço, mostrar a quantidade e ignorar o cálculo",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Qual é o tipo do valor retornado diretamente por input(\"Número: \"), antes de qualquer conversão?",
+      "alternativas": [
+        {
+          "texto": "str, texto",
+          "correta": true
+        },
+        {
+          "texto": "int, inteiro",
+          "correta": false
+        },
+        {
+          "texto": "float, decimal",
+          "correta": false
+        },
+        {
+          "texto": "bool, lógico",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "A pessoa digita 4 e o programa precisa somar 3. Qual trecho converte a entrada para inteiro?",
+      "alternativas": [
+        {
+          "texto": "numero = int(input(\"Número: \"))",
+          "correta": true
+        },
+        {
+          "texto": "numero = input(int(\"Número: \"))",
+          "correta": false
+        },
+        {
+          "texto": "numero = bool(input(\"Número: \"))",
+          "correta": false
+        },
+        {
+          "texto": "numero = str(input(\"Número: \")) + 3",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Qual valor abaixo é do tipo bool?",
+      "alternativas": [
+        {
+          "texto": "False",
+          "correta": true
+        },
+        {
+          "texto": "\"False\"",
+          "correta": false
+        },
+        {
+          "texto": "0.0",
+          "correta": false
+        },
+        {
+          "texto": "\"0\"",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Em Python, o que faz a instrução total = preco * quantidade?",
+      "alternativas": [
+        {
+          "texto": "Calcula o lado direito e atribui o resultado ao nome total",
+          "correta": true
+        },
+        {
+          "texto": "Compara total com preco multiplicado por quantidade",
+          "correta": false
+        },
+        {
+          "texto": "Verifica se os três valores têm o mesmo tipo",
+          "correta": false
+        },
+        {
+          "texto": "Imprime os três valores na tela",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Qual é o resultado de 2 + 3 * 4?",
+      "alternativas": [
+        {
+          "texto": "14",
+          "correta": true
+        },
+        {
+          "texto": "20",
+          "correta": false
+        },
+        {
+          "texto": "24",
+          "correta": false
+        },
+        {
+          "texto": "9",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Se nome = \"Ana\" e idade = 15, qual expressão monta uma frase com os dois valores usando uma f-string?",
+      "alternativas": [
+        {
+          "texto": "f\"{nome} tem {idade} anos\"",
+          "correta": true
+        },
+        {
+          "texto": "\"f(nome) tem (idade) anos\"",
+          "correta": false
+        },
+        {
+          "texto": "f(nome + idade)",
+          "correta": false
+        },
+        {
+          "texto": "\"{f nome idade}\"",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Considere idade = 18 e a condição if idade >= 18. Qual bloco é executado?",
+      "alternativas": [
+        {
+          "texto": "O bloco do if, porque a comparação é verdadeira",
+          "correta": true
+        },
+        {
+          "texto": "O bloco do else, porque 18 é igual ao limite",
+          "correta": false
+        },
+        {
+          "texto": "Os dois blocos ao mesmo tempo",
+          "correta": false
+        },
+        {
+          "texto": "Nenhum, porque >= só funciona com texto",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Em uma cadeia if/elif, qual condição deve vir primeiro para classificar nota >= 9 como excelente e nota >= 7 como aprovada?",
+      "alternativas": [
+        {
+          "texto": "nota >= 9, antes de nota >= 7",
+          "correta": true
+        },
+        {
+          "texto": "nota >= 7, porque deve capturar todas as notas aprovadas primeiro",
+          "correta": false
+        },
+        {
+          "texto": "A ordem nunca muda o resultado",
+          "correta": false
+        },
+        {
+          "texto": "A condição nota >= 9 deve ficar depois de else",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Uma regra exige que a idade seja pelo menos 16 e que exista autorização. Qual operador expressa que as duas condições precisam ser verdadeiras?",
+      "alternativas": [
+        {
+          "texto": "and",
+          "correta": true
+        },
+        {
+          "texto": "or",
+          "correta": false
+        },
+        {
+          "texto": "not",
+          "correta": false
+        },
+        {
+          "texto": "in",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Por que o contador de um while precisa ser atualizado quando a condição depende dele?",
+      "alternativas": [
+        {
+          "texto": "Para que a condição possa se tornar falsa e o laço terminar",
+          "correta": true
+        },
+        {
+          "texto": "Para transformar automaticamente o while em for",
+          "correta": false
+        },
+        {
+          "texto": "Para gravar cada repetição em um arquivo",
+          "correta": false
+        },
+        {
+          "texto": "Para impedir que o bloco seja executado",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Quantas vezes o bloco de for numero in range(1, 5) executa?",
+      "alternativas": [
+        {
+          "texto": "4 vezes: para 1, 2, 3 e 4",
+          "correta": true
+        },
+        {
+          "texto": "5 vezes: para 1, 2, 3, 4 e 5",
+          "correta": false
+        },
+        {
+          "texto": "3 vezes: para 1, 2 e 3",
+          "correta": false
+        },
+        {
+          "texto": "Uma vez, porque range é um número",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Para somar uma sequência de valores, por que normalmente iniciamos o acumulador soma em 0?",
+      "alternativas": [
+        {
+          "texto": "Porque 0 não altera a soma e oferece um ponto inicial correto",
+          "correta": true
+        },
+        {
+          "texto": "Porque 0 faz o laço executar uma vez a mais",
+          "correta": false
+        },
+        {
+          "texto": "Porque Python exige que toda variável seja falsa antes do laço",
+          "correta": false
+        },
+        {
+          "texto": "Porque 0 converte os valores para texto",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Dentro de um for, qual é a diferença entre break e continue?",
+      "alternativas": [
+        {
+          "texto": "break encerra o laço; continue pula para a próxima repetição",
+          "correta": true
+        },
+        {
+          "texto": "break pula uma repetição; continue encerra o laço",
+          "correta": false
+        },
+        {
+          "texto": "Os dois encerram todos os programas",
+          "correta": false
+        },
+        {
+          "texto": "break adiciona um item à lista; continue remove um item",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "O que acontece quando Python encontra def dobrar(numero): ...?",
+      "alternativas": [
+        {
+          "texto": "Define a função; o corpo só roda quando a função é chamada",
+          "correta": true
+        },
+        {
+          "texto": "Executa o corpo da função imediatamente duas vezes",
+          "correta": false
+        },
+        {
+          "texto": "Cria uma lista chamada numero",
+          "correta": false
+        },
+        {
+          "texto": "Envia a função para o GitHub",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Uma função calcula area = largura * altura e precisa permitir que outra parte do programa use esse valor. O que ela deve fazer?",
+      "alternativas": [
+        {
+          "texto": "return area",
+          "correta": true
+        },
+        {
+          "texto": "print(area) somente",
+          "correta": false
+        },
+        {
+          "texto": "input(area)",
+          "correta": false
+        },
+        {
+          "texto": "break area",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Uma função soma(a, b) é chamada como soma(4, 6). O que são 4 e 6 nessa chamada?",
+      "alternativas": [
+        {
+          "texto": "Argumentos enviados aos parâmetros a e b",
+          "correta": true
+        },
+        {
+          "texto": "Dicionários locais da função",
+          "correta": false
+        },
+        {
+          "texto": "Valores de retorno obrigatórios",
+          "correta": false
+        },
+        {
+          "texto": "Nomes das funções chamadas",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Em uma lista valores = [10, 20, 30], qual expressão acessa o primeiro item?",
+      "alternativas": [
+        {
+          "texto": "valores[0]",
+          "correta": true
+        },
+        {
+          "texto": "valores[1]",
+          "correta": false
+        },
+        {
+          "texto": "valores[3]",
+          "correta": false
+        },
+        {
+          "texto": "valores.first()",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Qual método acrescenta um item ao final de uma lista chamada tarefas?",
+      "alternativas": [
+        {
+          "texto": "tarefas.append(\"estudar\")",
+          "correta": true
+        },
+        {
+          "texto": "tarefas.add_end(\"estudar\")",
+          "correta": false
+        },
+        {
+          "texto": "append.tarefas(\"estudar\")",
+          "correta": false
+        },
+        {
+          "texto": "tarefas = len(\"estudar\")",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Em tarefa = {\"titulo\": \"Revisar\", \"concluida\": False}, como acessar o título?",
+      "alternativas": [
+        {
+          "texto": "tarefa[\"titulo\"]",
+          "correta": true
+        },
+        {
+          "texto": "tarefa.titulo()",
+          "correta": false
+        },
+        {
+          "texto": "tarefa[0]",
+          "correta": false
+        },
+        {
+          "texto": "titulo(tarefa)",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Qual situação normalmente produz NameError?",
+      "alternativas": [
+        {
+          "texto": "Usar um nome de variável que ainda não foi definido",
+          "correta": true
+        },
+        {
+          "texto": "Somar dois números inteiros",
+          "correta": false
+        },
+        {
+          "texto": "Percorrer uma lista com for",
+          "correta": false
+        },
+        {
+          "texto": "Comparar dois valores com ==",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "No organizador final, qual estrutura combina bem com vários registros, cada um com título e estado concluído?",
+      "alternativas": [
+        {
+          "texto": "Uma lista de dicionários",
+          "correta": true
+        },
+        {
+          "texto": "Um único número inteiro",
+          "correta": false
+        },
+        {
+          "texto": "Uma string contendo todo o programa",
+          "correta": false
+        },
+        {
+          "texto": "Uma condição if sem variáveis",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Ao converter com int(texto), qual tratamento atende somente ao caso em que o texto não representa um inteiro?",
+      "alternativas": [
+        {
+          "texto": "Usar try e capturar ValueError perto da conversão",
+          "correta": true
+        },
+        {
+          "texto": "Usar except sem indicar tipo para ocultar qualquer falha",
+          "correta": false
+        },
+        {
+          "texto": "Converter primeiro para bool e seguir como se fosse inteiro",
+          "correta": false
+        },
+        {
+          "texto": "Remover a conversão e somar texto diretamente com números",
+          "correta": false
+        }
+      ]
+    }
+  ]
+}

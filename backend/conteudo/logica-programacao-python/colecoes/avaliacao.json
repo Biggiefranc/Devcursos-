@@ -1,0 +1,112 @@
+{
+  "titulo": "Avaliação do módulo 6 — Coleções de dados",
+  "minimo_acertos": 4,
+  "ativa": true,
+  "questoes": [
+    {
+      "enunciado": "Em itens = [10, 20, 30], qual expressão acessa o primeiro elemento?",
+      "alternativas": [
+        {
+          "texto": "itens[0]",
+          "correta": true
+        },
+        {
+          "texto": "itens[1]",
+          "correta": false
+        },
+        {
+          "texto": "itens[3]",
+          "correta": false
+        },
+        {
+          "texto": "itens[-0]",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Qual método acrescenta um valor ao final de uma lista?",
+      "alternativas": [
+        {
+          "texto": "append",
+          "correta": true
+        },
+        {
+          "texto": "add_end",
+          "correta": false
+        },
+        {
+          "texto": "insert_last",
+          "correta": false
+        },
+        {
+          "texto": "push_back",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Por que usar for item in itens?",
+      "alternativas": [
+        {
+          "texto": "Para processar os valores da lista um por vez.",
+          "correta": true
+        },
+        {
+          "texto": "Para transformar a lista em texto automaticamente.",
+          "correta": false
+        },
+        {
+          "texto": "Para apagar todos os elementos.",
+          "correta": false
+        },
+        {
+          "texto": "Para acessar somente o último elemento.",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Em tarefa = {\"titulo\": \"Ler\", \"concluida\": False}, como buscar o título?",
+      "alternativas": [
+        {
+          "texto": "tarefa[\"titulo\"]",
+          "correta": true
+        },
+        {
+          "texto": "tarefa[0]",
+          "correta": false
+        },
+        {
+          "texto": "tarefa.titulo()",
+          "correta": false
+        },
+        {
+          "texto": "tarefa[\"Ler\"]",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Que estrutura representa bem várias tarefas, cada uma com título e estado?",
+      "alternativas": [
+        {
+          "texto": "Uma lista de dicionários.",
+          "correta": true
+        },
+        {
+          "texto": "Uma única string com tudo misturado.",
+          "correta": false
+        },
+        {
+          "texto": "Um número inteiro para cada tarefa.",
+          "correta": false
+        },
+        {
+          "texto": "Uma condição if sem dados.",
+          "correta": false
+        }
+      ]
+    }
+  ]
+}

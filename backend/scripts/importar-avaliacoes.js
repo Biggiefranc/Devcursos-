@@ -5,6 +5,12 @@ const mysql = require("mysql2/promise");
 require("../src/config/env");
 const { DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME, DB_SSL, DB_SSL_CA } = require("../src/config/env");
 
+const indiceFiltroCurso = process.argv.indexOf("--curso");
+const filtroCurso = indiceFiltroCurso >= 0 ? process.argv[indiceFiltroCurso + 1] : null;
+if (indiceFiltroCurso >= 0 && !filtroCurso) {
+    throw new Error("Uso: node scripts/importar-avaliacoes.js [--curso \"Título do curso\"]");
+}
+
 function validarAvaliacao(arquivo, dados) {
     if (!dados.titulo || !Array.isArray(dados.questoes) || dados.questoes.length === 0) {
         throw new Error(`${arquivo}: informe titulo e uma lista não vazia de questoes.`);
@@ -25,51 +31,63 @@ function validarAvaliacao(arquivo, dados) {
     });
 }
 
-async function importarArquivo(db, caminhoCurso) {
-    const arquivoCurso = path.join(caminhoCurso, "curso.md");
-    const arquivoAvaliacao = path.join(caminhoCurso, "avaliacao.json");
-    if (!fs.existsSync(arquivoCurso) || !fs.existsSync(arquivoAvaliacao)) return false;
+async function importarAvaliacao(db, { curso, cursoId, caminhoCurso, caminhoModulo = null }) {
+    const arquivoAvaliacao = path.join(caminhoModulo || caminhoCurso, "avaliacao.json");
+    if (!fs.existsSync(arquivoAvaliacao)) return false;
 
-    const curso = matter.read(arquivoCurso).data;
+    let moduloId = null;
+    let moduloTitulo = null;
+    if (caminhoModulo) {
+        const arquivoModulo = path.join(caminhoModulo, "modulo.md");
+        if (!fs.existsSync(arquivoModulo)) return false;
+        const modulo = matter.read(arquivoModulo).data;
+        moduloTitulo = modulo.titulo;
+        const [modulos] = await db.execute(
+            "SELECT id FROM modulos WHERE curso_id = ? AND titulo = ? LIMIT 1",
+            [cursoId, moduloTitulo],
+        );
+        if (!modulos[0]) throw new Error(`Módulo não encontrado no banco: ${moduloTitulo}`);
+        moduloId = Number(modulos[0].id);
+    }
+
     const avaliacao = JSON.parse(fs.readFileSync(arquivoAvaliacao, "utf8"));
     validarAvaliacao(arquivoAvaliacao, avaliacao);
-
     await db.beginTransaction();
     try {
-        const [cursos] = await db.execute(
-            "SELECT id FROM cursos WHERE titulo = ? LIMIT 1 FOR UPDATE",
-            [curso.titulo],
-        );
-        if (!cursos[0]) throw new Error(`Curso não encontrado no banco: ${curso.titulo}`);
-        const cursoId = cursos[0].id;
-        const [avaliacoes] = await db.execute(
-            "SELECT id FROM avaliacoes WHERE curso_id = ? LIMIT 1 FOR UPDATE",
-            [cursoId],
+        const [existentes] = await db.execute(
+            moduloId == null
+                ? "SELECT id FROM avaliacoes WHERE curso_id = ? AND modulo_id IS NULL LIMIT 1 FOR UPDATE"
+                : "SELECT id FROM avaliacoes WHERE modulo_id = ? LIMIT 1 FOR UPDATE",
+            [moduloId == null ? cursoId : moduloId],
         );
 
         let avaliacaoId;
-        if (avaliacoes[0]) {
-            avaliacaoId = avaliacoes[0].id;
+        if (existentes[0]) {
+            avaliacaoId = Number(existentes[0].id);
             const [[tentativas]] = await db.execute(
                 "SELECT COUNT(*) AS total FROM tentativas_avaliacao WHERE avaliacao_id = ?",
                 [avaliacaoId],
             );
             if (Number(tentativas.total) > 0) {
                 await db.commit();
-                console.log(`Avaliacao preservada (${tentativas.total} tentativa(s) registrada(s)): ${curso.titulo}`);
+                console.log(`Avaliação preservada (${tentativas.total} tentativa(s)): ${curso.titulo} / ${moduloTitulo || "final"}`);
                 return true;
             }
             await db.execute(
-                "UPDATE avaliacoes SET titulo = ?, minimo_acertos = ?, ativa = ? WHERE id = ?",
-                [avaliacao.titulo, avaliacao.minimo_acertos, avaliacao.ativa === false ? 0 : 1, avaliacaoId],
+                `UPDATE avaliacoes
+                 SET curso_id = ?, modulo_id = ?, titulo = ?, minimo_acertos = ?, ativa = ?
+                 WHERE id = ?`,
+                [moduloId == null ? cursoId : null, moduloId, avaliacao.titulo, avaliacao.minimo_acertos, avaliacao.ativa === false ? 0 : 1, avaliacaoId],
             );
             await db.execute("DELETE FROM questoes_avaliacao WHERE avaliacao_id = ?", [avaliacaoId]);
         } else {
             const [resultado] = await db.execute(
-                "INSERT INTO avaliacoes (curso_id, titulo, minimo_acertos, ativa) VALUES (?, ?, ?, ?)",
-                [cursoId, avaliacao.titulo, avaliacao.minimo_acertos, avaliacao.ativa === false ? 0 : 1],
+                `INSERT INTO avaliacoes
+                    (curso_id, modulo_id, titulo, minimo_acertos, ativa)
+                 VALUES (?, ?, ?, ?, ?)`,
+                [moduloId == null ? cursoId : null, moduloId, avaliacao.titulo, avaliacao.minimo_acertos, avaliacao.ativa === false ? 0 : 1],
             );
-            avaliacaoId = resultado.insertId;
+            avaliacaoId = Number(resultado.insertId);
         }
 
         for (const [indiceQuestao, questao] of avaliacao.questoes.entries()) {
@@ -77,17 +95,16 @@ async function importarArquivo(db, caminhoCurso) {
                 "INSERT INTO questoes_avaliacao (avaliacao_id, enunciado, ordem) VALUES (?, ?, ?)",
                 [avaliacaoId, questao.enunciado, indiceQuestao + 1],
             );
-            const questaoId = resultadoQuestao.insertId;
             for (const [indiceAlternativa, alternativa] of questao.alternativas.entries()) {
                 await db.execute(
                     "INSERT INTO alternativas_avaliacao (questao_id, texto, correta, ordem) VALUES (?, ?, ?, ?)",
-                    [questaoId, alternativa.texto, alternativa.correta ? 1 : 0, indiceAlternativa + 1],
+                    [resultadoQuestao.insertId, alternativa.texto, alternativa.correta ? 1 : 0, indiceAlternativa + 1],
                 );
             }
         }
 
         await db.commit();
-        console.log(`Avaliacao sincronizada: ${curso.titulo} (${avaliacao.questoes.length} questoes)`);
+        console.log(`Avaliação sincronizada: ${curso.titulo} / ${moduloTitulo || "final"} (${avaliacao.questoes.length} questões)`);
         return true;
     } catch (erro) {
         await db.rollback();
@@ -111,8 +128,34 @@ async function importarAvaliacoes() {
 
     try {
         const raiz = path.join(__dirname, "..", "conteudo");
+        let encontradas = 0;
         for (const entrada of fs.readdirSync(raiz, { withFileTypes: true })) {
-            if (entrada.isDirectory()) await importarArquivo(db, path.join(raiz, entrada.name));
+            if (!entrada.isDirectory()) continue;
+            const caminhoCurso = path.join(raiz, entrada.name);
+            const arquivoCurso = path.join(caminhoCurso, "curso.md");
+            if (!fs.existsSync(arquivoCurso)) continue;
+            const curso = matter.read(arquivoCurso).data;
+            if (filtroCurso && curso.titulo !== filtroCurso) continue;
+            const [cursos] = await db.execute(
+                "SELECT id FROM cursos WHERE titulo = ? LIMIT 1",
+                [curso.titulo],
+            );
+            if (!cursos[0]) throw new Error(`Curso não encontrado no banco: ${curso.titulo}`);
+            const cursoId = Number(cursos[0].id);
+
+            if (await importarAvaliacao(db, { curso, cursoId, caminhoCurso })) encontradas += 1;
+            for (const modulo of fs.readdirSync(caminhoCurso, { withFileTypes: true })) {
+                if (!modulo.isDirectory()) continue;
+                if (await importarAvaliacao(db, {
+                    curso,
+                    cursoId,
+                    caminhoCurso,
+                    caminhoModulo: path.join(caminhoCurso, modulo.name),
+                })) encontradas += 1;
+            }
+        }
+        if (filtroCurso && encontradas === 0) {
+            throw new Error(`Nenhuma avaliação encontrada para o curso: ${filtroCurso}`);
         }
     } finally {
         await db.end();

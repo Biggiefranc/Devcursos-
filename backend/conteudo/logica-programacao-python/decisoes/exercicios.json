@@ -1,0 +1,134 @@
+{
+  "aulas": {
+    "01-comparacoes-e-bool.md": {
+      "titulo": "Compare e produza um resultado lógico",
+      "enunciado": "Leia uma idade e mostre True quando ela for pelo menos 18; caso contrário, mostre False.",
+      "codigo_inicial": "idade = int(input(\"Idade: \"))\n# Compare a idade com 18 e mostre o resultado lógico.\n",
+      "avaliador": {
+        "tipo": "saida",
+        "casos": [
+          {
+            "entradas": [
+              "17"
+            ],
+            "saida_esperada": "Idade: False"
+          },
+          {
+            "entradas": [
+              "18"
+            ],
+            "saida_esperada": "Idade: True"
+          }
+        ]
+      }
+    },
+    "02-if-e-else.md": {
+      "titulo": "Escolha entre dois caminhos",
+      "enunciado": "Leia uma temperatura. Mostre Frio quando for menor que 20 e Agradável caso contrário.",
+      "codigo_inicial": "temperatura = int(input(\"Temperatura: \"))\n# Escreva uma decisão if/else para escolher a mensagem.\n",
+      "avaliador": {
+        "tipo": "saida",
+        "casos": [
+          {
+            "entradas": [
+              "19"
+            ],
+            "saida_esperada": "Temperatura: Frio"
+          },
+          {
+            "entradas": [
+              "20"
+            ],
+            "saida_esperada": "Temperatura: Agradável"
+          }
+        ]
+      }
+    },
+    "03-varios-caminhos-elif.md": {
+      "titulo": "Classifique uma nota em faixas",
+      "enunciado": "Leia uma nota inteira: 9 ou mais é Excelente; de 7 a 8 é Aprovado; abaixo de 7 é Estude mais.",
+      "codigo_inicial": "nota = int(input(\"Nota: \"))\n# Complete a classificação com if, elif e else.\n",
+      "avaliador": {
+        "tipo": "saida",
+        "casos": [
+          {
+            "entradas": [
+              "9"
+            ],
+            "saida_esperada": "Nota: Excelente"
+          },
+          {
+            "entradas": [
+              "7"
+            ],
+            "saida_esperada": "Nota: Aprovado"
+          },
+          {
+            "entradas": [
+              "5"
+            ],
+            "saida_esperada": "Nota: Estude mais"
+          }
+        ]
+      }
+    },
+    "04-condicoes-combinadas.md": {
+      "titulo": "Combine duas condições",
+      "enunciado": "Leia se a pessoa está inscrita (s/n) e se entregou a atividade (s/n). Mostre Certificado somente quando as duas respostas forem s; nos demais casos, mostre Sem certificado.",
+      "codigo_inicial": "inscrita = input(\"Está inscrita? \")\nentregou = input(\"Entregou? \")\n# Use and para exigir as duas condições.\n",
+      "avaliador": {
+        "tipo": "saida",
+        "casos": [
+          {
+            "entradas": [
+              "s",
+              "s"
+            ],
+            "saida_esperada": "Está inscrita? Entregou? Certificado"
+          },
+          {
+            "entradas": [
+              "s",
+              "n"
+            ],
+            "saida_esperada": "Está inscrita? Entregou? Sem certificado"
+          }
+        ]
+      }
+    },
+    "05-oficina-decisoes.md": {
+      "titulo": "Valide e classifique uma nota",
+      "enunciado": "Leia uma nota e aplique as regras em ordem: fora de 0 a 10 é Nota inválida; de 7 para cima é Aprovado; caso contrário é Recuperação.",
+      "codigo_inicial": "nota = float(input(\"Nota: \"))\n# Complete a sequência if/elif/else respeitando as três regras.\n",
+      "avaliador": {
+        "tipo": "saida",
+        "casos": [
+          {
+            "entradas": [
+              "-1"
+            ],
+            "saida_esperada": "Nota: Nota inválida"
+          },
+          {
+            "entradas": [
+              "7"
+            ],
+            "saida_esperada": "Nota: Aprovado"
+          },
+          {
+            "entradas": [
+              "6.5"
+            ],
+            "saida_esperada": "Nota: Recuperação"
+          },
+          {
+            "entradas": [
+              "11"
+            ],
+            "saida_esperada": "Nota: Nota inválida"
+          }
+        ]
+      }
+    }
+  }
+}

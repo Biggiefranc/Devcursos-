@@ -1,6 +1,8 @@
 const progressRepository = require("./progress.repository");
 const usersRepository = require("../users/users.repository");
 const coursesRepository = require("../courses/cursos.repository");
+const assessmentsRepository = require("../assessments/assessments.repository");
+const practiceService = require("../practice/practice.service");
 const AppError = require("../../shared/errors/AppError");
 const { validarIdPositivo } = require("../../shared/validation/ids");
 
@@ -29,13 +31,16 @@ async function listarProgresso(firebaseUid, cursoId) {
         throw new AppError(404, "CURSO_NAO_ENCONTRADO", "Curso não encontrado.");
     }
 
-    const aulasConcluidas =
-        await progressRepository.listarAulasConcluidas(
+    const [aulasConcluidas, exerciciosConcluidos, avaliacoesAprovadas] = await Promise.all([
+        progressRepository.listarAulasConcluidas(
             usuarioId,
             idCurso
-        );
+        ),
+        practiceService.listarAulasConcluidas(firebaseUid, idCurso),
+        assessmentsRepository.listarAprovadasPorCurso(usuarioId, idCurso),
+    ]);
 
-    return { aulasConcluidas };
+    return { aulasConcluidas, exerciciosConcluidos, avaliacoesAprovadas };
 }
 
 async function listarResumo(firebaseUid) {
@@ -62,6 +67,19 @@ async function buscarAulaLiberada(firebaseUid, aulaId) {
             409,
             "AULA_ANTERIOR_PENDENTE",
             `Conclua “${anteriorPendente.titulo}” para desbloquear esta aula.`
+        );
+    }
+
+    const avaliacaoAnterior = await assessmentsRepository.buscarAvaliacaoModuloAnteriorPendente(
+        usuarioId,
+        Number(aula.curso_id),
+        Number(aula.modulo_ordem),
+    );
+    if (avaliacaoAnterior) {
+        throw new AppError(
+            409,
+            "AVALIACAO_DE_MODULO_PENDENTE",
+            `Aprove a avaliação de “${avaliacaoAnterior.modulo_titulo}” antes de avançar.`,
         );
     }
 
@@ -107,6 +125,28 @@ async function atualizarConclusao(firebaseUid, aulaId, concluida) {
     }
 
     if (concluida) {
+        const exercicioAprovado = await practiceService.verificarConclusao(firebaseUid, idAula);
+        if (!exercicioAprovado) {
+            throw new AppError(
+                403,
+                "EXERCICIO_PENDENTE",
+                "Execute o exercício e passe pelos casos de verificação antes de concluir a aula.",
+            );
+        }
+
+        const avaliacaoAnterior = await assessmentsRepository.buscarAvaliacaoModuloAnteriorPendente(
+            usuarioId,
+            Number(aula.curso_id),
+            Number(aula.modulo_ordem),
+        );
+        if (avaliacaoAnterior) {
+            throw new AppError(
+                403,
+                "AVALIACAO_DE_MODULO_PENDENTE",
+                `Aprove a avaliação de “${avaliacaoAnterior.modulo_titulo}” antes de avançar.`,
+            );
+        }
+
         const aulaAnteriorPendente =
             await progressRepository.buscarAulaAnteriorPendente(usuarioId, idAula);
 

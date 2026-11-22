@@ -127,7 +127,33 @@ const SELECT_CURSO_COM_MODULOS_E_AULAS = `
 // Estrutura pública para a página de currículo; não inclui o corpo das aulas.
 async function buscarEstruturaPorCurso(cursoId) {
     const [rows] = await pool.execute(SELECT_CURSO_COM_MODULOS_E_AULAS, [cursoId]);
-    return agruparCurso(rows);
+    const course = agruparCurso(rows);
+    if (!course) return null;
+
+    const [assessments] = await pool.execute(
+        `SELECT a.id, a.curso_id, a.modulo_id, a.titulo, a.minimo_acertos
+         FROM avaliacoes a
+         LEFT JOIN modulos m ON m.id = a.modulo_id
+         WHERE a.ativa = 1 AND (a.curso_id = ? OR m.curso_id = ?)
+         ORDER BY COALESCE(m.ordem, 0) ASC, a.id ASC`,
+        [cursoId, cursoId],
+    );
+    for (const assessment of assessments) {
+        const metadata = {
+            id: Number(assessment.id),
+            titulo: assessment.titulo,
+            minimoAcertos: Number(assessment.minimo_acertos),
+        };
+        if (assessment.modulo_id == null) {
+            course.avaliacaoFinal = metadata;
+        } else {
+            const module = course.modulos.find(
+                (item) => Number(item.id) === Number(assessment.modulo_id),
+            );
+            if (module) module.avaliacao = metadata;
+        }
+    }
+    return course;
 }
 
 async function listarModulosPorCurso(cursoId) {
@@ -191,19 +217,52 @@ async function buscarAulaParaEstudoPorId(id) {
             a.modulo_id,
             m.curso_id,
             m.titulo AS modulo_titulo,
+            m.ordem AS modulo_ordem,
             a.titulo,
             a.descricao,
             a.conteudo,
             a.video_url,
             a.material_url,
             a.duracao_minutos,
-            a.ordem
+            a.ordem,
+            ep.id AS exercicio_id,
+            ep.titulo AS exercicio_titulo,
+            ep.enunciado AS exercicio_enunciado,
+            ep.codigo_inicial AS exercicio_codigo_inicial,
+            ep.avaliador_json AS exercicio_avaliador
         FROM aulas a
         INNER JOIN modulos m ON m.id = a.modulo_id
+        LEFT JOIN exercicios_praticos ep ON ep.aula_id = a.id
         WHERE a.id = ?
     `, [id]);
 
-    return aulas[0] || null;
+    const aula = aulas[0];
+    if (!aula) return null;
+    if (aula.exercicio_id != null) {
+        let avaliador = aula.exercicio_avaliador;
+        if (typeof avaliador === "string") {
+            try {
+                avaliador = JSON.parse(avaliador);
+            } catch {
+                avaliador = null;
+            }
+        }
+        aula.exercicio = {
+            id: Number(aula.exercicio_id),
+            titulo: aula.exercicio_titulo,
+            enunciado: aula.exercicio_enunciado,
+            codigoInicial: aula.exercicio_codigo_inicial,
+            avaliador,
+        };
+    } else {
+        aula.exercicio = null;
+    }
+    delete aula.exercicio_id;
+    delete aula.exercicio_titulo;
+    delete aula.exercicio_enunciado;
+    delete aula.exercicio_codigo_inicial;
+    delete aula.exercicio_avaliador;
+    return aula;
 }
 
 module.exports = {
