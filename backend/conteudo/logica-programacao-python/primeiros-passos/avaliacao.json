@@ -1,0 +1,112 @@
+{
+  "titulo": "Avaliação do módulo 1 — Algoritmos e primeiros passos",
+  "minimo_acertos": 4,
+  "ativa": true,
+  "questoes": [
+    {
+      "enunciado": "O que é um algoritmo?",
+      "alternativas": [
+        {
+          "texto": "Uma sequência finita e organizada de passos para resolver um problema.",
+          "correta": true
+        },
+        {
+          "texto": "Qualquer programa escrito em Python, mesmo que não termine.",
+          "correta": false
+        },
+        {
+          "texto": "Uma lista de nomes de variáveis.",
+          "correta": false
+        },
+        {
+          "texto": "Uma mensagem que aparece no terminal.",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Por que a ordem das instruções importa?",
+      "alternativas": [
+        {
+          "texto": "Porque cada etapa pode usar o resultado produzido pela etapa anterior.",
+          "correta": true
+        },
+        {
+          "texto": "Porque o computador executa todas as linhas ao mesmo tempo.",
+          "correta": false
+        },
+        {
+          "texto": "Porque a última linha sempre apaga as anteriores.",
+          "correta": false
+        },
+        {
+          "texto": "Porque variáveis só podem aparecer na primeira linha.",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Qual descrição está mais perto de um bom algoritmo?",
+      "alternativas": [
+        {
+          "texto": "“Faça alguma coisa até ficar bom.”",
+          "correta": false
+        },
+        {
+          "texto": "“Repita para sempre e veja o que acontece.”",
+          "correta": false
+        },
+        {
+          "texto": "“Leia dois valores, some-os e mostre o resultado.”",
+          "correta": true
+        },
+        {
+          "texto": "“Use o computador para resolver.”",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Em entrada, processamento e saída, qual é o processamento?",
+      "alternativas": [
+        {
+          "texto": "A informação que a pessoa digita.",
+          "correta": false
+        },
+        {
+          "texto": "A transformação ou o cálculo feito com os dados.",
+          "correta": true
+        },
+        {
+          "texto": "O resultado mostrado na tela.",
+          "correta": false
+        },
+        {
+          "texto": "A tela que abre o programa.",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Se valor começa em 5, recebe mais 2 e depois é multiplicado por 3, qual resultado final?",
+      "alternativas": [
+        {
+          "texto": "21",
+          "correta": true
+        },
+        {
+          "texto": "15",
+          "correta": false
+        },
+        {
+          "texto": "10",
+          "correta": false
+        },
+        {
+          "texto": "7",
+          "correta": false
+        }
+      ]
+    }
+  ]
+}

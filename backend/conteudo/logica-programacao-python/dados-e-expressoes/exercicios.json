@@ -1,0 +1,108 @@
+{
+  "aulas": {
+    "01-valores-e-tipos.md": {
+      "titulo": "Identifique valores e tipos",
+      "enunciado": "Crie uma variável inteira chamada idade com valor 17 e mostre o nome do tipo desse valor.",
+      "codigo_inicial": "idade = 17\n# Mostre o nome do tipo guardado em idade.\n",
+      "avaliador": {
+        "tipo": "saida",
+        "casos": [
+          {
+            "entradas": [],
+            "saida_esperada": "int"
+          }
+        ]
+      }
+    },
+    "02-variaveis-e-atribuicao.md": {
+      "titulo": "Guarde e atualize um valor",
+      "enunciado": "Uma carteira começa com 30 reais. Some 12 reais recebidos e depois subtraia 8 gastos. Mostre o saldo.",
+      "codigo_inicial": "saldo = 30\n# Atualize o saldo com +12 e depois -8. Mostre-o no final.\n",
+      "avaliador": {
+        "tipo": "saida",
+        "casos": [
+          {
+            "entradas": [],
+            "saida_esperada": "34"
+          }
+        ]
+      }
+    },
+    "03-leia-e-converta-numeros.md": {
+      "titulo": "Converta texto para calcular",
+      "enunciado": "Leia dois números inteiros, some os valores e mostre o resultado. A entrada será testada com pares diferentes.",
+      "codigo_inicial": "primeiro = input(\"Primeiro número: \")\nsegundo = input(\"Segundo número: \")\n# Converta as entradas, some e mostre a resposta.\n",
+      "avaliador": {
+        "tipo": "saida",
+        "casos": [
+          {
+            "entradas": [
+              "3",
+              "8"
+            ],
+            "saida_esperada": "Primeiro número: Segundo número: 11"
+          },
+          {
+            "entradas": [
+              "-2",
+              "7"
+            ],
+            "saida_esperada": "Primeiro número: Segundo número: 5"
+          }
+        ]
+      }
+    },
+    "04-operadores-e-precedencia.md": {
+      "titulo": "Escolha operadores para o cálculo",
+      "enunciado": "Calcule quantas horas completas e quantos minutos sobram em 135 minutos. Mostre uma resposta por linha.",
+      "codigo_inicial": "minutos = 135\n# Calcule as horas completas e o resto. Mostre os dois valores, um por linha.\n",
+      "avaliador": {
+        "tipo": "saida",
+        "casos": [
+          {
+            "entradas": [],
+            "saida_esperada": "2\n15"
+          }
+        ]
+      }
+    },
+    "05-texto-formatado.md": {
+      "titulo": "Apresente dados em uma frase",
+      "enunciado": "Use uma f-string para mostrar exatamente: Ana estudou 25 minutos. Guarde o nome e o tempo em variáveis.",
+      "codigo_inicial": "nome = \"Ana\"\nminutos = 25\n# Mostre a frase com uma f-string.\n",
+      "avaliador": {
+        "tipo": "saida",
+        "casos": [
+          {
+            "entradas": [],
+            "saida_esperada": "Ana estudou 25 minutos."
+          }
+        ]
+      }
+    },
+    "06-oficina-dados.md": {
+      "titulo": "Calcule um total de compra",
+      "enunciado": "Leia preço e quantidade. Mostre o total com duas casas decimais. Testaremos valores inteiros e decimais.",
+      "codigo_inicial": "preco = float(input(\"Preço: \"))\nquantidade = int(input(\"Quantidade: \"))\n# Calcule e mostre o total com duas casas decimais.\n",
+      "avaliador": {
+        "tipo": "saida",
+        "casos": [
+          {
+            "entradas": [
+              "7.50",
+              "4"
+            ],
+            "saida_esperada": "Preço: Quantidade: 30.00"
+          },
+          {
+            "entradas": [
+              "2.25",
+              "3"
+            ],
+            "saida_esperada": "Preço: Quantidade: 6.75"
+          }
+        ]
+      }
+    }
+  }
+}

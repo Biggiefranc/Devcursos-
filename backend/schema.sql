@@ -84,14 +84,17 @@ CREATE TABLE IF NOT EXISTS favoritos (
 
 CREATE TABLE IF NOT EXISTS avaliacoes (
   id              INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  curso_id        INT UNSIGNED NOT NULL,
+  curso_id        INT UNSIGNED DEFAULT NULL,
+  modulo_id       INT UNSIGNED DEFAULT NULL,
   titulo          VARCHAR(150) NOT NULL DEFAULT 'Avaliação final',
   minimo_acertos  INT UNSIGNED NOT NULL DEFAULT 1,
   ativa           TINYINT(1) NOT NULL DEFAULT 1,
   criada_em       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY uq_avaliacao_curso (curso_id),
-  CONSTRAINT fk_avaliacao_curso FOREIGN KEY (curso_id) REFERENCES cursos (id) ON DELETE CASCADE
+  UNIQUE KEY uq_avaliacao_modulo (modulo_id),
+  CONSTRAINT fk_avaliacao_curso FOREIGN KEY (curso_id) REFERENCES cursos (id) ON DELETE CASCADE,
+  CONSTRAINT fk_avaliacao_modulo FOREIGN KEY (modulo_id) REFERENCES modulos (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS questoes_avaliacao (
@@ -141,4 +144,31 @@ CREATE TABLE IF NOT EXISTS respostas_avaliacao (
   CONSTRAINT fk_resposta_tentativa FOREIGN KEY (tentativa_id) REFERENCES tentativas_avaliacao (id) ON DELETE CASCADE,
   CONSTRAINT fk_resposta_questao FOREIGN KEY (questao_id) REFERENCES questoes_avaliacao (id),
   CONSTRAINT fk_resposta_alternativa FOREIGN KEY (alternativa_id) REFERENCES alternativas_avaliacao (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS exercicios_praticos (
+  id              INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  aula_id         INT UNSIGNED NOT NULL,
+  titulo          VARCHAR(180) NOT NULL,
+  enunciado       TEXT NOT NULL,
+  codigo_inicial  MEDIUMTEXT NOT NULL,
+  avaliador_json  JSON NOT NULL,
+  criada_em       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_exercicio_aula (aula_id),
+  CONSTRAINT fk_exercicio_aula FOREIGN KEY (aula_id) REFERENCES aulas (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS tentativas_exercicio (
+  id              INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  usuario_id      INT UNSIGNED NOT NULL,
+  exercicio_id    INT UNSIGNED NOT NULL,
+  total_casos     SMALLINT UNSIGNED NOT NULL,
+  acertos         SMALLINT UNSIGNED NOT NULL,
+  aprovado        TINYINT(1) NOT NULL DEFAULT 0,
+  criada_em       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_tentativas_exercicio_usuario (usuario_id, exercicio_id, aprovada),
+  CONSTRAINT fk_tentativa_exercicio_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios (id) ON DELETE CASCADE,
+  CONSTRAINT fk_tentativa_exercicio FOREIGN KEY (exercicio_id) REFERENCES exercicios_praticos (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

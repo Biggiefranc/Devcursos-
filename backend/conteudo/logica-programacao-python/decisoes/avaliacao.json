@@ -1,0 +1,112 @@
+{
+  "titulo": "Avaliação do módulo 3 — Decisões",
+  "minimo_acertos": 4,
+  "ativa": true,
+  "questoes": [
+    {
+      "enunciado": "O que a expressão idade >= 18 produz?",
+      "alternativas": [
+        {
+          "texto": "Um valor lógico: True ou False.",
+          "correta": true
+        },
+        {
+          "texto": "Uma nova idade sem guardar.",
+          "correta": false
+        },
+        {
+          "texto": "Uma mensagem impressa na tela.",
+          "correta": false
+        },
+        {
+          "texto": "Um laço de repetição.",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Em um if/else, quando o else é executado?",
+      "alternativas": [
+        {
+          "texto": "Quando a condição do if é falsa.",
+          "correta": true
+        },
+        {
+          "texto": "Sempre depois do if.",
+          "correta": false
+        },
+        {
+          "texto": "Quando o programa encontra um erro.",
+          "correta": false
+        },
+        {
+          "texto": "Antes de verificar a condição.",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Para classificar primeiro nota >= 9 como excelente e nota >= 7 como aprovada, qual regra vem primeiro?",
+      "alternativas": [
+        {
+          "texto": "nota >= 9",
+          "correta": true
+        },
+        {
+          "texto": "nota >= 7",
+          "correta": false
+        },
+        {
+          "texto": "nota == 0",
+          "correta": false
+        },
+        {
+          "texto": "A ordem não importa.",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Uma regra exige que idade seja pelo menos 16 E tenha autorização. Qual operador expressa as duas exigências?",
+      "alternativas": [
+        {
+          "texto": "and",
+          "correta": true
+        },
+        {
+          "texto": "or",
+          "correta": false
+        },
+        {
+          "texto": "not",
+          "correta": false
+        },
+        {
+          "texto": "in",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Por que testar os limites 6.9 e 7.0 numa regra de aprovação?",
+      "alternativas": [
+        {
+          "texto": "Para confirmar o comportamento exatamente na fronteira da regra.",
+          "correta": true
+        },
+        {
+          "texto": "Para fazer o Python arredondar todas as notas.",
+          "correta": false
+        },
+        {
+          "texto": "Para evitar escrever if e else.",
+          "correta": false
+        },
+        {
+          "texto": "Porque valores inteiros não podem ser comparados.",
+          "correta": false
+        }
+      ]
+    }
+  ]
+}

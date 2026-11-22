@@ -17,6 +17,30 @@ function normalizarTecnologias(value) {
     return value.split(/[,;]+/).map((item) => item.trim()).filter(Boolean);
 }
 
+function validarExercicio(arquivo, exercicio) {
+    const avaliador = exercicio?.avaliador;
+    if (!exercicio?.titulo || !exercicio?.enunciado || typeof exercicio.codigo_inicial !== "string") {
+        throw new Error(`${arquivo}: exercício precisa de título, enunciado e codigo_inicial.`);
+    }
+    if (!avaliador || !["saida", "funcao"].includes(avaliador.tipo)
+        || !Array.isArray(avaliador.casos) || avaliador.casos.length === 0) {
+        throw new Error(`${arquivo}: avaliador precisa ter tipo saida/funcao e casos de verificação.`);
+    }
+    if (avaliador.tipo === "funcao" && !avaliador.nome_funcao) {
+        throw new Error(`${arquivo}: informe nome_funcao no avaliador do tipo funcao.`);
+    }
+    for (const [indice, caso] of avaliador.casos.entries()) {
+        if (avaliador.tipo === "saida"
+            && (!Array.isArray(caso.entradas) || typeof caso.saida_esperada !== "string")) {
+            throw new Error(`${arquivo}: caso de saída ${indice + 1} precisa de entradas e saida_esperada.`);
+        }
+        if (avaliador.tipo === "funcao"
+            && (!Array.isArray(caso.argumentos) || !Object.hasOwn(caso, "resultado_esperado"))) {
+            throw new Error(`${arquivo}: caso de função ${indice + 1} precisa de argumentos e resultado_esperado.`);
+        }
+    }
+}
+
 async function obterOuCriarCurso(db, dados) {
     const duracaoHoras = Number(dados.duracao_horas);
     const tecnologias = normalizarTecnologias(dados.tecnologias);
@@ -111,6 +135,13 @@ async function importarCursos() {
                     const moduloFile = matter.read(arquivoModulo);
                     if (!moduloFile.data.titulo) throw new Error(`${arquivoModulo}: campo titulo obrigatório.`);
                     const moduloId = await obterOuCriarModulo(db, cursoId, moduloFile.data);
+                    const arquivoExercicios = path.join(caminhoModulo, "exercicios.json");
+                    const definicoesExercicios = fs.existsSync(arquivoExercicios)
+                        ? JSON.parse(fs.readFileSync(arquivoExercicios, "utf8"))
+                        : {};
+                    if (cursoFile.data.editor_interativo && !fs.existsSync(arquivoExercicios)) {
+                        throw new Error(`${arquivoExercicios}: este módulo precisa definir os exercícios das aulas.`);
+                    }
 
                     const arquivosAulas = fs.readdirSync(caminhoModulo, { withFileTypes: true })
                         .filter((item) => item.isFile() && item.name.endsWith(".md") && item.name !== "modulo.md")
@@ -134,15 +165,37 @@ async function importarCursos() {
                                 : null,
                             Number(aulaFile.data.ordem) || 1
                         ];
+                        let aulaId;
                         if (existentes[0]) {
+                            aulaId = existentes[0].id;
                             await db.execute(
                                 "UPDATE aulas SET descricao = ?, conteudo = ?, video_url = ?, material_url = ?, duracao_minutos = ?, ordem = ? WHERE id = ?",
                                 [...valores, existentes[0].id]
                             );
                         } else {
-                            await db.execute(
+                            const [resultado] = await db.execute(
                                 "INSERT INTO aulas (modulo_id, titulo, descricao, conteudo, video_url, material_url, duracao_minutos, ordem) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                                 [moduloId, aulaFile.data.titulo, ...valores]
+                            );
+                            aulaId = resultado.insertId;
+                        }
+
+                        const exercicio = definicoesExercicios.aulas?.[arquivoAula];
+                        if (cursoFile.data.editor_interativo && !exercicio) {
+                            throw new Error(`${arquivoExercicios}: falta exercício interativo para ${arquivoAula}.`);
+                        }
+                        if (exercicio) {
+                            validarExercicio(`${arquivoExercicios} → ${arquivoAula}`, exercicio);
+                            await db.execute(
+                                `INSERT INTO exercicios_praticos
+                                    (aula_id, titulo, enunciado, codigo_inicial, avaliador_json)
+                                 VALUES (?, ?, ?, ?, ?)
+                                 ON DUPLICATE KEY UPDATE
+                                    titulo = VALUES(titulo),
+                                    enunciado = VALUES(enunciado),
+                                    codigo_inicial = VALUES(codigo_inicial),
+                                    avaliador_json = VALUES(avaliador_json)`,
+                                [aulaId, exercicio.titulo, exercicio.enunciado, exercicio.codigo_inicial, JSON.stringify(exercicio.avaliador)]
                             );
                         }
                     }

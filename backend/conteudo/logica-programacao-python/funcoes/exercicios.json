@@ -1,0 +1,205 @@
+{
+  "aulas": {
+    "01-defina-e-chame-funcoes.md": {
+      "titulo": "Defina uma função de saudação",
+      "enunciado": "Crie a função saudacao(nome), que devolve a frase Olá, NOME! sem imprimir dentro da função.",
+      "codigo_inicial": "def saudacao(nome):\n    # Retorne a saudação.\n    pass\n",
+      "avaliador": {
+        "tipo": "funcao",
+        "nome_funcao": "saudacao",
+        "casos": [
+          {
+            "argumentos": [
+              "Lia"
+            ],
+            "resultado_esperado": "Olá, Lia!"
+          },
+          {
+            "argumentos": [
+              "Ravi"
+            ],
+            "resultado_esperado": "Olá, Ravi!"
+          }
+        ]
+      }
+    },
+    "02-parametros-e-argumentos.md": {
+      "titulo": "Use parâmetros em um cálculo",
+      "enunciado": "Crie somar(a, b) para devolver a soma dos dois argumentos recebidos.",
+      "codigo_inicial": "def somar(a, b):\n    # Devolva a soma.\n    pass\n",
+      "avaliador": {
+        "tipo": "funcao",
+        "nome_funcao": "somar",
+        "casos": [
+          {
+            "argumentos": [
+              2,
+              3
+            ],
+            "resultado_esperado": 5
+          },
+          {
+            "argumentos": [
+              -4,
+              9
+            ],
+            "resultado_esperado": 5
+          },
+          {
+            "argumentos": [
+              0,
+              0
+            ],
+            "resultado_esperado": 0
+          }
+        ]
+      }
+    },
+    "03-retorne-um-resultado.md": {
+      "titulo": "Retorne a média de três valores",
+      "enunciado": "Crie media(a, b, c), que calcula e devolve a média aritmética dos três números.",
+      "codigo_inicial": "def media(a, b, c):\n    # Calcule e retorne a média.\n    pass\n",
+      "avaliador": {
+        "tipo": "funcao",
+        "nome_funcao": "media",
+        "casos": [
+          {
+            "argumentos": [
+              6,
+              8,
+              10
+            ],
+            "resultado_esperado": 8
+          },
+          {
+            "argumentos": [
+              0,
+              5,
+              10
+            ],
+            "resultado_esperado": 5
+          }
+        ]
+      }
+    },
+    "04-divida-em-funcoes.md": {
+      "titulo": "Divida o cálculo em funções",
+      "enunciado": "Crie subtotal(preco, quantidade) e total_com_desconto(preco, quantidade, desconto). A segunda deve usar subtotal e aplicar o desconto percentual.",
+      "codigo_inicial": "def subtotal(preco, quantidade):\n    # Devolva preço vezes quantidade.\n    pass\n\ndef total_com_desconto(preco, quantidade, desconto):\n    # Use subtotal e desconte a porcentagem.\n    pass\n",
+      "avaliador": {
+        "tipo": "funcao",
+        "nome_funcao": "total_com_desconto",
+        "casos": [
+          {
+            "argumentos": [
+              10,
+              3,
+              10
+            ],
+            "resultado_esperado": 27
+          },
+          {
+            "argumentos": [
+              25,
+              2,
+              0
+            ],
+            "resultado_esperado": 50
+          }
+        ]
+      }
+    },
+    "05-nomes-e-escopo.md": {
+      "titulo": "Mantenha dados dentro da função",
+      "enunciado": "Crie calcular_novo_saldo(saldo, deposito), que devolve o saldo atualizado sem alterar uma variável global.",
+      "codigo_inicial": "def calcular_novo_saldo(saldo, deposito):\n    # Devolva saldo mais depósito.\n    pass\n",
+      "avaliador": {
+        "tipo": "funcao",
+        "nome_funcao": "calcular_novo_saldo",
+        "casos": [
+          {
+            "argumentos": [
+              100,
+              25
+            ],
+            "resultado_esperado": 125
+          },
+          {
+            "argumentos": [
+              0,
+              0
+            ],
+            "resultado_esperado": 0
+          }
+        ]
+      }
+    },
+    "06-teste-com-exemplos.md": {
+      "titulo": "Verifique casos comuns e de limite",
+      "enunciado": "Crie eh_par(numero), que devolve True para número par e False para ímpar.",
+      "codigo_inicial": "def eh_par(numero):\n    # Devolva o resultado de uma comparação usando o resto da divisão.\n    pass\n",
+      "avaliador": {
+        "tipo": "funcao",
+        "nome_funcao": "eh_par",
+        "casos": [
+          {
+            "argumentos": [
+              4
+            ],
+            "resultado_esperado": true
+          },
+          {
+            "argumentos": [
+              7
+            ],
+            "resultado_esperado": false
+          },
+          {
+            "argumentos": [
+              0
+            ],
+            "resultado_esperado": true
+          },
+          {
+            "argumentos": [
+              -3
+            ],
+            "resultado_esperado": false
+          }
+        ]
+      }
+    },
+    "07-oficina-funcoes.md": {
+      "titulo": "Calcule um desconto com função",
+      "enunciado": "Crie calcular_desconto(preco, percentual), que devolve o preço depois do desconto percentual.",
+      "codigo_inicial": "def calcular_desconto(preco, percentual):\n    # Calcule o desconto e devolva o preço final.\n    pass\n",
+      "avaliador": {
+        "tipo": "funcao",
+        "nome_funcao": "calcular_desconto",
+        "casos": [
+          {
+            "argumentos": [
+              100,
+              10
+            ],
+            "resultado_esperado": 90
+          },
+          {
+            "argumentos": [
+              50,
+              0
+            ],
+            "resultado_esperado": 50
+          },
+          {
+            "argumentos": [
+              80,
+              25
+            ],
+            "resultado_esperado": 60
+          }
+        ]
+      }
+    }
+  }
+}

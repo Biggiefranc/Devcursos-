@@ -1,0 +1,112 @@
+{
+  "titulo": "Avaliação do módulo 5 — Funções",
+  "minimo_acertos": 4,
+  "ativa": true,
+  "questoes": [
+    {
+      "enunciado": "O que acontece ao executar uma linha def dobrar(numero):?",
+      "alternativas": [
+        {
+          "texto": "A função é definida; seu corpo roda quando ela é chamada.",
+          "correta": true
+        },
+        {
+          "texto": "O corpo da função roda imediatamente duas vezes.",
+          "correta": false
+        },
+        {
+          "texto": "O valor numero é criado para todo o programa.",
+          "correta": false
+        },
+        {
+          "texto": "Python imprime a função.",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Em somar(4, 6), o que são 4 e 6?",
+      "alternativas": [
+        {
+          "texto": "Argumentos enviados para os parâmetros da função.",
+          "correta": true
+        },
+        {
+          "texto": "Parâmetros definidos por def.",
+          "correta": false
+        },
+        {
+          "texto": "Nomes de funções.",
+          "correta": false
+        },
+        {
+          "texto": "Valores devolvidos automaticamente por print.",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Qual é a diferença principal entre print e return?",
+      "alternativas": [
+        {
+          "texto": "print mostra algo; return entrega um resultado para o código que chamou a função.",
+          "correta": true
+        },
+        {
+          "texto": "print encerra a função; return apenas mostra texto.",
+          "correta": false
+        },
+        {
+          "texto": "Não existe diferença.",
+          "correta": false
+        },
+        {
+          "texto": "return só pode devolver texto.",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Por que parâmetros ajudam a evitar variáveis globais?",
+      "alternativas": [
+        {
+          "texto": "A função recebe explicitamente os dados de que precisa.",
+          "correta": true
+        },
+        {
+          "texto": "Parâmetros guardam dados depois que o programa termina.",
+          "correta": false
+        },
+        {
+          "texto": "Variáveis globais só aceitam números.",
+          "correta": false
+        },
+        {
+          "texto": "Parâmetros fazem o código rodar mais rápido sempre.",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Para que serve testar uma função com casos de limite?",
+      "alternativas": [
+        {
+          "texto": "Para verificar também situações próximas às fronteiras das regras.",
+          "correta": true
+        },
+        {
+          "texto": "Para substituir todos os parâmetros por constantes.",
+          "correta": false
+        },
+        {
+          "texto": "Para confirmar que a função imprime bastante texto.",
+          "correta": false
+        },
+        {
+          "texto": "Para impedir que ela retorne valores.",
+          "correta": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+{
+  "aulas": {
+    "01-leia-erros.md": {
+      "titulo": "Trate uma conversão inválida",
+      "enunciado": "Crie converter_idade(texto). Devolva a idade como inteiro; se o texto não puder ser convertido, devolva a mensagem Idade inválida. Capture apenas ValueError.",
+      "codigo_inicial": "def converter_idade(texto):\n    # Tente converter com int e trate ValueError.\n    pass\n",
+      "avaliador": {
+        "tipo": "funcao",
+        "nome_funcao": "converter_idade",
+        "casos": [
+          {
+            "argumentos": [
+              "17"
+            ],
+            "resultado_esperado": 17
+          },
+          {
+            "argumentos": [
+              "dez"
+            ],
+            "resultado_esperado": "Idade inválida"
+          }
+        ]
+      }
+    },
+    "02-validacao-de-entradas.md": {
+      "titulo": "Valide entradas sem esconder erros",
+      "enunciado": "Crie dobrar_texto_numerico(texto). Converta o texto para inteiro e devolva o dobro; para entrada inválida, devolva Número inválido.",
+      "codigo_inicial": "def dobrar_texto_numerico(texto):\n    # Converta em try/except ValueError.\n    pass\n",
+      "avaliador": {
+        "tipo": "funcao",
+        "nome_funcao": "dobrar_texto_numerico",
+        "casos": [
+          {
+            "argumentos": [
+              "6"
+            ],
+            "resultado_esperado": 12
+          },
+          {
+            "argumentos": [
+              "-3"
+            ],
+            "resultado_esperado": -6
+          },
+          {
+            "argumentos": [
+              "seis"
+            ],
+            "resultado_esperado": "Número inválido"
+          }
+        ]
+      }
+    },
+    "02-depure-com-casos.md": {
+      "titulo": "Corrija um erro de limite",
+      "enunciado": "A função deve somar de 1 até limite, incluindo limite. Corrija o range para passar nos casos de limite 1 e 3.",
+      "codigo_inicial": "def somar_ate(limite):\n    total = 0\n    for numero in range(1, limite):\n        total = total + numero\n    return total\n",
+      "avaliador": {
+        "tipo": "funcao",
+        "nome_funcao": "somar_ate",
+        "casos": [
+          {
+            "argumentos": [
+              1
+            ],
+            "resultado_esperado": 1
+          },
+          {
+            "argumentos": [
+              3
+            ],
+            "resultado_esperado": 6
+          },
+          {
+            "argumentos": [
+              5
+            ],
+            "resultado_esperado": 15
+          }
+        ]
+      }
+    },
+    "03-projeto-final-organizador.md": {
+      "titulo": "Implemente uma parte do organizador",
+      "enunciado": "Crie adicionar_tarefa(tarefas, titulo), que ignora títulos vazios após strip e, quando válido, acrescenta um registro com titulo e concluida=False. Devolva a lista atualizada.",
+      "codigo_inicial": "def adicionar_tarefa(tarefas, titulo):\n    # Limpe o título, valide e acrescente o dicionário.\n    return tarefas\n",
+      "avaliador": {
+        "tipo": "funcao",
+        "nome_funcao": "adicionar_tarefa",
+        "casos": [
+          {
+            "argumentos": [
+              [],
+              "Revisar lógica"
+            ],
+            "resultado_esperado": [
+              {
+                "titulo": "Revisar lógica",
+                "concluida": false
+              }
+            ]
+          },
+          {
+            "argumentos": [
+              [],
+              "   "
+            ],
+            "resultado_esperado": []
+          },
+          {
+            "argumentos": [
+              [
+                {
+                  "titulo": "Ler",
+                  "concluida": false
+                }
+              ],
+              "Praticar"
+            ],
+            "resultado_esperado": [
+              {
+                "titulo": "Ler",
+                "concluida": false
+              },
+              {
+                "titulo": "Praticar",
+                "concluida": false
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

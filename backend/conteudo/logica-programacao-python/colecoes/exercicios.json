@@ -1,0 +1,233 @@
+{
+  "aulas": {
+    "01-guarde-varios-valores-em-listas.md": {
+      "titulo": "Some os valores de uma lista",
+      "enunciado": "Crie somar_valores(valores), que recebe uma lista de números e devolve a soma. A lista pode estar vazia.",
+      "codigo_inicial": "def somar_valores(valores):\n    soma = 0\n    # Percorra a lista e atualize a soma.\n    return soma\n",
+      "avaliador": {
+        "tipo": "funcao",
+        "nome_funcao": "somar_valores",
+        "casos": [
+          {
+            "argumentos": [
+              [
+                2,
+                3,
+                5
+              ]
+            ],
+            "resultado_esperado": 10
+          },
+          {
+            "argumentos": [
+              []
+            ],
+            "resultado_esperado": 0
+          },
+          {
+            "argumentos": [
+              [
+                -1,
+                4
+              ]
+            ],
+            "resultado_esperado": 3
+          }
+        ]
+      }
+    },
+    "02-altere-listas.md": {
+      "titulo": "Atualize a lista na posição correta",
+      "enunciado": "Crie marcar_primeira_concluida(tarefas), que muda para True o primeiro valor da lista e devolve a lista. Considere uma lista vazia.",
+      "codigo_inicial": "def marcar_primeira_concluida(tarefas):\n    # Se existir um item, altere a posição zero. Devolva a lista.\n    return tarefas\n",
+      "avaliador": {
+        "tipo": "funcao",
+        "nome_funcao": "marcar_primeira_concluida",
+        "casos": [
+          {
+            "argumentos": [
+              [
+                false,
+                false
+              ]
+            ],
+            "resultado_esperado": [
+              true,
+              false
+            ]
+          },
+          {
+            "argumentos": [
+              []
+            ],
+            "resultado_esperado": []
+          }
+        ]
+      }
+    },
+    "03-percorra-uma-lista.md": {
+      "titulo": "Percorra os valores e conte",
+      "enunciado": "Crie contar_pares(valores), que percorre a lista e devolve quantos números são pares.",
+      "codigo_inicial": "def contar_pares(valores):\n    quantidade = 0\n    # Percorra valores e conte os pares.\n    return quantidade\n",
+      "avaliador": {
+        "tipo": "funcao",
+        "nome_funcao": "contar_pares",
+        "casos": [
+          {
+            "argumentos": [
+              [
+                1,
+                2,
+                4,
+                7
+              ]
+            ],
+            "resultado_esperado": 2
+          },
+          {
+            "argumentos": [
+              []
+            ],
+            "resultado_esperado": 0
+          }
+        ]
+      }
+    },
+    "04-busque-conte-e-some.md": {
+      "titulo": "Busque um valor sem sair da lista",
+      "enunciado": "Crie contem_valor(valores, alvo), que devolve True quando alvo aparece na lista e False quando não aparece.",
+      "codigo_inicial": "def contem_valor(valores, alvo):\n    # Percorra a lista e compare cada valor com alvo.\n    return False\n",
+      "avaliador": {
+        "tipo": "funcao",
+        "nome_funcao": "contem_valor",
+        "casos": [
+          {
+            "argumentos": [
+              [
+                3,
+                8,
+                12
+              ],
+              8
+            ],
+            "resultado_esperado": true
+          },
+          {
+            "argumentos": [
+              [
+                3,
+                8,
+                12
+              ],
+              5
+            ],
+            "resultado_esperado": false
+          },
+          {
+            "argumentos": [
+              [],
+              1
+            ],
+            "resultado_esperado": false
+          }
+        ]
+      }
+    },
+    "05-dicionarios.md": {
+      "titulo": "Leia um campo de um dicionário",
+      "enunciado": "Crie obter_titulo(tarefa), que devolve o valor da chave titulo. Se a chave não existir, devolva Sem título.",
+      "codigo_inicial": "def obter_titulo(tarefa):\n    # Use get para tratar a chave ausente.\n    pass\n",
+      "avaliador": {
+        "tipo": "funcao",
+        "nome_funcao": "obter_titulo",
+        "casos": [
+          {
+            "argumentos": [
+              {
+                "titulo": "Estudar"
+              }
+            ],
+            "resultado_esperado": "Estudar"
+          },
+          {
+            "argumentos": [
+              {}
+            ],
+            "resultado_esperado": "Sem título"
+          }
+        ]
+      }
+    },
+    "06-lista-de-registros.md": {
+      "titulo": "Conte registros pendentes",
+      "enunciado": "Crie contar_pendentes(tarefas). Cada tarefa é um dicionário com a chave concluida. Devolva a quantidade ainda pendente, inclusive quando a lista estiver vazia.",
+      "codigo_inicial": "def contar_pendentes(tarefas):\n    quantidade = 0\n    # Percorra os registros e conte os que não estão concluídos.\n    return quantidade\n",
+      "avaliador": {
+        "tipo": "funcao",
+        "nome_funcao": "contar_pendentes",
+        "casos": [
+          {
+            "argumentos": [
+              [
+                {
+                  "titulo": "A",
+                  "concluida": false
+                },
+                {
+                  "titulo": "B",
+                  "concluida": true
+                }
+              ]
+            ],
+            "resultado_esperado": 1
+          },
+          {
+            "argumentos": [
+              []
+            ],
+            "resultado_esperado": 0
+          }
+        ]
+      }
+    },
+    "07-oficina-colecoes.md": {
+      "titulo": "Organize tarefas em registros",
+      "enunciado": "Crie titulos_pendentes(tarefas), que devolve uma lista apenas com os títulos das tarefas ainda não concluídas, na ordem original.",
+      "codigo_inicial": "def titulos_pendentes(tarefas):\n    titulos = []\n    # Percorra, verifique o estado e acrescente títulos pendentes.\n    return titulos\n",
+      "avaliador": {
+        "tipo": "funcao",
+        "nome_funcao": "titulos_pendentes",
+        "casos": [
+          {
+            "argumentos": [
+              [
+                {
+                  "titulo": "Ler",
+                  "concluida": false
+                },
+                {
+                  "titulo": "Pausa",
+                  "concluida": true
+                },
+                {
+                  "titulo": "Praticar",
+                  "concluida": false
+                }
+              ]
+            ],
+            "resultado_esperado": [
+              "Ler",
+              "Praticar"
+            ]
+          },
+          {
+            "argumentos": [
+              []
+            ],
+            "resultado_esperado": []
+          }
+        ]
+      }
+    }
+  }
+}

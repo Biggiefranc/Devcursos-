@@ -8,6 +8,14 @@ async function buscarPorCurso(req, res) {
     return res.status(200).json(avaliacao);
 }
 
+async function buscarPorId(req, res) {
+    const avaliacao = await service.buscarPorId(
+        req.firebaseUser.uid,
+        req.params.id,
+    );
+    return res.status(200).json(avaliacao);
+}
+
 async function registrarTentativa(req, res) {
     const resultado = await service.registrarTentativa(
         req.firebaseUser.uid,
@@ -17,4 +25,4 @@ async function registrarTentativa(req, res) {
     return res.status(201).json(resultado);
 }
 
-module.exports = { buscarPorCurso, registrarTentativa };
+module.exports = { buscarPorCurso, buscarPorId, registrarTentativa };

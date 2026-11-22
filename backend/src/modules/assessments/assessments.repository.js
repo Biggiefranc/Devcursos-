@@ -4,7 +4,7 @@ async function buscarPorCurso(cursoId) {
     const [rows] = await pool.execute(
         `SELECT id, curso_id, titulo, minimo_acertos
          FROM avaliacoes
-         WHERE curso_id = ? AND ativa = 1
+         WHERE curso_id = ? AND modulo_id IS NULL AND ativa = 1
          LIMIT 1`,
         [cursoId]
     );
@@ -13,13 +13,74 @@ async function buscarPorCurso(cursoId) {
 
 async function buscarPorId(avaliacaoId) {
     const [rows] = await pool.execute(
-        `SELECT id, curso_id, titulo, minimo_acertos
-         FROM avaliacoes
-         WHERE id = ? AND ativa = 1
+        `SELECT a.id, a.curso_id, a.modulo_id, a.titulo, a.minimo_acertos,
+                m.curso_id AS modulo_curso_id, m.ordem AS modulo_ordem
+         FROM avaliacoes a
+         LEFT JOIN modulos m ON m.id = a.modulo_id
+         WHERE a.id = ? AND a.ativa = 1
          LIMIT 1`,
         [avaliacaoId]
     );
     return rows[0] || null;
+}
+
+async function listarAprovadasPorCurso(usuarioId, cursoId) {
+    const [rows] = await pool.execute(
+        `SELECT DISTINCT a.id
+         FROM tentativas_avaliacao t
+         INNER JOIN avaliacoes a ON a.id = t.avaliacao_id
+         LEFT JOIN modulos m ON m.id = a.modulo_id
+         WHERE t.usuario_id = ? AND t.aprovada = 1
+           AND (a.curso_id = ? OR m.curso_id = ?)
+         ORDER BY a.id ASC`,
+        [usuarioId, cursoId, cursoId],
+    );
+    return rows.map((row) => Number(row.id));
+}
+
+async function buscarAvaliacaoModuloAnteriorPendente(usuarioId, cursoId, moduloOrdemAtual = null) {
+    const parametros = [usuarioId, cursoId];
+    let filtroOrdem = "";
+    if (moduloOrdemAtual != null) {
+        filtroOrdem = "AND m.ordem < ?";
+        parametros.push(moduloOrdemAtual);
+    }
+    const [rows] = await pool.execute(
+        `SELECT a.id, a.titulo, a.modulo_id, m.titulo AS modulo_titulo
+         FROM avaliacoes a
+         INNER JOIN modulos m ON m.id = a.modulo_id
+         LEFT JOIN (
+            SELECT DISTINCT avaliacao_id
+            FROM tentativas_avaliacao
+            WHERE usuario_id = ? AND aprovada = 1
+         ) aprovada ON aprovada.avaliacao_id = a.id
+         WHERE m.curso_id = ? AND a.ativa = 1
+           ${filtroOrdem}
+           AND aprovada.avaliacao_id IS NULL
+         ORDER BY m.ordem ASC, a.id ASC
+         LIMIT 1`,
+        parametros,
+    );
+    return rows[0] || null;
+}
+
+async function contarAulasPorModulo(moduloId) {
+    const [rows] = await pool.execute(
+        "SELECT COUNT(*) AS total FROM aulas WHERE modulo_id = ?",
+        [moduloId],
+    );
+    return Number(rows[0]?.total || 0);
+}
+
+async function listarAulasConcluidasPorModulo(usuarioId, moduloId) {
+    const [rows] = await pool.execute(
+        `SELECT COUNT(*) AS total
+         FROM progresso_aulas pa
+         INNER JOIN aulas a ON a.id = pa.aula_id
+         WHERE pa.usuario_id = ? AND a.modulo_id = ? AND pa.concluida = 1`,
+        [usuarioId, moduloId],
+    );
+    return Number(rows[0]?.total || 0);
 }
 
 async function listarQuestoesPublicas(avaliacaoId) {
@@ -112,6 +173,10 @@ async function listarCorretas(avaliacaoId) {
 module.exports = {
     buscarPorCurso,
     buscarPorId,
+    listarAprovadasPorCurso,
+    buscarAvaliacaoModuloAnteriorPendente,
+    contarAulasPorModulo,
+    listarAulasConcluidasPorModulo,
     listarQuestoesPublicas,
     listarCorretas,
     registrarTentativa

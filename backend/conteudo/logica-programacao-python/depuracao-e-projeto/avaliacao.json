@@ -1,0 +1,112 @@
+{
+  "titulo": "Avaliação do módulo 7 — Depuração e projeto",
+  "minimo_acertos": 4,
+  "ativa": true,
+  "questoes": [
+    {
+      "enunciado": "Qual erro costuma aparecer quando int(\"dez\") tenta converter texto inválido?",
+      "alternativas": [
+        {
+          "texto": "ValueError",
+          "correta": true
+        },
+        {
+          "texto": "NameError",
+          "correta": false
+        },
+        {
+          "texto": "IndexError",
+          "correta": false
+        },
+        {
+          "texto": "SyntaxError",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Qual é a forma mais cuidadosa de tratar apenas uma conversão inválida?",
+      "alternativas": [
+        {
+          "texto": "try/except ValueError ao redor da conversão.",
+          "correta": true
+        },
+        {
+          "texto": "except: em todo o programa para esconder qualquer falha.",
+          "correta": false
+        },
+        {
+          "texto": "Apagar a conversão e continuar com o texto.",
+          "correta": false
+        },
+        {
+          "texto": "Reiniciar o computador dentro do except.",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Uma soma de 1 até limite deveria incluir o limite. Qual teste ajuda a encontrar um erro de fronteira?",
+      "alternativas": [
+        {
+          "texto": "Verificar limite=1 e limite=3 com resultados calculados à mão.",
+          "correta": true
+        },
+        {
+          "texto": "Testar somente limite=100000.",
+          "correta": false
+        },
+        {
+          "texto": "Mudar várias linhas ao mesmo tempo.",
+          "correta": false
+        },
+        {
+          "texto": "Evitar executar a função.",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Por que dividir o organizador de estudos em funções pequenas?",
+      "alternativas": [
+        {
+          "texto": "Cada função pode cuidar de uma tarefa e ser verificada separadamente.",
+          "correta": true
+        },
+        {
+          "texto": "Toda função cria automaticamente um arquivo no computador.",
+          "correta": false
+        },
+        {
+          "texto": "O programa deixa de precisar de dados.",
+          "correta": false
+        },
+        {
+          "texto": "Funções eliminam todos os possíveis erros.",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Ao revisar uma função que adiciona uma tarefa, qual teste cobre um caso importante?",
+      "alternativas": [
+        {
+          "texto": "Verificar um título com espaços e também um título vazio.",
+          "correta": true
+        },
+        {
+          "texto": "Executar apenas com um título longo e ignorar outras entradas.",
+          "correta": false
+        },
+        {
+          "texto": "Confirmar que o programa imprime sem testar a lista.",
+          "correta": false
+        },
+        {
+          "texto": "Apagar a lista antes de cada chamada.",
+          "correta": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,112 @@
+{
+  "titulo": "Avaliação do módulo 2 — Dados e expressões",
+  "minimo_acertos": 4,
+  "ativa": true,
+  "questoes": [
+    {
+      "enunciado": "O que input() devolve antes de uma conversão?",
+      "alternativas": [
+        {
+          "texto": "Um texto (str).",
+          "correta": true
+        },
+        {
+          "texto": "Um número inteiro sempre.",
+          "correta": false
+        },
+        {
+          "texto": "Um número decimal sempre.",
+          "correta": false
+        },
+        {
+          "texto": "Um valor lógico bool.",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Qual instrução converte o texto digitado em inteiro?",
+      "alternativas": [
+        {
+          "texto": "int(input(\"Número: \"))",
+          "correta": true
+        },
+        {
+          "texto": "input(int(\"Número: \"))",
+          "correta": false
+        },
+        {
+          "texto": "str(input(\"Número: \"))",
+          "correta": false
+        },
+        {
+          "texto": "bool(input(\"Número: \"))",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Qual é o resultado de 2 + 3 * 4?",
+      "alternativas": [
+        {
+          "texto": "14",
+          "correta": true
+        },
+        {
+          "texto": "20",
+          "correta": false
+        },
+        {
+          "texto": "24",
+          "correta": false
+        },
+        {
+          "texto": "9",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "Para 135 minutos, que combinação encontra horas completas e minutos restantes?",
+      "alternativas": [
+        {
+          "texto": "135 // 60 e 135 % 60",
+          "correta": true
+        },
+        {
+          "texto": "135 / 60 e 135 ** 60",
+          "correta": false
+        },
+        {
+          "texto": "135 % 60 e 135 + 60",
+          "correta": false
+        },
+        {
+          "texto": "135 * 60 e 135 // 2",
+          "correta": false
+        }
+      ]
+    },
+    {
+      "enunciado": "O que uma f-string ajuda a fazer?",
+      "alternativas": [
+        {
+          "texto": "Montar texto incluindo valores de variáveis.",
+          "correta": true
+        },
+        {
+          "texto": "Converter qualquer texto em número automaticamente.",
+          "correta": false
+        },
+        {
+          "texto": "Repetir instruções até uma condição mudar.",
+          "correta": false
+        },
+        {
+          "texto": "Criar uma lista sem colchetes.",
+          "correta": false
+        }
+      ]
+    }
+  ]
+}
