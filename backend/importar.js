@@ -5,6 +5,12 @@ const mysql = require("mysql2/promise");
 require("./src/config/env");
 const { DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME, DB_SSL, DB_SSL_CA } = require("./src/config/env");
 
+const indiceFiltroCurso = process.argv.indexOf("--curso");
+const filtroCurso = indiceFiltroCurso >= 0 ? process.argv[indiceFiltroCurso + 1] : null;
+if (indiceFiltroCurso >= 0 && !filtroCurso) {
+    throw new Error("Uso: node importar.js [--curso \"Título do curso\"]");
+}
+
 function normalizarTecnologias(value) {
     if (Array.isArray(value)) return value.map((item) => String(item).trim()).filter(Boolean);
     if (typeof value !== "string" || !value.trim()) return null;
@@ -85,10 +91,12 @@ async function importarCursos() {
                 continue;
             }
 
+            const cursoFile = matter.read(arquivoCurso);
+            if (!cursoFile.data.titulo) throw new Error(`${arquivoCurso}: campo titulo obrigatório.`);
+            if (filtroCurso && cursoFile.data.titulo !== filtroCurso) continue;
+
             await db.beginTransaction();
             try {
-                const cursoFile = matter.read(arquivoCurso);
-                if (!cursoFile.data.titulo) throw new Error(`${arquivoCurso}: campo titulo obrigatório.`);
                 const cursoId = await obterOuCriarCurso(db, cursoFile.data);
 
                 const pastasModulos = fs.readdirSync(caminhoCurso, { withFileTypes: true })

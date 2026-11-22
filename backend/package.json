@@ -8,6 +8,8 @@
     "start": "node src/server.js",
     "dev": "node ./scripts/clear-stale-dev.js 3001 && nodemon src/server.js",
     "import": "node importar.js",
+    "import:git": "node importar.js --curso \"Git e GitHub Essencial\"",
+    "import:avaliacoes": "node scripts/importar-avaliacoes.js",
     "migrate:course-metadata": "node scripts/migrate-course-metadata.js"
   },
   "keywords": [],
