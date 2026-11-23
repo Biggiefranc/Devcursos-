@@ -2,7 +2,7 @@ import { auth } from "./firebase/firebase-config";
 import { onAuthStateChanged } from "firebase/auth";
 import { requisicaoAPI, encerrarSessao } from "./services/api";
 
-const PROVA = { id: "prova-final", titulo: "Avaliação final", minimoAcertos: 0 };
+const PROVA = { id: "prova-final", titulo: "Avaliação final" };
 const LETRAS = ["A", "B", "C", "D", "E", "F"];
 
 const tituloCurso = document.getElementById("tituloCurso");
@@ -16,15 +16,9 @@ let todas = [];
 let feitas = new Set();
 let exerciciosConcluidos = new Set();
 let avaliacoesAprovadas = new Set();
-let avaliacaoAtualMeta = null;
-let respostasProva = {};
-let avaliacao = null;
-let tentativaProva = null;
 let destruirEditor = null;
 let aulaAtualId = null;
 let renderVersion = 0;
-let provaCarregada = false;
-let mensagemAvaliacao = "Esta avaliação ainda não está configurada.";
 const parametros = new URLSearchParams(window.location.search);
 const cursoId = parametros.get("curso");
 const aulaSolicitada =
@@ -111,19 +105,6 @@ function chaveAvaliacao(avaliacao) {
 
 function obterAvaliacaoPorChave(key) {
   return avaliacaoPorChave(key);
-}
-
-async function carregarAvaliacao(meta) {
-  avaliacaoAtualMeta = meta;
-  avaliacao = await requisicaoAPI(
-    `/avaliacoes/${encodeURIComponent(meta.id)}`,
-  );
-  respostasProva = {};
-  tentativaProva = null;
-  PROVA.titulo = avaliacao.titulo || meta.titulo || "Avaliação";
-  PROVA.minimoAcertos = Number(avaliacao.minimoAcertos || 0);
-  provaCarregada = true;
-  document.title = `${meta.titulo} | ${curso.titulo || "Formação"} | DevCursos+`;
 }
 
 /* ----- Renderização ----- */
@@ -615,181 +596,141 @@ function criarSecaoAula(aula, modulo, criarEditorDeCodigo) {
   return sec;
 }
 
-function desenharProva(sec) {
-  sec.replaceChildren();
-  const meta = avaliacaoAtualMeta || {};
-  sec.append(
-    criarElemento("p", "trilha", meta.final ? "Avaliação final" : meta.moduloTitulo || "Avaliação do módulo"),
-    criarElemento("h1", "", avaliacao?.titulo || meta.titulo || "Avaliação"),
-  );
-
-  if (
-    !avaliacao ||
-    !Array.isArray(avaliacao.questoes) ||
-    !avaliacao.questoes.length
-  ) {
-    sec.appendChild(
-      criarElemento(
-        "p",
-        "",
-        `${mensagemAvaliacao} As respostas serão corrigidas pelo servidor.`,
-      ),
-    );
-    return;
-  }
-
-  sec.appendChild(
-    criarElemento(
-      "p",
-      "",
-      `Responda às questões para revisar os conceitos do módulo. Você precisa acertar pelo menos ${avaliacao.minimoAcertos} de ${avaliacao.questoes.length}.`,
-    ),
-  );
-
-  avaliacao.questoes.forEach((questao, indice) => {
-    const bloco = criarElemento("fieldset", "quiz-q");
-    bloco.appendChild(
-      criarElemento("legend", "", `${indice + 1}. ${questao.enunciado}`),
-    );
-    const selecionada = String(respostasProva[String(questao.id)] || "");
-    (questao.alternativas || []).forEach((alternativa, alternativaIndice) => {
-      const botao = criarElemento(
-        "button",
-        `quiz-op${selecionada === String(alternativa.id) ? " escolhida" : ""}`,
-        `${LETRAS[alternativaIndice] || alternativaIndice + 1}. ${alternativa.texto}`,
-      );
-      botao.type = "button";
-      botao.dataset.questaoId = String(questao.id);
-      botao.dataset.alternativaId = String(alternativa.id);
-      botao.disabled = Boolean(tentativaProva);
-      bloco.appendChild(botao);
-    });
-    sec.appendChild(bloco);
-  });
-
-  if (tentativaProva) {
-    const aprovada = Boolean(tentativaProva.aprovada);
-    const resultado = criarElemento(
-      "p",
-      `quiz-resultado ${aprovada ? "sucesso" : "erro"}`,
-      `${tentativaProva.acertos} de ${tentativaProva.totalQuestoes} acertos. ${aprovada ? "Avaliação aprovada." : "Ainda não atingiu o mínimo. Revise o conteúdo e tente de novo."}`,
-    );
-    sec.appendChild(resultado);
-    if (!aprovada) {
-      const tentar = criarElemento("button", "lesson-previous quiz-retry", "Tentar novamente");
-      tentar.type = "button";
-      tentar.dataset.acao = "tentar-avaliacao";
-      sec.appendChild(tentar);
-    } else {
-      const nextKey = proximoItemAposAvaliacao(meta);
-      if (nextKey) {
-        const seguir = criarElemento(
-          "button",
-          "lesson-next assessment-next",
-          nextKey === PROVA.id ? "Abrir avaliação final" : "Ir para o próximo módulo",
-        );
-        seguir.type = "button";
-        seguir.dataset.proximaEtapa = nextKey;
-        sec.appendChild(seguir);
-      } else {
-        sec.appendChild(criarElemento("p", "course-complete-note", "Curso concluído. Você pode revisar qualquer aula quando quiser."));
-      }
-    }
-    return;
-  }
-
-  const botaoEnviar = criarElemento(
-    "button",
-    "btn-concluir quiz-submit",
-    "Enviar avaliação",
-  );
-  botaoEnviar.type = "button";
-  botaoEnviar.dataset.acao = "enviar-prova";
-  botaoEnviar.disabled = avaliacao.questoes.some(
-    (questao) => !respostasProva[String(questao.id)],
-  );
-  sec.appendChild(botaoEnviar);
-}
-
-function criarSecaoProva(meta) {
+function criarSecaoProva(meta, avaliacao) {
   const sec = criarElemento("section", "aula-secao prova-secao");
   sec.id = "lesson-content";
-  const key = chaveAvaliacao(meta);
-  sec.dataset.key = key;
+  sec.dataset.key = chaveAvaliacao(meta);
 
-  if (!avaliacaoLiberada(meta)) {
-    sec.classList.add("bloqueada");
-    sec.append(
-      criarElemento("p", "trilha", meta.final ? "Avaliação final" : meta.moduloTitulo || "Avaliação do módulo"),
-      criarElemento("h1", "", meta.titulo || "Avaliação"),
-      criarElemento(
-        "p",
-        "",
-        meta.final ? "Conclua todas as aulas e as avaliações dos módulos para abrir a prova final." : "Conclua as aulas deste módulo e passe na avaliação anterior para continuar.",
-      ),
-    );
-    return sec;
+  const titulo = criarElemento("h1", "", avaliacao.titulo || meta.titulo || "Avaliação");
+  titulo.tabIndex = -1;
+  sec.append(
+    criarElemento("p", "trilha", meta.final ? "Avaliação final" : meta.moduloTitulo || "Avaliação do módulo"),
+    titulo,
+  );
+
+  const total = avaliacao.questoes.length;
+  const tema = meta.final ? "do curso" : "do módulo";
+  sec.appendChild(criarElemento(
+    "p", "quiz-intro",
+    `Revise os conceitos ${tema}. Para passar, acerte pelo menos ${avaliacao.minimoAcertos} de ${total} questões.`,
+  ));
+
+  const formulario = criarElemento("form", "quiz-form");
+  const questoes = avaliacao.questoes.map((questao, indice) => {
+    const bloco = criarElemento("fieldset", "quiz-q");
+    const grupo = `questao-${questao.id}`;
+    bloco.appendChild(criarElemento("legend", "", `${indice + 1}. ${questao.enunciado}`));
+
+    const opcoes = criarElemento("div", "quiz-options");
+    questao.alternativas.forEach((alternativa, alternativaIndice) => {
+      const rotulo = criarElemento("label", "quiz-op");
+      const radio = criarElemento("input", "quiz-radio");
+      radio.type = "radio";
+      radio.name = grupo;
+      radio.value = String(alternativa.id);
+      radio.required = true;
+      const letra = criarElemento("span", "quiz-letra", LETRAS[alternativaIndice] || String(alternativaIndice + 1));
+      letra.setAttribute("aria-hidden", "true");
+      rotulo.append(radio, letra, criarElemento("span", "", alternativa.texto));
+      opcoes.appendChild(rotulo);
+    });
+    bloco.appendChild(opcoes);
+    formulario.appendChild(bloco);
+    return bloco;
+  });
+
+  const rodape = criarElemento("div", "quiz-actions");
+  const status = criarElemento("p", "quiz-status");
+  status.setAttribute("role", "status");
+  const enviar = criarElemento("button", "lesson-next quiz-submit", "Enviar avaliação");
+  enviar.type = "submit";
+  rodape.append(status, enviar);
+  formulario.appendChild(rodape);
+  sec.appendChild(formulario);
+
+  let enviando = false;
+
+  function atualizarContagem() {
+    const totalRespondidas = Array.from(new FormData(formulario).keys()).length;
+    status.className = "quiz-status";
+    status.textContent = `${totalRespondidas} de ${total} respondidas`;
+    enviar.disabled = totalRespondidas < total;
   }
 
-  sec.addEventListener("click", async (evento) => {
-    const alvo =
-      evento.target instanceof Element
-        ? evento.target
-        : evento.target?.parentElement;
-    const opcao = alvo?.closest(".quiz-op");
-    if (opcao && sec.contains(opcao) && !tentativaProva) {
-      respostasProva[opcao.dataset.questaoId] = opcao.dataset.alternativaId;
-      desenharProva(sec);
-      return;
-    }
+  formulario.addEventListener("change", atualizarContagem);
+  atualizarContagem();
 
-    const tentar = alvo?.closest('[data-acao="tentar-avaliacao"]');
-    if (tentar) {
-      respostasProva = {};
-      tentativaProva = null;
-      desenharProva(sec);
-      return;
-    }
+  formulario.addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+    if (enviar.disabled || enviando) return;
 
-    const proxima = alvo?.closest("[data-proxima-etapa]");
-    if (proxima) {
-      void selecionarAula(proxima.dataset.proximaEtapa);
-      return;
-    }
-
-    const enviar = alvo?.closest('[data-acao="enviar-prova"]');
-    if (!enviar || !avaliacao || tentativaProva) return;
+    const dados = new FormData(formulario);
+    const respostas = avaliacao.questoes.map((questao) => ({
+      questaoId: Number(questao.id),
+      alternativaId: Number(dados.get(`questao-${questao.id}`)),
+    }));
+    enviando = true;
     enviar.disabled = true;
+    questoes.forEach((bloco) => { bloco.disabled = true; });
+    status.textContent = "Enviando respostas…";
+
     try {
-      const respostas = Object.entries(respostasProva).map(
-        ([questaoId, alternativaId]) => ({
-          questaoId: Number(questaoId),
-          alternativaId: Number(alternativaId),
-        }),
-      );
-      tentativaProva = await requisicaoAPI(
+      const tentativa = await requisicaoAPI(
         `/avaliacoes/${encodeURIComponent(avaliacao.id)}/tentativas`,
-        {
-          method: "POST",
-          body: JSON.stringify({ respostas }),
-        },
+        { method: "POST", body: JSON.stringify({ respostas }) },
       );
-      if (tentativaProva.aprovada) {
+
+      if (tentativa.aprovada) {
         avaliacoesAprovadas.add(String(avaliacao.id));
         atualizarProgresso();
         montarMenu(aulaAtualId);
       }
-      desenharProva(sec);
+      if (!sec.isConnected) return;
+
+      const mensagem = tentativa.aprovada
+        ? "Avaliação aprovada."
+        : "Revise o conteúdo e tente novamente.";
+      status.textContent = `${tentativa.acertos} de ${tentativa.totalQuestoes} acertos. ${mensagem}`;
+      status.className = `quiz-status ${tentativa.aprovada ? "sucesso" : "erro"}`;
+      enviar.hidden = true;
+      status.tabIndex = -1;
+      status.focus();
+
+      if (!tentativa.aprovada) {
+        const tentar = criarElemento("button", "lesson-previous", "Tentar novamente");
+        tentar.type = "button";
+        tentar.addEventListener("click", () => {
+          formulario.reset();
+          questoes.forEach((bloco) => { bloco.disabled = false; });
+          tentar.remove();
+          enviar.hidden = false;
+          atualizarContagem();
+          questoes[0]?.querySelector("input")?.focus();
+        });
+        rodape.appendChild(tentar);
+        return;
+      }
+
+      const proximaEtapa = proximoItemAposAvaliacao(meta);
+      if (proximaEtapa) {
+        const texto = proximaEtapa === PROVA.id ? "Abrir avaliação final" : "Ir para o próximo módulo";
+        const seguir = criarElemento("button", "lesson-next", texto);
+        seguir.type = "button";
+        seguir.addEventListener("click", () => void selecionarAula(proximaEtapa));
+        rodape.appendChild(seguir);
+      } else {
+        rodape.appendChild(criarElemento("p", "course-complete-note", "Formação concluída. Você pode voltar às aulas para revisar."));
+      }
     } catch (erro) {
-      console.error("Não foi possível enviar a avaliação:", erro);
-      alert(
-        erro.message || "Não foi possível enviar a avaliação. Tente novamente.",
-      );
-      enviar.disabled = false;
+      if (!sec.isConnected) return;
+      questoes.forEach((bloco) => { bloco.disabled = false; });
+      atualizarContagem();
+      status.className = "quiz-status erro";
+      status.textContent = erro.message || "Não foi possível enviar a avaliação. Tente novamente.";
+    } finally {
+      enviando = false;
     }
   });
-
-  desenharProva(sec);
   return sec;
 }
 
@@ -900,9 +841,10 @@ async function selecionarAula(key, { historyMode = "push", focar = true } = {}) 
 
   try {
     if (meta) {
-      await carregarAvaliacao(meta);
+      const avaliacao = await requisicaoAPI(`/avaliacoes/${encodeURIComponent(meta.id)}`);
       if (versao !== renderVersion) return;
-      pagina.replaceChildren(criarSecaoProva(meta));
+      pagina.replaceChildren(criarSecaoProva(meta, avaliacao));
+      document.title = `${avaliacao.titulo || meta.titulo} | ${curso.titulo || "Formação"} | DevCursos+`;
     } else {
       const lesson = await requisicaoAPI(
         "/aulas/" + encodeURIComponent(id),
@@ -958,10 +900,6 @@ btnReiniciar.addEventListener("click", async () => {
     feitas = new Set();
     exerciciosConcluidos = new Set();
     avaliacoesAprovadas = new Set();
-    respostasProva = {};
-    tentativaProva = null;
-    avaliacao = null;
-    provaCarregada = false;
     localStorage.removeItem("devcursos-feitas");
     atualizarProgresso();
     await selecionarAula(todas[0]?.id, { historyMode: "replace" });

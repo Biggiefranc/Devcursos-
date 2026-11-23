@@ -633,34 +633,94 @@
   box-shadow: 0 18px 0 #211a26, 0 36px 0 #1b1520;
 }
 .prova-secao {
-  padding: 21px;
-  background: #211829;
-  border: 1px solid #493750;
+  padding: clamp(14px, 3vw, 28px);
+  background: var(--panel);
+  border: 1px solid var(--line);
 }
-.questao {
-  margin: 20px 0;
-  padding: 19px;
-  border-top: 1px solid #39343e;
+.prova-secao > .quiz-intro {
+  margin: 0 0 26px;
+  color: var(--silver);
+  font-size: 14px;
 }
-.questao h3 {
-  font-size: 13px;
+.quiz-form {
+  display: grid;
+  gap: 24px;
 }
-.option {
+.quiz-q {
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+.quiz-q legend {
   width: 100%;
-  display: block;
-  padding: 12px 14px;
-  margin: 8px 0;
-  text-align: left;
-  border: 1px solid #38343e;
-  background: #141317;
-  color: #c7c0cc;
+  padding: 14px 0 10px;
+  border-top: 1px solid var(--line);
+  color: var(--white);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.quiz-options {
+  display: grid;
+  gap: 6px;
+}
+.quiz-op {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: 9px;
+  padding: 9px 12px;
+  border: 1px solid var(--line-soft);
+  border-radius: 6px;
+  background: var(--ink);
+  color: var(--silver);
+  font-size: 14px;
+  overflow-wrap: anywhere;
   cursor: pointer;
 }
-.option:hover,
-.option.selected {
-  border-color: #9c7db0;
-  background: #211b27;
+.quiz-op:hover,
+.quiz-op:has(:focus-visible) {
+  border-color: var(--purple);
 }
+.quiz-op:has(:checked) {
+  border-color: var(--purple-bright);
+  background: var(--panel-2);
+  color: var(--white);
+}
+.quiz-radio {
+  margin: 0;
+  accent-color: var(--purple-bright);
+  align-self: center;
+  cursor: inherit;
+}
+.quiz-letra {
+  color: var(--purple-bright);
+  font: 0.72rem var(--mono);
+}
+.quiz-q:disabled .quiz-op {
+  cursor: default;
+}
+.quiz-q:disabled .quiz-op:not(:has(:checked)):hover {
+  border-color: var(--line-soft);
+}
+.quiz-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.quiz-status {
+  margin: 0;
+  color: var(--silver);
+  font-size: 14px;
+}
+.quiz-status.sucesso { color: var(--green); }
+.quiz-status.erro { color: var(--red); }
+.quiz-submit:disabled { cursor: default; }
+
 .study-footer {
   min-height: 38px;
   display: flex;

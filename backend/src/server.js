@@ -1,3 +1,5 @@
+const { once } = require("node:events");
+const { createServer } = require("node:http");
 const app = require("./app");
 const { PORT } = require("./config/env");
 const { pool, testarConexao } = require("./shared/database/database");
@@ -6,6 +8,20 @@ const { shouldBypassFirebaseAuth } = require("./shared/providers/firebaseAdmin")
 const HOST = shouldBypassFirebaseAuth
     ? "127.0.0.1"
     : (process.env.HOST || "0.0.0.0");
+
+async function apiLocalJaAtiva() {
+    const endereco = HOST === "0.0.0.0" ? "127.0.0.1" : HOST === "::" ? "::1" : HOST;
+    const hostUrl = endereco.includes(":") ? `[${endereco}]` : endereco;
+    try {
+        const resposta = await fetch(`http://${hostUrl}:${PORT}/`, {
+            redirect: "error",
+            signal: AbortSignal.timeout(1000),
+        });
+        return resposta.ok && (await resposta.text()) === "Backend do DevCursos+ funcionando!";
+    } catch {
+        return false;
+    }
+}
 
 async function startServer() {
     try {
@@ -24,12 +40,24 @@ async function startServer() {
         );
     }
 
-    const servidor = app.listen(PORT, HOST, () => {
-        console.log(`Servidor do DevCursos+ rodando em http://localhost:${PORT}`);
-    });
+    const servidor = createServer(app);
+    try {
+        const escutando = once(servidor, "listening");
+        servidor.listen(PORT, HOST);
+        await escutando;
+    } catch (erro) {
+        await pool.end().catch(() => {});
+        if (erro.code !== "EADDRINUSE") throw erro;
+        if (process.env.NODE_ENV !== "production" && await apiLocalJaAtiva()) {
+            console.log(`O DevCursos+ já está rodando na porta ${PORT}. Use a instância em execução.`);
+            return null;
+        }
+        throw new Error(`A porta ${PORT} já está ocupada. Encerre o processo que a usa ou configure outra porta em PORT.`, { cause: erro });
+    }
+    console.log(`Servidor do DevCursos+ rodando em http://localhost:${PORT}`);
 
     servidor.on("error", (erro) => {
-        console.error("Erro ao iniciar o servidor:", erro.message);
+        console.error("Erro no servidor HTTP:", erro.message);
         process.exitCode = 1;
         pool.end().catch(() => {});
     });

@@ -19,7 +19,8 @@ Analise o repositório atual deste curso (frontend, backend e estrutura das aula
 ### 3. Regras de Progressão e Avaliações
 - **Trava de progresso:**
   - Aulas **puramente teóricas** não devem ter editor/exercício e podem ser concluídas livremente.
-  - Aulas **práticas** devem bloquear o avanço para a próxima aula até que o aluno acerte o exercício.
+  - Aulas **práticas** devem bloquear o avanço para a próxima aula até que o aluno conclua o exercício.
+  - Adicione algo referente a passagem de módulo para módulo.
 - **Avaliação por módulo:**
   - Na barra lateral (índice do curso), entre a última aula de um módulo e o início do módulo seguinte, adicione uma item de **Avaliação do Módulo**.
   - A avaliação deve ter dificuldade equilibrada (nem trivial, nem avançada demais) para fixar os conceitos estudados no módulo.
