@@ -21,7 +21,8 @@
             "resultado_esperado": "Olá, Ravi!"
           }
         ]
-      }
+      },
+      "correcao": "def saudacao(nome):\n    # return entrega a mensagem a quem chamou a função.\n    return f\"Olá, {nome}!\"\n"
     },
     "02-parametros-e-argumentos.md": {
       "titulo": "Use parâmetros em um cálculo",
@@ -53,7 +54,8 @@
             "resultado_esperado": 0
           }
         ]
-      }
+      },
+      "correcao": "def somar(a, b):\n    # Use os dois valores recebidos a cada chamada.\n    return a + b\n"
     },
     "03-retorne-um-resultado.md": {
       "titulo": "Retorne a média de três valores",
@@ -80,7 +82,8 @@
             "resultado_esperado": 5
           }
         ]
-      }
+      },
+      "correcao": "def media(a, b, c):\n    # Os parênteses garantem que a soma inteira será dividida.\n    return (a + b + c) / 3\n"
     },
     "04-divida-em-funcoes.md": {
       "titulo": "Divida o cálculo em funções",
@@ -107,7 +110,8 @@
             "resultado_esperado": 50
           }
         ]
-      }
+      },
+      "correcao": "def subtotal(preco, quantidade):\n    return preco * quantidade\n\ndef total_com_desconto(preco, quantidade, desconto):\n    # Reaproveite o cálculo do subtotal antes de aplicar o percentual.\n    valor = subtotal(preco, quantidade)\n    return valor - valor * desconto / 100\n"
     },
     "05-nomes-e-escopo.md": {
       "titulo": "Mantenha dados dentro da função",
@@ -132,7 +136,8 @@
             "resultado_esperado": 0
           }
         ]
-      }
+      },
+      "correcao": "def calcular_novo_saldo(saldo, deposito):\n    # Calcule com os parâmetros e devolva o resultado.\n    return saldo + deposito\n"
     },
     "06-teste-com-exemplos.md": {
       "titulo": "Verifique casos comuns e de limite",
@@ -167,7 +172,8 @@
             "resultado_esperado": false
           }
         ]
-      }
+      },
+      "correcao": "def eh_par(numero):\n    # Um número inteiro é par quando o resto da divisão por 2 é zero.\n    return numero % 2 == 0\n"
     },
     "07-oficina-funcoes.md": {
       "titulo": "Calcule um desconto com função",
@@ -199,7 +205,8 @@
             "resultado_esperado": 60
           }
         ]
-      }
+      },
+      "correcao": "def calcular_desconto(preco, percentual):\n    # Dividir por 100 transforma o percentual em uma fração do preço.\n    desconto = preco * percentual / 100\n    return preco - desconto\n"
     }
   }
 }

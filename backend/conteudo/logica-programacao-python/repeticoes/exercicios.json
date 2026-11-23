@@ -3,7 +3,7 @@
     "01-repita-com-while.md": {
       "titulo": "Repita até chegar ao limite",
       "enunciado": "Use while para mostrar os números 1, 2, 3 e 4, cada um em uma linha.",
-      "codigo_inicial": "numero = 1\nwhile numero <= 4:\n    # Mostre o valor atual.\n    # Atualize o número para o laço avançar.\n",
+      "codigo_inicial": "numero = 1\nwhile numero <= 4:\n    # Mostre o valor atual.\n    # Atualize o número para o laço avançar.\n    pass\n",
       "avaliador": {
         "tipo": "saida",
         "casos": [
@@ -12,7 +12,8 @@
             "saida_esperada": "1\n2\n3\n4"
           }
         ]
-      }
+      },
+      "correcao": "numero = 1\nwhile numero <= 4:\n    print(numero)\n    # Sem a atualização, a condição nunca ficaria falsa.\n    numero = numero + 1\n"
     },
     "02-condicao-de-parada.md": {
       "titulo": "Pare quando a resposta for fim",
@@ -27,16 +28,17 @@
               "python",
               "fim"
             ],
-            "saida_esperada": "Digite algo ou fim: Você escreveu: oi\nDigite algo ou fim: Você escreveu: python\nDigite algo ou fim: "
+            "saida_esperada": "Você escreveu: oi\nVocê escreveu: python"
           },
           {
             "entradas": [
               "fim"
             ],
-            "saida_esperada": "Digite algo ou fim: "
+            "saida_esperada": ""
           }
         ]
-      }
+      },
+      "correcao": "resposta = input(\"Digite algo ou fim: \")\nwhile resposta != \"fim\":\n    print(f\"Você escreveu: {resposta}\")\n    # A próxima resposta pode encerrar a repetição.\n    resposta = input(\"Digite algo ou fim: \")\n"
     },
     "03-percorra-com-for-e-range.md": {
       "titulo": "Percorra uma faixa de números",
@@ -50,7 +52,8 @@
             "saida_esperada": "3\n6\n9\n12\n15"
           }
         ]
-      }
+      },
+      "correcao": "# O terceiro argumento de range indica um passo de três em três.\n# O limite 16 fica de fora, então 15 é o último número mostrado.\nfor numero in range(3, 16, 3):\n    print(numero)\n"
     },
     "04-contadores-e-acumuladores.md": {
       "titulo": "Conte e acumule valores",
@@ -65,7 +68,7 @@
               "5",
               "6"
             ],
-            "saida_esperada": "Número: Número: Número: 15"
+            "saida_esperada": "15"
           },
           {
             "entradas": [
@@ -73,10 +76,11 @@
               "2",
               "10"
             ],
-            "saida_esperada": "Número: Número: Número: 10"
+            "saida_esperada": "10"
           }
         ]
-      }
+      },
+      "correcao": "soma = 0\nfor repeticao in range(3):\n    numero = int(input(\"Número: \"))\n    # Guarde o novo total a cada número recebido.\n    soma = soma + numero\nprint(soma)\n"
     },
     "05-break-e-continue.md": {
       "titulo": "Pule valores e encerre o laço",
@@ -90,7 +94,8 @@
             "saida_esperada": "1\n2\n4\n5"
           }
         ]
-      }
+      },
+      "correcao": "for numero in range(1, 9):\n    if numero == 3:\n        continue  # Pule só a volta atual.\n    if numero == 6:\n        break  # Encerre o laço antes de imprimir 6.\n    print(numero)\n"
     },
     "06-repeticoes-aninhadas.md": {
       "titulo": "Desenhe uma pequena tabela",
@@ -104,7 +109,8 @@
             "saida_esperada": "...\n..."
           }
         ]
-      }
+      },
+      "correcao": "for linha in range(2):\n    pontos = \"\"\n    # Monte três colunas a cada linha.\n    for coluna in range(3):\n        pontos = pontos + \".\"\n    print(pontos)\n"
     },
     "07-oficina-repeticoes.md": {
       "titulo": "Some uma sequência sem erro de limite",
@@ -118,7 +124,8 @@
             "saida_esperada": "5050"
           }
         ]
-      }
+      },
+      "correcao": "soma = 0\n# Use 101 como limite para incluir 100.\nfor numero in range(1, 101):\n    soma = soma + numero\nprint(soma)\n"
     }
   }
 }

@@ -218,6 +218,7 @@ async function buscarAulaParaEstudoPorId(id) {
             m.curso_id,
             m.titulo AS modulo_titulo,
             m.ordem AS modulo_ordem,
+            c.linguagem,
             a.titulo,
             a.descricao,
             a.conteudo,
@@ -232,6 +233,7 @@ async function buscarAulaParaEstudoPorId(id) {
             ep.avaliador_json AS exercicio_avaliador
         FROM aulas a
         INNER JOIN modulos m ON m.id = a.modulo_id
+        INNER JOIN cursos c ON c.id = m.curso_id
         LEFT JOIN exercicios_praticos ep ON ep.aula_id = a.id
         WHERE a.id = ?
     `, [id]);
@@ -252,7 +254,12 @@ async function buscarAulaParaEstudoPorId(id) {
             titulo: aula.exercicio_titulo,
             enunciado: aula.exercicio_enunciado,
             codigoInicial: aula.exercicio_codigo_inicial,
-            avaliador,
+            correcao: avaliador?.correcao ?? null,
+            avaliador: avaliador && {
+                tipo: avaliador.tipo,
+                nomeFuncao: avaliador.nome_funcao,
+                casos: avaliador.casos.map(({ entradas, argumentos }) => ({ entradas, argumentos })),
+            },
         };
     } else {
         aula.exercicio = null;

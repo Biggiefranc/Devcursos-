@@ -3,8 +3,8 @@
   "private": true,
   "scripts": {
     "dev": "node scripts/dev.js",
-    "start": "npm --prefix backend run start",
-    "start:back": "npm --prefix backend run start",
+    "start": "cd backend && node src/server.js",
+    "start:back": "cd backend && node src/server.js",
     "start:front": "npm --prefix frontend run dev",
     "build": "npm --prefix frontend run build",
     "test": "npm --prefix backend test"

@@ -11,16 +11,17 @@
             "entradas": [
               "17"
             ],
-            "saida_esperada": "Idade: False"
+            "saida_esperada": "False"
           },
           {
             "entradas": [
               "18"
             ],
-            "saida_esperada": "Idade: True"
+            "saida_esperada": "True"
           }
         ]
-      }
+      },
+      "correcao": "idade = int(input(\"Idade: \"))\n# A comparação já é um valor lógico. Podemos imprimi-lo diretamente.\nprint(idade >= 18)\n"
     },
     "02-if-e-else.md": {
       "titulo": "Escolha entre dois caminhos",
@@ -33,16 +34,17 @@
             "entradas": [
               "19"
             ],
-            "saida_esperada": "Temperatura: Frio"
+            "saida_esperada": "Frio"
           },
           {
             "entradas": [
               "20"
             ],
-            "saida_esperada": "Temperatura: Agradável"
+            "saida_esperada": "Agradável"
           }
         ]
-      }
+      },
+      "correcao": "temperatura = int(input(\"Temperatura: \"))\n# A temperatura 20 pertence ao segundo caminho.\nif temperatura < 20:\n    print(\"Frio\")\nelse:\n    print(\"Agradável\")\n"
     },
     "03-varios-caminhos-elif.md": {
       "titulo": "Classifique uma nota em faixas",
@@ -55,22 +57,23 @@
             "entradas": [
               "9"
             ],
-            "saida_esperada": "Nota: Excelente"
+            "saida_esperada": "Excelente"
           },
           {
             "entradas": [
               "7"
             ],
-            "saida_esperada": "Nota: Aprovado"
+            "saida_esperada": "Aprovado"
           },
           {
             "entradas": [
               "5"
             ],
-            "saida_esperada": "Nota: Estude mais"
+            "saida_esperada": "Estude mais"
           }
         ]
-      }
+      },
+      "correcao": "nota = int(input(\"Nota: \"))\n# Verifique primeiro a faixa mais alta, que também satisfaz nota >= 7.\nif nota >= 9:\n    print(\"Excelente\")\nelif nota >= 7:\n    print(\"Aprovado\")\nelse:\n    print(\"Estude mais\")\n"
     },
     "04-condicoes-combinadas.md": {
       "titulo": "Combine duas condições",
@@ -84,17 +87,18 @@
               "s",
               "s"
             ],
-            "saida_esperada": "Está inscrita? Entregou? Certificado"
+            "saida_esperada": "Certificado"
           },
           {
             "entradas": [
               "s",
               "n"
             ],
-            "saida_esperada": "Está inscrita? Entregou? Sem certificado"
+            "saida_esperada": "Sem certificado"
           }
         ]
-      }
+      },
+      "correcao": "inscrita = input(\"Está inscrita? \")\nentregou = input(\"Entregou? \")\n# and exige que as duas comparações sejam verdadeiras.\nif inscrita == \"s\" and entregou == \"s\":\n    print(\"Certificado\")\nelse:\n    print(\"Sem certificado\")\n"
     },
     "05-oficina-decisoes.md": {
       "titulo": "Valide e classifique uma nota",
@@ -107,28 +111,29 @@
             "entradas": [
               "-1"
             ],
-            "saida_esperada": "Nota: Nota inválida"
+            "saida_esperada": "Nota inválida"
           },
           {
             "entradas": [
               "7"
             ],
-            "saida_esperada": "Nota: Aprovado"
+            "saida_esperada": "Aprovado"
           },
           {
             "entradas": [
               "6.5"
             ],
-            "saida_esperada": "Nota: Recuperação"
+            "saida_esperada": "Recuperação"
           },
           {
             "entradas": [
               "11"
             ],
-            "saida_esperada": "Nota: Nota inválida"
+            "saida_esperada": "Nota inválida"
           }
         ]
-      }
+      },
+      "correcao": "nota = float(input(\"Nota: \"))\n# Confira as duas fronteiras antes de aplicar a regra de aprovação.\nif nota < 0 or nota > 10:\n    print(\"Nota inválida\")\nelif nota >= 7:\n    print(\"Aprovado\")\nelse:\n    print(\"Recuperação\")\n"
     }
   }
 }

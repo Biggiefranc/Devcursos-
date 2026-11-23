@@ -12,7 +12,8 @@
             "saida_esperada": "DevCursos+ começa com lógica."
           }
         ]
-      }
+      },
+      "correcao": "# As aspas dizem ao Python que o trecho é texto.\nprint(\"DevCursos+ começa com lógica.\")\n"
     },
     "02-instrucoes-em-sequencia.md": {
       "titulo": "Organize instruções em sequência",
@@ -26,7 +27,8 @@
             "saida_esperada": "Ler o enunciado\nPlanejar os passos\nConferir o resultado"
           }
         ]
-      }
+      },
+      "correcao": "# Cada print escreve uma linha. A ordem do código vira a ordem da saída.\nprint(\"Ler o enunciado\")\nprint(\"Planejar os passos\")\nprint(\"Conferir o resultado\")\n"
     },
     "03-do-problema-ao-algoritmo.md": {
       "titulo": "Transforme um problema em passos",
@@ -40,7 +42,8 @@
             "saida_esperada": "54"
           }
         ]
-      }
+      },
+      "correcao": "preco_ingresso = 18\nquantidade = 3\n# O total depende do preço de um ingresso e de quantos foram comprados.\ntotal = preco_ingresso * quantidade\nprint(total)\n"
     },
     "04-entrada-processamento-saida.md": {
       "titulo": "Ligue entrada, processamento e saída",
@@ -53,16 +56,17 @@
             "entradas": [
               "Lia"
             ],
-            "saida_esperada": "Seu nome: Olá, Lia!"
+            "saida_esperada": "Olá, Lia!"
           },
           {
             "entradas": [
               "Ravi"
             ],
-            "saida_esperada": "Seu nome: Olá, Ravi!"
+            "saida_esperada": "Olá, Ravi!"
           }
         ]
-      }
+      },
+      "correcao": "nome = input(\"Seu nome: \")\n# Junte a parte fixa da frase com o texto recebido.\nprint(\"Olá, \" + nome + \"!\")\n"
     },
     "05-rastreie-os-passos.md": {
       "titulo": "Acompanhe o estado das variáveis",
@@ -76,7 +80,8 @@
             "saida_esperada": "14"
           }
         ]
-      }
+      },
+      "correcao": "pontos = 4\npontos = pontos + 3\n# Dobre o valor atual, que já é 7.\npontos = pontos * 2\nprint(pontos)\n"
     },
     "06-oficina-algoritmo.md": {
       "titulo": "Resolva um problema inteiro",
@@ -90,7 +95,8 @@
             "saida_esperada": "21"
           }
         ]
-      }
+      },
+      "correcao": "paginas_manha = 12\npaginas_tarde = 9\n# Some as duas partes do dia antes de mostrar o total.\ntotal = paginas_manha + paginas_tarde\nprint(total)\n"
     }
   }
 }

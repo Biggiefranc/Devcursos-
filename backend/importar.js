@@ -22,8 +22,11 @@ function validarExercicio(arquivo, exercicio) {
     if (!exercicio?.titulo || !exercicio?.enunciado || typeof exercicio.codigo_inicial !== "string") {
         throw new Error(`${arquivo}: exercício precisa de título, enunciado e codigo_inicial.`);
     }
+    if (typeof exercicio.correcao !== "string" || !exercicio.correcao.trim()) {
+        throw new Error(`${arquivo}: informe o código da correção comentada.`);
+    }
     if (!avaliador || !["saida", "funcao"].includes(avaliador.tipo)
-        || !Array.isArray(avaliador.casos) || avaliador.casos.length === 0) {
+        || !Array.isArray(avaliador.casos) || avaliador.casos.length === 0 || avaliador.casos.length > 16) {
         throw new Error(`${arquivo}: avaliador precisa ter tipo saida/funcao e casos de verificação.`);
     }
     if (avaliador.tipo === "funcao" && !avaliador.nome_funcao) {
@@ -44,6 +47,10 @@ function validarExercicio(arquivo, exercicio) {
 async function obterOuCriarCurso(db, dados) {
     const duracaoHoras = Number(dados.duracao_horas);
     const tecnologias = normalizarTecnologias(dados.tecnologias);
+    const linguagem = dados.linguagem ?? null;
+    if (linguagem !== null && !["python", "java"].includes(linguagem)) {
+        throw new Error("Use python ou java no campo linguagem do curso.");
+    }
     const metadados = [
         Number.isFinite(duracaoHoras) && duracaoHoras > 0 ? duracaoHoras : null,
         tecnologias ? JSON.stringify(tecnologias) : null,
@@ -55,14 +62,14 @@ async function obterOuCriarCurso(db, dados) {
     );
     if (existentes[0]) {
         await db.execute(
-            "UPDATE cursos SET descricao = ?, categoria = ?, nivel = ?, duracao_horas = ?, tecnologias = ?, projeto_final = ? WHERE id = ?",
-            [dados.descricao || null, dados.categoria || null, dados.nivel || "Iniciante", ...metadados, existentes[0].id]
+            "UPDATE cursos SET descricao = ?, categoria = ?, nivel = ?, duracao_horas = ?, tecnologias = ?, projeto_final = ?, linguagem = COALESCE(?, linguagem) WHERE id = ?",
+            [dados.descricao || null, dados.categoria || null, dados.nivel || "Iniciante", ...metadados, linguagem, existentes[0].id]
         );
         return existentes[0].id;
     }
     const [resultado] = await db.execute(
-        "INSERT INTO cursos (titulo, descricao, categoria, nivel, duracao_horas, tecnologias, projeto_final) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        [dados.titulo, dados.descricao || null, dados.categoria || null, dados.nivel || "Iniciante", ...metadados]
+        "INSERT INTO cursos (titulo, descricao, categoria, nivel, duracao_horas, tecnologias, projeto_final, linguagem) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        [dados.titulo, dados.descricao || null, dados.categoria || null, dados.nivel || "Iniciante", ...metadados, linguagem]
     );
     return resultado.insertId;
 }
@@ -139,9 +146,6 @@ async function importarCursos() {
                     const definicoesExercicios = fs.existsSync(arquivoExercicios)
                         ? JSON.parse(fs.readFileSync(arquivoExercicios, "utf8"))
                         : {};
-                    if (cursoFile.data.editor_interativo && !fs.existsSync(arquivoExercicios)) {
-                        throw new Error(`${arquivoExercicios}: este módulo precisa definir os exercícios das aulas.`);
-                    }
 
                     const arquivosAulas = fs.readdirSync(caminhoModulo, { withFileTypes: true })
                         .filter((item) => item.isFile() && item.name.endsWith(".md") && item.name !== "modulo.md")
@@ -181,8 +185,14 @@ async function importarCursos() {
                         }
 
                         const exercicio = definicoesExercicios.aulas?.[arquivoAula];
-                        if (cursoFile.data.editor_interativo && !exercicio) {
+                        const tipo = aulaFile.data.tipo;
+                        const exigeExercicio = tipo === "pratica"
+                            || (cursoFile.data.editor_interativo && tipo !== "teoria");
+                        if (exigeExercicio && !exercicio) {
                             throw new Error(`${arquivoExercicios}: falta exercício interativo para ${arquivoAula}.`);
+                        }
+                        if (tipo === "teoria" && exercicio) {
+                            throw new Error(`${arquivoExercicios}: ${arquivoAula} está marcada como teoria e possui um exercício.`);
                         }
                         if (exercicio) {
                             validarExercicio(`${arquivoExercicios} → ${arquivoAula}`, exercicio);
@@ -195,7 +205,8 @@ async function importarCursos() {
                                     enunciado = VALUES(enunciado),
                                     codigo_inicial = VALUES(codigo_inicial),
                                     avaliador_json = VALUES(avaliador_json)`,
-                                [aulaId, exercicio.titulo, exercicio.enunciado, exercicio.codigo_inicial, JSON.stringify(exercicio.avaliador)]
+                                [aulaId, exercicio.titulo, exercicio.enunciado, exercicio.codigo_inicial,
+                                    JSON.stringify({ ...exercicio.avaliador, correcao: exercicio.correcao })]
                             );
                         }
                     }
