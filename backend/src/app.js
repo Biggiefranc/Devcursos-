@@ -7,6 +7,7 @@ const cursosRoutes = require("./modules/courses/cursos.routes");
 const progressRoutes = require("./modules/progress/progress.routes");
 const favoritesRoutes = require("./modules/favorites/favorites.routes");
 const assessmentsRoutes = require("./modules/assessments/assessments.routes");
+const executionRoutes = require("./modules/execution/execution.routes");
 const practiceRoutes = require("./modules/practice/practice.routes");
 
 const { pool } = require("./shared/database/database");
@@ -119,6 +120,7 @@ app.use(progressRoutes);
 app.use(favoritesRoutes);
 app.use(assessmentsRoutes);
 app.use(practiceRoutes);
+app.use(executionRoutes);
 
 app.use((req, res) => {
   return res.status(404).json({

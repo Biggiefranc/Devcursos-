@@ -20,15 +20,11 @@ let avaliacaoAtualMeta = null;
 let respostasProva = {};
 let avaliacao = null;
 let tentativaProva = null;
+let destruirEditor = null;
 let aulaAtualId = null;
 let renderVersion = 0;
 let provaCarregada = false;
 let mensagemAvaliacao = "Esta avaliação ainda não está configurada.";
-let workerPython = null;
-let workerPronto = null;
-let proximoIdExecucao = 1;
-const execucoesPendentes = new Map();
-
 const parametros = new URLSearchParams(window.location.search);
 const cursoId = parametros.get("curso");
 const aulaSolicitada =
@@ -171,6 +167,16 @@ function renderizarInlineMarkdown(texto) {
 
 function renderizarMarkdown(markdown) {
   const texto = String(markdown ?? "").replace(/(?:\r\n|\r|\n)/g, "\n");
+  // Separe o texto antes de tratar parágrafos. Linhas em branco dentro
+  // de um bloco Python pertencem ao código.
+  const partes = texto.split(/^ {0,3}```[^\n]*\n([\s\S]*?)^ {0,3}```[ \t]*$/gm);
+  if (partes.length > 1) {
+    return partes.map((parte, indice) =>
+      indice % 2
+        ? `<pre><code>${escaparHtml(parte.replace(/\n$/, ""))}</code></pre>`
+        : renderizarMarkdown(parte),
+    ).join("");
+  }
   const blocos = texto.split(/\n\s*\n/).filter((bloco) => bloco.trim());
 
   return blocos
@@ -488,215 +494,7 @@ function montarMenu(keyAtual = aulaAtualId) {
   }
 }
 
-function obterWorkerPython() {
-  if (workerPython) return workerPronto;
-
-  const endereco = new URL(
-    `${import.meta.env.BASE_URL}python-worker.js`,
-    window.location.origin,
-  );
-  workerPython = new Worker(endereco, { type: "module" });
-  workerPronto = new Promise((resolve, reject) => {
-    const limite = window.setTimeout(() => {
-      workerPython?.terminate();
-      workerPython = null;
-      workerPronto = null;
-      reject(new Error("O Python demorou para carregar. Confira a conexão e tente de novo."));
-    }, 90000);
-
-    workerPython.addEventListener("message", function receber(evento) {
-      const dados = evento.data || {};
-      if (dados.tipo === "pronto") {
-        window.clearTimeout(limite);
-        workerPython.removeEventListener("message", receber);
-        resolve();
-        return;
-      }
-      if (dados.tipo === "falha") {
-        window.clearTimeout(limite);
-        workerPython.removeEventListener("message", receber);
-        workerPython?.terminate();
-        workerPython = null;
-        workerPronto = null;
-        reject(new Error("Não foi possível carregar o interpretador Python: " + dados.mensagem));
-      }
-    });
-
-    workerPython.addEventListener("message", (evento) => {
-      const { id, resultado, erro } = evento.data || {};
-      const pendente = execucoesPendentes.get(id);
-      if (!pendente) return;
-      execucoesPendentes.delete(id);
-      window.clearTimeout(pendente.timer);
-      if (erro) {
-        const problema = new Error("Python encontrou um erro. Leia a mensagem e corrija o código.");
-        problema.detalhe = erro;
-        pendente.reject(problema);
-      } else {
-        pendente.resolve(resultado);
-      }
-    });
-
-    workerPython.addEventListener("error", (evento) => {
-      const problema = new Error("O interpretador Python foi interrompido. Tente executar novamente.");
-      for (const pendente of execucoesPendentes.values()) {
-        window.clearTimeout(pendente.timer);
-        pendente.reject(problema);
-      }
-      execucoesPendentes.clear();
-      workerPython?.terminate();
-      workerPython = null;
-      workerPronto = null;
-      evento.preventDefault();
-    });
-  });
-  return workerPronto;
-}
-
-async function executarPythonNoNavegador(codigo, avaliador) {
-  await obterWorkerPython();
-  const id = proximoIdExecucao++;
-  return new Promise((resolve, reject) => {
-    const timer = window.setTimeout(() => {
-      execucoesPendentes.delete(id);
-      workerPython?.terminate();
-      workerPython = null;
-      workerPronto = null;
-      reject(new Error("A execução passou de 8 segundos e foi interrompida. Confira se o laço tem uma condição de parada."));
-    }, 8000);
-    execucoesPendentes.set(id, { resolve, reject, timer });
-    workerPython.postMessage({ id, codigo, avaliador });
-  });
-}
-
-function criarEditorInterativo(exercicio, aula, avancar) {
-  const painel = criarElemento("section", "interactive-exercise");
-  painel.append(
-    criarElemento("p", "section-kicker", "PRÁTICA NO EDITOR"),
-    criarElemento("h2", "", exercicio.titulo || "Agora é sua vez"),
-    criarElemento("p", "exercise-prompt", exercicio.enunciado || ""),
-  );
-  const label = criarElemento("label", "exercise-editor-label", "Seu código Python");
-  const editor = criarElemento("textarea", "exercise-editor");
-  editor.id = `exercise-code-${exercicio.id}`;
-  editor.setAttribute("spellcheck", "false");
-  editor.setAttribute("autocapitalize", "off");
-  editor.setAttribute("autocomplete", "off");
-  editor.setAttribute("autocorrect", "off");
-  editor.setAttribute("wrap", "off");
-  editor.setAttribute("aria-label", "Editor de código Python do exercício");
-  editor.rows = 12;
-  label.htmlFor = editor.id;
-
-  const storageKey = `devcursos-exercicio-${exercicio.id}`;
-  editor.value = localStorage.getItem(storageKey) ?? exercicio.codigoInicial ?? "";
-  editor.addEventListener("input", () => localStorage.setItem(storageKey, editor.value));
-
-  const botoes = criarElemento("div", "exercise-actions");
-  const executar = criarElemento("button", "lesson-next exercise-run", "Executar e verificar");
-  const restaurar = criarElemento("button", "lesson-previous exercise-restore", "Restaurar exemplo inicial");
-  executar.type = "button";
-  restaurar.type = "button";
-
-  const estado = criarElemento("p", "exercise-status");
-  estado.setAttribute("role", "status");
-  estado.setAttribute("aria-live", "polite");
-  const saida = criarElemento("pre", "exercise-output");
-  saida.hidden = true;
-  saida.setAttribute("aria-label", "Saída do programa");
-
-  botoes.append(executar, restaurar);
-  painel.append(label, editor, botoes, estado, saida);
-  if (exerciciosConcluidos.has(String(aula.id))) {
-    estado.classList.add("sucesso");
-    estado.textContent = "✓ Exercício concluído. Você pode executá-lo de novo para praticar.";
-  }
-
-  restaurar.addEventListener("click", () => {
-    editor.value = exercicio.codigoInicial || "";
-    localStorage.setItem(storageKey, editor.value);
-    estado.className = "exercise-status";
-    estado.textContent = "Código inicial restaurado.";
-    saida.hidden = true;
-    editor.focus();
-  });
-
-  const conferir = async () => {
-    if (executar.disabled) return;
-    if (!editor.value.trim()) {
-      estado.className = "exercise-status erro";
-      estado.textContent = "Escreva uma solução antes de executar.";
-      editor.focus();
-      return;
-    }
-    if (editor.value.length > 12000) {
-      estado.className = "exercise-status erro";
-      estado.textContent = "O editor aceita até 12.000 caracteres.";
-      return;
-    }
-
-    executar.disabled = true;
-    restaurar.disabled = true;
-    estado.className = "exercise-status carregando";
-    estado.textContent = "Preparando Python no navegador. Na primeira execução, o interpretador precisa ser carregado.";
-    saida.hidden = true;
-    try {
-      const resultado = await executarPythonNoNavegador(editor.value, exercicio.avaliador);
-      saida.textContent = resultado.saidas
-        .map((texto, index) => `Caso ${index + 1}:\n${texto || "(sem saída)"}`)
-        .join("\n\n");
-      saida.hidden = false;
-      const registro = await requisicaoAPI(
-        `/aulas/${encodeURIComponent(aula.id)}/exercicio/tentativas`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            aprovado: Boolean(resultado.passou),
-            totalCasos: Number(resultado.total),
-            acertos: Number(resultado.acertos),
-          }),
-        },
-      );
-
-      if (registro.aprovado) {
-        exerciciosConcluidos.add(String(aula.id));
-        estado.className = "exercise-status sucesso";
-        estado.textContent = `✓ Correto: ${registro.acertos} de ${registro.totalCasos} casos passaram. A próxima etapa foi liberada.`;
-        avancar.disabled = false;
-        const aviso = painel.parentElement.querySelector(".lesson-step-note");
-        if (aviso) aviso.textContent = "Prática concluída. Você já pode seguir para a próxima etapa.";
-        atualizarProgresso();
-        montarMenu(aulaAtualId);
-      } else {
-        estado.className = "exercise-status erro";
-        estado.textContent = `Ainda não passou: ${registro.acertos} de ${registro.totalCasos} casos. Revise o algoritmo e tente novamente.`;
-      }
-    } catch (erro) {
-      estado.className = "exercise-status erro";
-      estado.textContent = erro.message || "Não foi possível executar o código agora.";
-      saida.textContent = erro.detalhe || "";
-      saida.hidden = !erro.detalhe;
-    } finally {
-      executar.disabled = false;
-      restaurar.disabled = false;
-    }
-  };
-
-  executar.addEventListener("click", () => void conferir());
-  editor.addEventListener("keydown", (evento) => {
-    if (evento.key === "Tab") {
-      evento.preventDefault();
-      editor.setRangeText("    ", editor.selectionStart, editor.selectionEnd, "end");
-      editor.dispatchEvent(new Event("input", { bubbles: true }));
-    } else if ((evento.ctrlKey || evento.metaKey) && evento.key === "Enter") {
-      evento.preventDefault();
-      void conferir();
-    }
-  });
-  return painel;
-}
-
-function criarSecaoAula(aula, modulo) {
+function criarSecaoAula(aula, modulo, criarEditorDeCodigo) {
   const key = String(aula.id);
   const sec = criarElemento("section", "aula-secao");
   sec.id = "lesson-content";
@@ -740,11 +538,26 @@ function criarSecaoAula(aula, modulo) {
   );
   advance.type = "button";
   advance.disabled = Boolean(
-    aula.exercicio && !exerciciosConcluidos.has(key),
+    aula.exercicio && !feitas.has(key) && !exerciciosConcluidos.has(key),
   );
 
   if (aula.exercicio) {
-    sec.appendChild(criarEditorInterativo(aula.exercicio, aula, advance));
+    const editor = criarEditorDeCodigo({
+      aula,
+      usuario: auth.currentUser?.uid,
+      concluido: exerciciosConcluidos.has(key),
+      aoAprovar: () => {
+        exerciciosConcluidos.add(key);
+        advance.disabled = false;
+        sec.querySelector(".lesson-step-note")?.remove();
+      },
+    });
+    const referencia = Array.from(corpo.children).find(
+      (elemento) => elemento.textContent.trim().startsWith("Documentação oficial:"),
+    );
+    if (referencia) referencia.before(editor.painel);
+    else sec.append(editor.painel);
+    destruirEditor = editor.destruir;
   }
 
   const footer = criarElemento("nav", "lesson-navigation");
@@ -784,13 +597,13 @@ function criarSecaoAula(aula, modulo) {
       montarMenu(key);
       sec.prepend(criarElemento("p", "lesson-save-error", error.message));
       advance.disabled = Boolean(
-        aula.exercicio && !exerciciosConcluidos.has(key),
+        aula.exercicio && !feitas.has(key) && !exerciciosConcluidos.has(key),
       );
     }
   });
   footer.appendChild(advance);
   sec.appendChild(footer);
-  if (aula.exercicio && !exerciciosConcluidos.has(key)) {
+  if (aula.exercicio && !feitas.has(key) && !exerciciosConcluidos.has(key)) {
     sec.appendChild(
       criarElemento(
         "p",
@@ -1059,6 +872,8 @@ async function selecionarAula(key, { historyMode = "push", focar = true } = {}) 
   if (!meta && indiceDaAula(id) < 0) return;
   if (id === aulaAtualId && historyMode === "push") return;
 
+  destruirEditor?.();
+  destruirEditor = null;
   aulaAtualId = id;
   renderVersion += 1;
   const versao = renderVersion;
@@ -1097,7 +912,9 @@ async function selecionarAula(key, { historyMode = "push", focar = true } = {}) 
         (item) => String(item.id) === String(lesson.modulo_id),
       );
       if (!module) throw new Error("O módulo desta aula não foi encontrado.");
-      pagina.replaceChildren(criarSecaoAula(lesson, module));
+      const editor = lesson.exercicio ? await import("./code-editor.js") : null;
+      if (versao !== renderVersion) return;
+      pagina.replaceChildren(criarSecaoAula(lesson, module, editor?.criarEditorDeCodigo));
       document.title =
         lesson.titulo + " | " + (curso.titulo || "Formação") + " | DevCursos+";
     }
@@ -1139,6 +956,8 @@ btnReiniciar.addEventListener("click", async () => {
       { method: "DELETE" },
     );
     feitas = new Set();
+    exerciciosConcluidos = new Set();
+    avaliacoesAprovadas = new Set();
     respostasProva = {};
     tentativaProva = null;
     avaliacao = null;

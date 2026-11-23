@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS cursos (
   categoria     VARCHAR(100) DEFAULT NULL,
   nivel         VARCHAR(50)  DEFAULT NULL,
   duracao_horas DECIMAL(6,2) DEFAULT NULL,
+  linguagem     VARCHAR(20) DEFAULT NULL,
   tecnologias   JSON DEFAULT NULL,
   projeto_final TEXT DEFAULT NULL,
   data_criacao  TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
@@ -168,7 +169,7 @@ CREATE TABLE IF NOT EXISTS tentativas_exercicio (
   aprovado        TINYINT(1) NOT NULL DEFAULT 0,
   criada_em       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  KEY idx_tentativas_exercicio_usuario (usuario_id, exercicio_id, aprovada),
+  KEY idx_tentativas_exercicio_usuario (usuario_id, exercicio_id, aprovado),
   CONSTRAINT fk_tentativa_exercicio_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios (id) ON DELETE CASCADE,
   CONSTRAINT fk_tentativa_exercicio FOREIGN KEY (exercicio_id) REFERENCES exercicios_praticos (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

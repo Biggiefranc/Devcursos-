@@ -83,7 +83,7 @@ async function migrar() {
             aprovado TINYINT(1) NOT NULL DEFAULT 0,
             criada_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
-            KEY idx_tentativas_exercicio_usuario (usuario_id, exercicio_id, aprovada),
+            KEY idx_tentativas_exercicio_usuario (usuario_id, exercicio_id, aprovado),
             CONSTRAINT fk_tentativa_exercicio_usuario FOREIGN KEY (usuario_id)
                 REFERENCES usuarios (id) ON DELETE CASCADE,
             CONSTRAINT fk_tentativa_exercicio FOREIGN KEY (exercicio_id)

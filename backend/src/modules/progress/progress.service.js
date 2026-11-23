@@ -2,6 +2,7 @@ const progressRepository = require("./progress.repository");
 const usersRepository = require("../users/users.repository");
 const coursesRepository = require("../courses/cursos.repository");
 const assessmentsRepository = require("../assessments/assessments.repository");
+const { modoExecucao } = require("../execution/execution.service");
 const practiceService = require("../practice/practice.service");
 const AppError = require("../../shared/errors/AppError");
 const { validarIdPositivo } = require("../../shared/validation/ids");
@@ -85,6 +86,7 @@ async function buscarAulaLiberada(firebaseUid, aulaId) {
 
     return {
         ...aula,
+        modoExecucao: aula.linguagem ? modoExecucao(aula.linguagem) : null,
         duracao_minutos: aula.duracao_minutos == null
             ? null
             : Number(aula.duracao_minutos)
@@ -118,13 +120,15 @@ async function atualizarConclusao(firebaseUid, aulaId, concluida) {
 
     const usuarioId = await obterUsuarioId(firebaseUid);
 
-    const aula = await progressRepository.buscarAulaPorId(idAula);
+    const aula = await progressRepository.buscarAulaPorId(idAula, usuarioId);
 
     if (!aula) {
         throw new AppError(404, "AULA_NAO_ENCONTRADA", "Aula não encontrada.");
     }
 
     if (concluida) {
+        if (Number(aula.concluida) === 1) return { aulaId: idAula, concluida };
+
         const exercicioAprovado = await practiceService.verificarConclusao(firebaseUid, idAula);
         if (!exercicioAprovado) {
             throw new AppError(

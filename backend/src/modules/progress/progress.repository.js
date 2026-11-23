@@ -10,17 +10,6 @@ async function listarAulasConcluidas(usuarioId, cursoId) {
         WHERE pa.usuario_id = ?
           AND m.curso_id = ?
           AND pa.concluida = 1
-          AND (
-              NOT EXISTS (SELECT 1 FROM exercicios_praticos ep WHERE ep.aula_id = a.id)
-              OR EXISTS (
-                  SELECT 1
-                  FROM tentativas_exercicio te
-                  INNER JOIN exercicios_praticos ep ON ep.id = te.exercicio_id
-                  WHERE ep.aula_id = a.id
-                    AND te.usuario_id = pa.usuario_id
-                    AND te.aprovado = 1
-              )
-          )
         ORDER BY a.id ASC
     `;
 
@@ -74,16 +63,18 @@ async function listarResumoPorUsuario(usuarioId) {
 }
 
 // Verifica se uma aula existe.
-async function buscarAulaPorId(aulaId) {
+async function buscarAulaPorId(aulaId, usuarioId) {
     const sql = `
-        SELECT a.id, m.curso_id, m.ordem AS modulo_ordem
+        SELECT a.id, m.curso_id, m.ordem AS modulo_ordem,
+               COALESCE(pa.concluida, 0) AS concluida
         FROM aulas a
         INNER JOIN modulos m ON m.id = a.modulo_id
+        LEFT JOIN progresso_aulas pa ON pa.aula_id = a.id AND pa.usuario_id = ?
         WHERE a.id = ?
         LIMIT 1
     `;
 
-    const [aulas] = await pool.execute(sql, [aulaId]);
+    const [aulas] = await pool.execute(sql, [usuarioId, aulaId]);
 
     return aulas[0] || null;
 }
@@ -102,7 +93,6 @@ async function buscarAulaAnteriorPendente(usuarioId, aulaId) {
             ON pa.aula_id = anterior.id
            AND pa.usuario_id = ?
            AND pa.concluida = 1
-        LEFT JOIN exercicios_praticos ep ON ep.aula_id = anterior.id
         WHERE atual.id = ?
           AND (
               modulo_anterior.ordem < modulo_atual.ordem
@@ -120,21 +110,12 @@ async function buscarAulaAnteriorPendente(usuarioId, aulaId) {
                   )
               )
           )
-          AND (
-              pa.id IS NULL
-              OR (ep.id IS NOT NULL AND NOT EXISTS (
-                  SELECT 1
-                  FROM tentativas_exercicio te
-                  WHERE te.exercicio_id = ep.id
-                    AND te.usuario_id = ?
-                    AND te.aprovado = 1
-              ))
-          )
-        ORDER BY modulo_anterior.ordem ASC, anterior.ordem ASC, anterior.id ASC
+          AND pa.id IS NULL
+        ORDER BY modulo_anterior.ordem ASC, modulo_anterior.id ASC, anterior.ordem ASC, anterior.id ASC
         LIMIT 1
     `;
 
-    const [aulas] = await pool.execute(sql, [usuarioId, aulaId, usuarioId]);
+    const [aulas] = await pool.execute(sql, [usuarioId, aulaId]);
     return aulas[0] || null;
 }
 

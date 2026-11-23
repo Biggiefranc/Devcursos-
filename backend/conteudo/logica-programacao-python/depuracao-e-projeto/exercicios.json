@@ -21,7 +21,8 @@
             "resultado_esperado": "Idade inválida"
           }
         ]
-      }
+      },
+      "correcao": "def converter_idade(texto):\n    try:\n        return int(texto)\n    except ValueError:\n        # Só trate o erro esperado de conversão.\n        return \"Idade inválida\"\n"
     },
     "02-validacao-de-entradas.md": {
       "titulo": "Valide entradas sem esconder erros",
@@ -50,7 +51,8 @@
             "resultado_esperado": "Número inválido"
           }
         ]
-      }
+      },
+      "correcao": "def dobrar_texto_numerico(texto):\n    try:\n        numero = int(texto)\n    except ValueError:\n        return \"Número inválido\"\n    # Só faça a conta quando a conversão funcionar.\n    return numero * 2\n"
     },
     "02-depure-com-casos.md": {
       "titulo": "Corrija um erro de limite",
@@ -79,7 +81,8 @@
             "resultado_esperado": 15
           }
         ]
-      }
+      },
+      "correcao": "def somar_ate(limite):\n    total = 0\n    # range exclui o fim. Some 1 para incluir o limite desejado.\n    for numero in range(1, limite + 1):\n        total = total + numero\n    return total\n"
     },
     "03-projeto-final-organizador.md": {
       "titulo": "Implemente uma parte do organizador",
@@ -130,7 +133,8 @@
             ]
           }
         ]
-      }
+      },
+      "correcao": "def adicionar_tarefa(tarefas, titulo):\n    titulo = titulo.strip()\n    # Se restar texto, adicione o registro como pendente.\n    if titulo != \"\":\n        tarefas.append({\"titulo\": titulo, \"concluida\": False})\n    return tarefas\n"
     }
   }
 }

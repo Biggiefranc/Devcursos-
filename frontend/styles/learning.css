@@ -681,3 +681,79 @@
 .study-reset:hover {
   color: #ddd;
 }
+
+.interactive-exercise {
+  margin: 36px 0 0;
+  padding: clamp(16px, 4vw, 28px);
+  border: 1px solid #594368;
+  background: #1d1525;
+  border-radius: 12px;
+}
+.interactive-exercise h2 { margin: 8px 0; font-size: 1.45rem; }
+.exercise-prompt { margin: 0 0 18px; line-height: 1.65; color: #e2d8e8; }
+.exercise-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid #574263;
+  border-radius: 8px 8px 0 0;
+  background: #22192b;
+}
+.exercise-language { color: #ead7f5; font: 0.78rem var(--mono); }
+.exercise-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.exercise-actions button { min-height: 36px; padding: 0 12px; }
+.exercise-check.lesson-next { background: #2f203b; box-shadow: none; }
+.exercise-codemirror {
+  border: 1px solid #574263;
+  border-top: none;
+  background: #100c15;
+}
+.exercise-codemirror .cm-editor {
+  min-height: 250px;
+  background: #100c15;
+  font-size: clamp(12px, 2vw, 14px);
+}
+.exercise-codemirror .cm-scroller { max-height: 420px; overflow: auto; }
+.exercise-codemirror .cm-content { padding: 10px 0; }
+.exercise-codemirror .cm-gutters { background: #18111e; }
+.exercise-codemirror .cm-editor.cm-focused { outline: 2px solid #d6a5f5; outline-offset: -2px; }
+.exercise-stdin { margin-top: 12px; padding: 10px 12px; background: #19111f; border: 1px solid #574263; }
+.exercise-stdin summary, .exercise-solution summary { cursor: pointer; color: #e0bdf4; }
+.exercise-stdin label { display: block; margin: 8px 0; color: #ded2e6; }
+.exercise-stdin-input {
+  display: block;
+  width: 100%;
+  resize: vertical;
+  padding: 8px;
+  border: 1px solid #574263;
+  color: #f4eafa;
+  background: #100c15;
+  font: 0.8rem/1.55 var(--mono);
+}
+.exercise-console { margin-top: 16px; }
+.exercise-console h3 { margin: 0 0 8px; font-size: 0.9rem; }
+.exercise-console .exercise-output { color: #c4ebcc; }
+.exercise-console .exercise-stderr, .exercise-case .exercise-stderr { color: #ffc4cf; }
+.exercise-status { margin: 12px 0 0; line-height: 1.5; }
+.exercise-status.sucesso { color: #b5e9be; }
+.exercise-status.erro { color: #ffc4cf; }
+.exercise-cases { display: grid; gap: 10px; margin-top: 12px; }
+.exercise-case { min-width: 0; border-top: 1px solid #594368; padding-top: 10px; }
+.exercise-case h3, .exercise-case p { margin: 0 0 6px; }
+.exercise-case p { color: #ded2e6; overflow-wrap: anywhere; }
+.exercise-output, .exercise-solution pre {
+  margin: 4px 0 10px;
+  max-height: 16rem;
+  overflow: auto;
+  padding: 10px;
+  background: #100c15;
+  color: #f4eafa;
+  font: 0.8rem/1.55 var(--mono);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.exercise-solution { margin-top: 16px; }
+.exercise-solution summary { cursor: pointer; color: #e0bdf4; }

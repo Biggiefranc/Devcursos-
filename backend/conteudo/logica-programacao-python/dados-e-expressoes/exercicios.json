@@ -12,7 +12,8 @@
             "saida_esperada": "int"
           }
         ]
-      }
+      },
+      "correcao": "idade = 17\n# type encontra o tipo, e __name__ fornece o nome dele.\nprint(type(idade).__name__)\n"
     },
     "02-variaveis-e-atribuicao.md": {
       "titulo": "Guarde e atualize um valor",
@@ -26,7 +27,8 @@
             "saida_esperada": "34"
           }
         ]
-      }
+      },
+      "correcao": "saldo = 30\n# Cada atribuição atualiza o saldo para a próxima operação.\nsaldo = saldo + 12\nsaldo = saldo - 8\nprint(saldo)\n"
     },
     "03-leia-e-converta-numeros.md": {
       "titulo": "Converta texto para calcular",
@@ -40,17 +42,18 @@
               "3",
               "8"
             ],
-            "saida_esperada": "Primeiro número: Segundo número: 11"
+            "saida_esperada": "11"
           },
           {
             "entradas": [
               "-2",
               "7"
             ],
-            "saida_esperada": "Primeiro número: Segundo número: 5"
+            "saida_esperada": "5"
           }
         ]
-      }
+      },
+      "correcao": "primeiro = input(\"Primeiro número: \")\nsegundo = input(\"Segundo número: \")\n# Converta os dois textos antes de somar.\nprint(int(primeiro) + int(segundo))\n"
     },
     "04-operadores-e-precedencia.md": {
       "titulo": "Escolha operadores para o cálculo",
@@ -64,7 +67,8 @@
             "saida_esperada": "2\n15"
           }
         ]
-      }
+      },
+      "correcao": "minutos = 135\n# A divisão inteira dá o número de horas. O resto dá os minutos.\nprint(minutos // 60)\nprint(minutos % 60)\n"
     },
     "05-texto-formatado.md": {
       "titulo": "Apresente dados em uma frase",
@@ -78,7 +82,8 @@
             "saida_esperada": "Ana estudou 25 minutos."
           }
         ]
-      }
+      },
+      "correcao": "nome = \"Ana\"\nminutos = 25\n# O Python substitui cada expressão entre chaves pelo seu valor.\nprint(f\"{nome} estudou {minutos} minutos.\")\n"
     },
     "06-oficina-dados.md": {
       "titulo": "Calcule um total de compra",
@@ -92,17 +97,18 @@
               "7.50",
               "4"
             ],
-            "saida_esperada": "Preço: Quantidade: 30.00"
+            "saida_esperada": "30.00"
           },
           {
             "entradas": [
               "2.25",
               "3"
             ],
-            "saida_esperada": "Preço: Quantidade: 6.75"
+            "saida_esperada": "6.75"
           }
         ]
-      }
+      },
+      "correcao": "preco = float(input(\"Preço: \"))\nquantidade = int(input(\"Quantidade: \"))\ntotal = preco * quantidade\n# :.2f formata o total com duas casas decimais.\nprint(f\"{total:.2f}\")\n"
     }
   }
 }

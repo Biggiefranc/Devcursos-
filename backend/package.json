@@ -11,6 +11,7 @@
     "import:git": "node importar.js --curso \"Git e GitHub Essencial\"",
     "import:logica": "node importar.js --curso \"Lógica de Programação com Python\"",
     "import:avaliacoes": "node scripts/importar-avaliacoes.js",
+    "migrate:course-language": "node scripts/migrate-course-language.js",
     "migrate:interactive-learning": "node scripts/migrate-interactive-learning.js",
     "migrate:course-metadata": "node scripts/migrate-course-metadata.js"
   },

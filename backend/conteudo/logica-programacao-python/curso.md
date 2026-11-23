@@ -5,6 +5,7 @@ descricao: Aprenda a transformar problemas em algoritmos, testar ideias e constr
 nivel: Iniciante
 duracao_horas: 12.5
 editor_interativo: true
+linguagem: python
 tecnologias:
   - Python
 projeto_final: Crie um organizador de estudos no terminal que permita cadastrar, listar e concluir tarefas usando condições, repetições, funções e coleções.

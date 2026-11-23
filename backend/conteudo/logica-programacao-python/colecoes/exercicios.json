@@ -34,7 +34,8 @@
             "resultado_esperado": 3
           }
         ]
-      }
+      },
+      "correcao": "def somar_valores(valores):\n    soma = 0\n    # Uma lista vazia não entra no laço e devolve zero.\n    for valor in valores:\n        soma = soma + valor\n    return soma\n"
     },
     "02-altere-listas.md": {
       "titulo": "Atualize a lista na posição correta",
@@ -63,7 +64,8 @@
             "resultado_esperado": []
           }
         ]
-      }
+      },
+      "correcao": "def marcar_primeira_concluida(tarefas):\n    # Confira se o índice zero existe antes de acessá-lo.\n    if len(tarefas) > 0:\n        tarefas[0] = True\n    return tarefas\n"
     },
     "03-percorra-uma-lista.md": {
       "titulo": "Percorra os valores e conte",
@@ -91,7 +93,8 @@
             "resultado_esperado": 0
           }
         ]
-      }
+      },
+      "correcao": "def contar_pares(valores):\n    quantidade = 0\n    for valor in valores:\n        # Aumente a quantidade apenas quando encontrar um número par.\n        if valor % 2 == 0:\n            quantidade = quantidade + 1\n    return quantidade\n"
     },
     "04-busque-conte-e-some.md": {
       "titulo": "Busque um valor sem sair da lista",
@@ -131,7 +134,8 @@
             "resultado_esperado": false
           }
         ]
-      }
+      },
+      "correcao": "def contem_valor(valores, alvo):\n    for valor in valores:\n        if valor == alvo:\n            return True\n    # Só conclua que o valor não existe depois de olhar todos os itens.\n    return False\n"
     },
     "05-dicionarios.md": {
       "titulo": "Leia um campo de um dicionário",
@@ -156,7 +160,8 @@
             "resultado_esperado": "Sem título"
           }
         ]
-      }
+      },
+      "correcao": "def obter_titulo(tarefa):\n    # O segundo argumento de get é o valor usado quando a chave não existe.\n    return tarefa.get(\"titulo\", \"Sem título\")\n"
     },
     "06-lista-de-registros.md": {
       "titulo": "Conte registros pendentes",
@@ -188,7 +193,8 @@
             "resultado_esperado": 0
           }
         ]
-      }
+      },
+      "correcao": "def contar_pendentes(tarefas):\n    quantidade = 0\n    for tarefa in tarefas:\n        # Some um para cada registro cujo estado ainda é falso.\n        if not tarefa[\"concluida\"]:\n            quantidade = quantidade + 1\n    return quantidade\n"
     },
     "07-oficina-colecoes.md": {
       "titulo": "Organize tarefas em registros",
@@ -227,7 +233,8 @@
             "resultado_esperado": []
           }
         ]
-      }
+      },
+      "correcao": "def titulos_pendentes(tarefas):\n    titulos = []\n    for tarefa in tarefas:\n        # Adicione o título na mesma ordem em que aparece.\n        if not tarefa[\"concluida\"]:\n            titulos.append(tarefa[\"titulo\"])\n    return titulos\n"
     }
   }
 }
