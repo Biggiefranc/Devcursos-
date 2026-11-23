@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="description" content="Formações que você guardou para estudar depois." />
-    <title>Formações salvas | DevCursos+</title>
+    <title>Cursos salvos | DevCursos+</title>
     <link rel="stylesheet" href="design.css" />
   </head>
   <body class="app-site">
@@ -24,17 +24,11 @@
       </div>
     </header>
     <main class="dashboard saved-page">
-      <section class="dashboard-welcome" data-reveal>
-        <p class="section-kicker"><span>SEU ESPAÇO</span> LISTA PESSOAL</p>
-        <h1>Formações <span>guardadas.</span></h1>
-        <p>Retome um tema quando estiver pronto para estudar.</p>
+      <section class="dashboard-welcome">
+        <h1 id="savedTitle">Cursos <span>salvos</span></h1>
       </section>
       <section class="dashboard-catalog" aria-labelledby="savedTitle">
         <div class="section-heading">
-          <div>
-            <p class="section-kicker"><span id="savedCount">00</span> PARA DEPOIS</p>
-            <h2 id="savedTitle">Sua lista de estudos.</h2>
-          </div>
           <a class="underlined-link" href="catalogo.html">Explorar formações</a>
         </div>
         <div class="catalog-grid saved-course-grid" id="savedCourses" aria-live="polite">
@@ -48,7 +42,7 @@
       </section>
     </main>
     <footer class="app-footer">
-      <span>DEV CURSOS+ / FORMAÇÕES SALVAS</span>
+      <span>DevCursos+</span>
       <a href="menudashbord.html">Voltar ao meu espaço</a>
     </footer>
     <script type="module" src="salvos.js"></script>

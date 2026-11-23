@@ -72,20 +72,3 @@ onAuthStateChanged(auth, async (user) => {
     console.warn("Não foi possível atualizar a sessão local.", error);
   }
 });
-
-const revealNodes = document.querySelectorAll("[data-reveal]");
-if ("IntersectionObserver" in window) {
-  const revealObserver = new IntersectionObserver(
-    (entries, observer) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add("is-visible");
-        observer.unobserve(entry.target);
-      });
-    },
-    { threshold: 0.12, rootMargin: "0px 0px -28px 0px" },
-  );
-  revealNodes.forEach((node) => revealObserver.observe(node));
-} else {
-  revealNodes.forEach((node) => node.classList.add("is-visible"));
-}

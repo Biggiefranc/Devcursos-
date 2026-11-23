@@ -31,27 +31,9 @@ async function loadFeaturedCourses() {
       return;
     }
     homeCourses.innerHTML = featured
-      .map((course, index) => courseCard(course, index))
+      .map(courseCard)
       .join("");
     homeStatus.textContent = "";
-    if ("IntersectionObserver" in window) {
-      const observer = new IntersectionObserver(
-        (entries, current) =>
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add("is-visible");
-              current.unobserve(entry.target);
-            }
-          }),
-        { threshold: 0.08 },
-      );
-      homeCourses
-        .querySelectorAll("[data-reveal]")
-        .forEach((node) => observer.observe(node));
-    } else
-      homeCourses
-        .querySelectorAll("[data-reveal]")
-        .forEach((node) => node.classList.add("is-visible"));
   } catch (error) {
     console.warn("Não foi possível carregar as formações em destaque.", error);
     homeCourses.innerHTML =

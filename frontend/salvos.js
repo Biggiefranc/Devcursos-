@@ -6,18 +6,14 @@ import { courseCard, escapeHtml } from "./courseCard";
 const grid = document.getElementById("savedCourses");
 const status = document.getElementById("savedStatus");
 const userName = document.getElementById("userName");
-const savedCount = document.getElementById("savedCount");
 let savedCourses = [];
 
 function render() {
-  savedCount.textContent = String(savedCourses.length).padStart(2, "0");
   grid.innerHTML = savedCourses
     .map(
-      (course, index) =>
+      (course) =>
         '<div class="saved-course-entry">' +
-        courseCard(course, index, {
-          href: "visualizarcurso.html?curso=" + encodeURIComponent(course.id),
-        }) +
+        courseCard(course) +
         '<button class="saved-remove" type="button" data-course-id="' +
         escapeHtml(course.id) +
         '" aria-label="Remover ' +
@@ -28,7 +24,7 @@ function render() {
 
   if (!savedCourses.length) {
     grid.innerHTML =
-      '<div class="saved-empty"><span class="section-kicker">LISTA VAZIA</span><h3>Guarde uma formação para depois.</h3><p>Use “Salvar formação” no currículo para mantê-la nesta lista.</p><a class="button button-primary" href="catalogo.html">Explorar formações</a></div>';
+      '<div class="saved-empty"><h2>Você ainda não salvou cursos</h2><p>Abra um curso no catálogo e selecione “Salvar formação”.</p><a class="button button-primary" href="catalogo.html">Explorar formações</a></div>';
     return;
   }
 
@@ -52,18 +48,6 @@ function render() {
     });
   });
 
-  if ("IntersectionObserver" in window) {
-    const observer = new IntersectionObserver((entries, current) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add("is-visible");
-        current.unobserve(entry.target);
-      });
-    });
-    grid.querySelectorAll("[data-reveal]").forEach((card) => observer.observe(card));
-  } else {
-    grid.querySelectorAll("[data-reveal]").forEach((card) => card.classList.add("is-visible"));
-  }
 }
 
 document.getElementById("logoutBtn").addEventListener("click", async () => {

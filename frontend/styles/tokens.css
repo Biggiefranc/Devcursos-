@@ -15,6 +15,25 @@
   --purple-surface: #1d1525;
   --green: #a3c8b3;
   --red: #e3a0a8;
+  --title-accent: #aa95b8;
+  --accent-border: #9277a4;
+  --code-surface: #100c15;
+  --overlay: rgba(23, 17, 28, 0.88);
+  --overlay-solid: rgba(23, 17, 28, 0.96);
+  --header-blur: blur(16px) saturate(135%);
+  --action-fill: linear-gradient(108deg, #5d3e72, #745286 65%, #805e92);
+  --hero-fill:
+    radial-gradient(ellipse 600px 480px at 86% 46%, rgba(125, 82, 151, 0.34), transparent 70%),
+    linear-gradient(112deg, #24182d, #1a1421 53%, var(--black));
+  --closing-fill:
+    radial-gradient(ellipse at 83% 58%, rgba(125, 86, 151, 0.22), transparent 54%),
+    linear-gradient(110deg, var(--ink), var(--panel));
+  --shadow-action: 0 7px 26px #65487535;
+  --shadow-action-hover: 0 10px 32px #65487559;
+  --shadow-panel: 0 24px 64px #08050b85;
+  --shadow-locked: inset 0 0 32px #03020599;
+  --skeleton-fill: linear-gradient(90deg, transparent, #d2b4e518, transparent);
+  --hero-dots: radial-gradient(#cab3de6b 0.55px, transparent 0.8px);
   --mono: ui-monospace, "SFMono-Regular", Consolas, monospace;
   --sans:
     Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -35,10 +54,6 @@ body {
   color: var(--white);
   font: 15px/1.65 var(--sans);
   -webkit-font-smoothing: antialiased;
-}
-body::selection {
-  background: #76528e;
-  color: #fff;
 }
 a {
   color: inherit;
@@ -64,50 +79,17 @@ svg {
   display: none !important;
 }
 ::selection {
-  background: #76528e;
-  color: white;
+  background: var(--purple-deep);
+  color: var(--white);
 }
-.mono-label,
 .section-kicker,
-.eyebrow,
-.course-meta,
-.step-meta,
-.console-label,
-.console-foot,
-.visual-coordinate,
-.visual-note,
-.platform-window-head,
-.row-status,
-.row-code,
-.platform-index,
-.caption-index,
-.intro-rule,
-.quote-label,
-.closing-stamp,
 .auth-display-top,
-.auth-display-line,
 .auth-code i,
 .auth-screen-content > span,
 .auth-visual-code,
 .auth-legal,
-.study-footer,
-.study-progress-copy,
-.curriculum-count,
-.lesson-number,
-.lesson-meta,
 .code-bar,
-.toolbar-label,
-.detail-meta,
-.breadcrumb,
-.catalog-status,
-.console-state,
-.console-brand,
-.section-index,
-.app-footer,
-.platform-window-head,
-.platform-row small,
-.auth-separator,
-.step-number {
+.auth-separator {
   font-family: var(--mono);
   letter-spacing: 0.08em;
 }

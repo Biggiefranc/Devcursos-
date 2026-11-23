@@ -240,7 +240,6 @@
   border: 1px solid #c0a3d21c;
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  animation: orbit-breathe 9s ease-in-out infinite;
 }
 .orbit-a {
   width: min(76vw, 850px);
@@ -289,7 +288,6 @@
   height: 12px;
   border: 1px solid #846c91;
   transform: rotate(45deg);
-  animation: screen-pulse 3s ease-in-out infinite;
 }
 .auth-screen-sidebar i:nth-child(2) {
   animation-delay: 0.4s;
@@ -341,14 +339,7 @@
   width: 6px;
   height: 12px;
   background: #b299c4;
-  animation: cursor-blink 1s steps(2, start) infinite;
-}
-.auth-display-line {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-  color: #827988;
-  font-size: 8px;
+  animation: cursor-blink 1s steps(2, start) 4;
 }
 .auth-display-base {
   height: 16px;
@@ -361,25 +352,9 @@
   z-index: 1;
   color: #c3a7d2;
   font-size: 10px;
-  animation: code-drift 5s ease-in-out infinite;
 }
 .code-a {
   top: 19%;
   left: 14%;
   font-size: 22px;
-}
-.code-b {
-  right: 14%;
-  bottom: 23%;
-  animation-delay: -2s;
-}
-.auth-visual-caption {
-  position: absolute;
-  bottom: 37px;
-  left: 50%;
-  width: 80%;
-  transform: translateX(-50%);
-  text-align: center;
-  color: #8e8594;
-  font-size: 9px;
 }

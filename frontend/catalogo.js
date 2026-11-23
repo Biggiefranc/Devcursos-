@@ -10,7 +10,11 @@ const emptyState = document.getElementById("catalogEmpty");
 const status = document.getElementById("catalogStatus");
 let courses = [];
 let category = "Todas";
-let query = "";
+let query = new URLSearchParams(location.search).get("busca") || "";
+queryInput.value = query;
+let loadFailed = false;
+const emptyTitle = emptyState.querySelector("h3");
+const clearButton = document.getElementById("clearCatalog");
 
 const normalize = (value) =>
   String(value || "")
@@ -19,28 +23,6 @@ const normalize = (value) =>
     .toLowerCase();
 
 queryInput.form?.addEventListener("submit", (event) => event.preventDefault());
-
-function attachReveal() {
-  if (!("IntersectionObserver" in window)) {
-    grid
-      .querySelectorAll("[data-reveal]")
-      .forEach((node) => node.classList.add("is-visible"));
-    return;
-  }
-  const observer = new IntersectionObserver(
-    (entries, current) =>
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("is-visible");
-          current.unobserve(entry.target);
-        }
-      }),
-    { threshold: 0.08 },
-  );
-  grid
-    .querySelectorAll("[data-reveal]")
-    .forEach((node) => observer.observe(node));
-}
 
 function render() {
   const term = normalize(query);
@@ -51,7 +33,7 @@ function render() {
     const matchesQuery =
       !term ||
       normalize(
-        [course.titulo, course.descricao, course.categoria, course.nivel].join(
+        [course.titulo, course.descricao, course.categoria, course.nivel, course.tecnologias].join(
           " ",
         ),
       ).includes(term);
@@ -60,14 +42,12 @@ function render() {
   title.textContent = query
     ? "Resultados para “" + query + "”"
     : category === "Todas"
-      ? "Todas as formações"
+      ? "Todos os cursos"
       : category;
-  count.textContent = String(filtered.length).padStart(2, "0") + " FORMAÇÕES";
+  count.textContent = filtered.length + (filtered.length === 1 ? " curso" : " cursos");
   grid.hidden = !filtered.length;
   emptyState.hidden = filtered.length > 0;
-  grid.innerHTML = filtered
-    .map((course, index) => courseCard(course, index))
-    .join("");
+  grid.innerHTML = filtered.map(courseCard).join("");
   filters
     .querySelectorAll(".filter-button")
     .forEach((button) =>
@@ -76,7 +56,6 @@ function render() {
         String(button.dataset.category === category),
       ),
     );
-  attachReveal();
 }
 
 filters.addEventListener("click", (event) => {
@@ -87,10 +66,10 @@ filters.addEventListener("click", (event) => {
 });
 queryInput.addEventListener("input", () => {
   query = queryInput.value.trim();
-  render();
+  if (!loadFailed) render();
 });
-document.getElementById("clearCatalog").addEventListener("click", () => {
-  if (!courses.length && count.textContent === "TENTE NOVAMENTE") {
+clearButton.addEventListener("click", () => {
+  if (loadFailed) {
     loadCatalog();
     return;
   }
@@ -101,8 +80,6 @@ document.getElementById("clearCatalog").addEventListener("click", () => {
 });
 
 async function loadCatalog() {
-  query = new URLSearchParams(location.search).get("busca") || "";
-  queryInput.value = query;
   try {
     const response = await fetch(API_URL + "/cursos", {
       headers: { Accept: "application/json" },
@@ -132,6 +109,9 @@ async function loadCatalog() {
           "</button>",
       )
       .join("");
+    loadFailed = false;
+    clearButton.textContent = "Limpar busca";
+    emptyTitle.textContent = "Nenhum curso encontrado.";
     render();
     status.textContent = courses.length
       ? ""
@@ -140,13 +120,11 @@ async function loadCatalog() {
     console.error("Falha ao carregar o catálogo.", error);
     grid.hidden = true;
     emptyState.hidden = false;
-    emptyState.querySelector(".section-kicker").textContent =
-      "CATÁLOGO INDISPONÍVEL";
-    emptyState.querySelector("h3").textContent =
-      "Não conseguimos consultar as formações.";
-    document.getElementById("clearCatalog").textContent = "Tentar novamente";
-    status.textContent = "Verifique sua conexão com a API e atualize a página.";
-    count.textContent = "TENTE NOVAMENTE";
+    loadFailed = true;
+    emptyTitle.textContent = "Não foi possível carregar os cursos.";
+    clearButton.textContent = "Tentar novamente";
+    status.textContent = "";
+    count.textContent = "";
   }
 }
 

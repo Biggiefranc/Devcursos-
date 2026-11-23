@@ -61,7 +61,7 @@ export function criarEditorDeCodigo({ aula, usuario, concluido, aoAprovar }) {
   const saida = elemento("pre", "exercise-output", "A saída do seu programa aparece aqui.");
   const erros = elemento("pre", "exercise-output exercise-stderr");
   erros.hidden = true;
-  painelSaida.append(elemento("h3", "", "Saída / Console"), saida, erros);
+  painelSaida.append(elemento("h3", "", "Saída do programa"), saida, erros);
   painel.append(painelSaida);
 
   const estado = elemento("p", "exercise-status", concluido ? "✓ Exercício concluído." : "");

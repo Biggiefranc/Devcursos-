@@ -43,39 +43,32 @@ function renderContinue(items) {
   if (!items.length) return;
   continueSection.hidden = false;
   continueGrid.innerHTML = items
-    .map(({ course, summary }, index) => {
+    .map(({ course, summary }) => {
       const total = summary.totalAulas;
       const done = summary.aulasConcluidas;
       const percent = total ? Math.round((done / total) * 100) : 0;
       const next = summary.proximaAula;
-      const nextTitle = next ? next.titulo : "Abrir currículo";
+      const action = next ? "Continuar " + next.titulo : "Abrir currículo";
       return (
-        '<article class="continue-card" data-reveal><span class="course-index">EM ANDAMENTO / ' +
-        String(index + 1).padStart(2, "0") +
-        "</span><h3>" +
+        '<article class="continue-card"><h3>' +
         escape(course.titulo) +
-        "</h3><p>Próxima aula: " +
-        escape(nextTitle) +
+        "</h3><p>" +
+        escape(action) +
         '</p><div class="course-meta"><span>' +
         percent +
         "% concluído</span><span>" +
         done +
-        " DE " +
+        " de " +
         total +
-        " AULAS</span></div>" +
+        " aulas</span></div>" +
         '<a class="course-card-link" href="' +
         courseLink(course.id, next?.id) +
-        '" aria-label="Continuar ' +
-        escape(course.titulo) +
+        '" aria-label="' +
+        escape(action) +
         '"></a></article>'
       );
     })
     .join("");
-  continueGrid
-    .querySelectorAll("[data-reveal]")
-    .forEach((node) =>
-      requestAnimationFrame(() => node.classList.add("is-visible")),
-    );
 }
 
 async function loadDashboard(user) {
@@ -97,7 +90,7 @@ async function loadDashboard(user) {
     const firstName = profileName.trim().split(/\s+/)[0];
     nameNode.textContent = firstName;
     welcome.innerHTML =
-      "Olá, <span>" + escape(firstName) + "</span>. Vamos avançar?";
+      "Olá, <span>" + escape(firstName) + "</span>.";
     localStorage.setItem(
       "devcursos_user",
       JSON.stringify(
@@ -107,7 +100,7 @@ async function loadDashboard(user) {
 
     const courses = Array.isArray(coursesData) ? coursesData : [];
     courseGrid.innerHTML = courses
-      .map((course, index) => courseCard(course, index))
+      .map(courseCard)
       .join("");
     if (!courses.length) {
       courseGrid.innerHTML =
@@ -130,11 +123,6 @@ async function loadDashboard(user) {
       })
       .filter(Boolean);
     renderContinue(studyRecords);
-    courseGrid
-      .querySelectorAll("[data-reveal]")
-      .forEach((node) =>
-        requestAnimationFrame(() => node.classList.add("is-visible")),
-      );
   } catch (error) {
     console.error("Falha ao carregar o espaço do estudante.", error);
     courseGrid.innerHTML =

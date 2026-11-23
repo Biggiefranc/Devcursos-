@@ -74,36 +74,18 @@ function categorySlug(category) {
   return "programacao";
 }
 
-function metadata(course, modules) {
+function metadata(course) {
   const hours = Number(course.duracao_horas);
-  const duration =
-    Number.isFinite(hours) && hours > 0
-      ? hours < 1
-        ? Math.round(hours * 60) + " minutos"
-        : new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 }).format(
-            hours,
-          ) + " horas"
-      : "A definir";
-  const technology =
-    Array.isArray(course.tecnologias) && course.tecnologias.length
-      ? course.tecnologias.join(" · ")
-      : "A definir";
-  const project = course.projeto_final
-    ? esc(course.projeto_final)
-    : "A definir";
-  return (
-    '<div class="detail-meta"><span>NÍVEL ' +
-    esc(course.nivel || "Não informado") +
-    "</span><span>DURAÇÃO " +
-    duration +
-    "</span><span>TECNOLOGIAS " +
-    esc(technology) +
-    "</span><span>PROJETO FINAL " +
-    project +
-    "</span><span>" +
-    modules.length +
-    " MÓDULOS</span></div>"
-  );
+  const duration = Number.isFinite(hours) && hours > 0
+    ? hours < 1
+      ? Math.max(1, Math.round(hours * 60)) + " min"
+      : new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 }).format(hours) + " h"
+    : "";
+  const technology = Array.isArray(course.tecnologias) ? course.tecnologias.join(", ") : "";
+  const items = [duration, technology].filter(Boolean);
+  return items.length
+    ? '<div class="detail-meta">' + items.map((item) => "<span>" + esc(item) + "</span>").join("") + "</div>"
+    : "";
 }
 
 function render(course, modules) {
@@ -133,7 +115,7 @@ function render(course, modules) {
             esc(module.titulo || "Módulo " + (index + 1)) +
             '</span><span class="detail-module-count">' +
             lessons.length +
-            (lessons.length === 1 ? " AULA" : " AULAS") +
+            (lessons.length === 1 ? " aula" : " aulas") +
             "</span></summary>" +
             '<div class="detail-lesson-list">' +
             (lessons.length
@@ -155,9 +137,9 @@ function render(course, modules) {
                       esc(lesson.titulo || "Aula") +
                       '</span><span class="lesson-meta">' +
                       (Number(lesson.duracao_minutos) > 0
-                        ? Number(lesson.duracao_minutos) + " MIN · "
+                        ? Number(lesson.duracao_minutos) + " min · "
                         : "") +
-                      "ABRIR AULA</span></a>"
+                      "Abrir aula</span></a>"
                     );
                   })
                   .join("")
@@ -187,17 +169,20 @@ function render(course, modules) {
         "Consulte os módulos e encontre o ponto de partida para esta formação.",
     ) +
     "</p>" +
-    metadata(course, modules) +
+    metadata(course) +
     '<div class="detail-actions"><a class="button button-primary" href="' +
     startHref +
     '">' +
     (isLogged() ? "Começar a estudar" : "Entrar para estudar") +
     '</a><a class="button button-outline" href="catalogo.html">Voltar ao catálogo</a></div>' +
+    (course.projeto_final
+      ? '<div class="detail-project"><h2>Projeto final</h2><p>' + esc(course.projeto_final) + "</p></div>"
+      : "") +
     '<div class="curriculum-heading"><h2>O que você vai estudar</h2><span>' +
     lessonsTotal +
-    " AULAS / " +
+    (lessonsTotal === 1 ? " aula em " : " aulas em ") +
     modules.length +
-    ' MÓDULOS</span></div><div class="detail-modules">' +
+    (modules.length === 1 ? ' módulo' : ' módulos') + '</span></div><div class="detail-modules">' +
     moduleMarkup +
     "</div></section>" +
     '<aside class="detail-aside"><h2>Sobre esta formação</h2>' +
@@ -209,11 +194,10 @@ function render(course, modules) {
     "</b></div>" +
     '<div class="aside-row"><span>Currículo</span><b>' +
     modules.length +
-    " módulos</b></div>" +
+    (modules.length === 1 ? " módulo" : " módulos") + "</b></div>" +
     '<div class="aside-row"><span>Aulas</span><b>' +
     lessonsTotal +
-    " aulas</b></div>" +
-    '<p class="aside-note">Os dados que ainda não foram publicados aparecem como “A definir”.</p></aside></div>';
+    (lessonsTotal === 1 ? " aula" : " aulas") + "</b></div></aside></div>";
 
   document
     .getElementById("favoriteBtn")

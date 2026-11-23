@@ -10,6 +10,33 @@ const menu = document.getElementById("menu");
 const pagina = document.getElementById("pagina");
 const textoProg = document.getElementById("textoProg");
 const btnReiniciar = document.getElementById("btnReiniciar");
+const curriculumToggle = document.getElementById("curriculumToggle");
+const curriculumPanel = document.getElementById("curriculumPanel");
+const curriculumCurrent = document.getElementById("curriculumCurrent");
+
+function mostrarCurriculo(aberto) {
+  curriculumToggle.setAttribute("aria-expanded", String(aberto));
+}
+
+curriculumToggle.addEventListener("click", () => {
+  const abrir = curriculumToggle.getAttribute("aria-expanded") === "false";
+  mostrarCurriculo(abrir);
+  const atual = menu.querySelector('[aria-current="step"]');
+  if (abrir && atual) {
+    const painel = curriculumPanel.getBoundingClientRect();
+    const cabecalho = curriculumPanel.querySelector(".curriculum-head");
+    const topo = atual.getBoundingClientRect().top - painel.top;
+    if (topo < cabecalho.offsetHeight || topo + atual.offsetHeight > painel.height) {
+      curriculumPanel.scrollTop += topo - cabecalho.offsetHeight;
+    }
+  }
+});
+
+curriculumPanel.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape" || curriculumToggle.getAttribute("aria-expanded") !== "true") return;
+  mostrarCurriculo(false);
+  curriculumToggle.focus();
+});
 
 let curso = null;
 let todas = [];
@@ -402,11 +429,15 @@ function montarMenu(keyAtual = aulaAtualId) {
       criarElemento(
         "span",
         "aula-status",
-        concluida ? (tipo === "avaliacao" ? "APROVADA" : "CONCLUÍDA")
-          : bloqueada ? "BLOQUEADA" : tipo === "avaliacao" ? "AVALIAR" : "LIBERADA",
+        concluida ? (tipo === "avaliacao" ? "Aprovada" : "Concluída")
+          : bloqueada ? "Bloqueada" : "Disponível",
       ),
     );
     botao.addEventListener("click", () => {
+      if (curriculumToggle.getAttribute("aria-expanded") === "true") {
+        mostrarCurriculo(false);
+        curriculumToggle.focus();
+      }
       void selecionarAula(key);
     });
     return botao;
@@ -776,7 +807,6 @@ function criarAulaBloqueada(key, mensagemServidor = "") {
   const section = criarElemento("section", "lesson-locked");
   section.setAttribute("role", "status");
   section.append(
-    criarElemento("p", "section-kicker", "ACESSO EM ETAPAS"),
     criarElemento("h1", "", meta ? "Avaliação ainda bloqueada." : "Esta aula ainda está bloqueada."),
     criarElemento(
       "p",
@@ -793,7 +823,6 @@ function criarAulaBloqueada(key, mensagemServidor = "") {
   preview.append(
     criarElemento("span", "section-kicker", module?.titulo || meta?.moduloTitulo || "CURRÍCULO"),
     criarElemento("strong", "", aula?.titulo || meta?.titulo || PROVA.titulo),
-    criarElemento("span", "locked-content-line", "Etapa disponível depois da anterior"),
   );
   section.appendChild(preview);
 
@@ -813,6 +842,9 @@ async function selecionarAula(key, { historyMode = "push", focar = true } = {}) 
   if (!meta && indiceDaAula(id) < 0) return;
   if (id === aulaAtualId && historyMode === "push") return;
 
+  curriculumCurrent.textContent = meta?.titulo || todas[indiceDaAula(id)]?.titulo || "Conteúdo do curso";
+  curriculumToggle.hidden = false;
+  mostrarCurriculo(false);
   destruirEditor?.();
   destruirEditor = null;
   aulaAtualId = id;
