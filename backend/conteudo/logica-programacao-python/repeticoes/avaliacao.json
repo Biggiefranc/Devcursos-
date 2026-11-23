@@ -1,109 +1,109 @@
 {
-  "titulo": "Avaliação do módulo 4 — Repetições",
+  "titulo": "Avaliação do módulo 4 — Repetições e controle de fluxo",
   "minimo_acertos": 4,
   "ativa": true,
   "questoes": [
     {
-      "enunciado": "Em um while, o que normalmente evita que a repetição fique infinita?",
+      "enunciado": "`n` começa em 1. Em cada volta de `while n <= 3`, o programa imprime `n` e depois faz `n = n + 1`. Qual é a saída, em ordem?",
       "alternativas": [
         {
-          "texto": "Atualizar os dados usados na condição até ela ficar falsa.",
+          "texto": "1, 2",
+          "correta": false
+        },
+        {
+          "texto": "1, 2, 3",
           "correta": true
         },
         {
-          "texto": "Apagar a condição do laço.",
+          "texto": "2, 3, 4",
           "correta": false
         },
         {
-          "texto": "Colocar um print depois do while.",
-          "correta": false
-        },
-        {
-          "texto": "Usar sempre uma variável chamada contador.",
+          "texto": "1 repetido sem parar",
           "correta": false
         }
       ]
     },
     {
-      "enunciado": "Quantas vezes o bloco de for n in range(1, 5) roda?",
+      "enunciado": "Você precisa visitar os números de 1 até 5, incluindo 5. Qual expressão produz esse percurso num `for`?",
       "alternativas": [
         {
-          "texto": "4 vezes: para 1, 2, 3 e 4.",
+          "texto": "`range(1, 6)`",
           "correta": true
         },
         {
-          "texto": "5 vezes: para 1, 2, 3, 4 e 5.",
+          "texto": "`range(1, 5)`",
           "correta": false
         },
         {
-          "texto": "1 vez.",
+          "texto": "`range(5)`",
           "correta": false
         },
         {
-          "texto": "Nenhuma vez.",
+          "texto": "`range(2, 6)`",
           "correta": false
         }
       ]
     },
     {
-      "enunciado": "Por que iniciar soma = 0 antes de acumular números?",
+      "enunciado": "Ao percorrer `[2, 4, 6]`, qual par inicialização e atualização guarda a soma dos valores?",
       "alternativas": [
         {
-          "texto": "Zero é o valor neutro da adição e não altera a primeira soma.",
+          "texto": "Antes do laço `soma = 0`. Dentro do laço `soma = soma + 1`.",
+          "correta": false
+        },
+        {
+          "texto": "Antes do laço `soma = 0`. Dentro do laço `soma = valor`.",
+          "correta": false
+        },
+        {
+          "texto": "Antes do laço `soma = 0`. Dentro do laço `soma = soma + valor`.",
           "correta": true
         },
         {
-          "texto": "O zero faz o laço parar.",
-          "correta": false
-        },
-        {
-          "texto": "A variável só pode guardar números pares.",
-          "correta": false
-        },
-        {
-          "texto": "Python exige que toda variável comece em zero.",
+          "texto": "Dentro do laço `soma = 0` e depois `soma = soma + valor`.",
           "correta": false
         }
       ]
     },
     {
-      "enunciado": "O que continue faz dentro de um laço?",
+      "enunciado": "Um laço percorre 1, 2 e 3. Se `n == 2` ele executa `continue` antes do `print(n)`. O que aparece?",
       "alternativas": [
         {
-          "texto": "Pula o restante da repetição atual e segue para a próxima.",
+          "texto": "Só 1",
+          "correta": false
+        },
+        {
+          "texto": "2 e 3",
+          "correta": false
+        },
+        {
+          "texto": "1 e 3",
           "correta": true
         },
         {
-          "texto": "Encerra todo o programa.",
-          "correta": false
-        },
-        {
-          "texto": "Repete a mesma instrução para sempre.",
-          "correta": false
-        },
-        {
-          "texto": "Apaga o contador.",
+          "texto": "1, 2 e 3",
           "correta": false
         }
       ]
     },
     {
-      "enunciado": "Quando dois laços são aninhados, o que acontece normalmente?",
+      "enunciado": "Para cada uma de 3 salas, um laço interno visita 2 janelas. Sem `break`, quantas vezes roda a instrução dentro do laço interno?",
       "alternativas": [
         {
-          "texto": "Para cada volta do laço externo, o interno percorre suas voltas.",
+          "texto": "6",
           "correta": true
         },
         {
-          "texto": "Os dois laços são unidos em uma única condição.",
+          "texto": "5",
           "correta": false
         },
         {
-          "texto": "O laço interno só roda uma vez no programa.",
+          "texto": "3",
           "correta": false
         },
         {
-          "texto": "O laço externo deixa de existir.",
+          "texto": "2",
           "correta": false
         }
       ]

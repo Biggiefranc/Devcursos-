@@ -23,28 +23,36 @@ async function listarAulasConcluidas(usuarioId, cursoId) {
 
 async function listarResumoPorUsuario(usuarioId) {
     const [rows] = await pool.execute(
-        `SELECT m.curso_id, a.id AS aula_id, a.titulo AS aula_titulo,
-                CASE WHEN pa.concluida = 1 THEN 1 ELSE 0 END AS concluida
+        `SELECT m.id AS modulo_id, m.curso_id, a.id AS aula_id, a.titulo AS aula_titulo,
+                CASE WHEN pa.concluida = 1 THEN 1 ELSE 0 END AS concluida,
+                av.id AS avaliacao_id, av.titulo AS avaliacao_titulo,
+                EXISTS (
+                    SELECT 1
+                    FROM tentativas_avaliacao ta
+                    WHERE ta.usuario_id = ? AND ta.avaliacao_id = av.id AND ta.aprovada = 1
+                ) AS avaliacao_aprovada
          FROM modulos m
          INNER JOIN aulas a ON a.modulo_id = m.id
+         LEFT JOIN avaliacoes av ON av.modulo_id = m.id AND av.ativa = 1
          LEFT JOIN progresso_aulas pa
             ON pa.aula_id = a.id
            AND pa.usuario_id = ?
            AND pa.concluida = 1
          ORDER BY m.curso_id ASC, m.ordem ASC, m.id ASC,
                   a.ordem ASC, a.id ASC`,
-        [usuarioId]
+        [usuarioId, usuarioId]
     );
 
     const resumo = new Map();
-    for (const row of rows) {
+    for (const [indice, row] of rows.entries()) {
         const courseId = Number(row.curso_id);
         if (!resumo.has(courseId)) {
             resumo.set(courseId, {
                 cursoId: courseId,
                 totalAulas: 0,
                 aulasConcluidas: 0,
-                proximaAula: null
+                proximaAula: null,
+                proximaAvaliacao: null
             });
         }
         const course = resumo.get(courseId);
@@ -55,6 +63,14 @@ async function listarResumoPorUsuario(usuarioId) {
             course.proximaAula = {
                 id: Number(row.aula_id),
                 titulo: row.aula_titulo
+            };
+        }
+        const ultimaAulaDoModulo = rows[indice + 1]?.modulo_id !== row.modulo_id;
+        if (ultimaAulaDoModulo && row.avaliacao_id && !Number(row.avaliacao_aprovada)
+            && !course.proximaAula && !course.proximaAvaliacao) {
+            course.proximaAvaliacao = {
+                id: Number(row.avaliacao_id),
+                titulo: row.avaliacao_titulo
             };
         }
     }

@@ -1,3 +1,4 @@
+const { randomInt } = require("node:crypto");
 const repository = require("./assessments.repository");
 const usersRepository = require("../users/users.repository");
 const coursesRepository = require("../courses/cursos.repository");
@@ -103,6 +104,12 @@ async function obterConteudoAvaliacao(firebaseUid, avaliacao) {
             "O critério mínimo de aprovação desta avaliação está inválido.",
         );
     }
+    for (const { alternativas } of questoes) {
+        for (let indice = alternativas.length - 1; indice > 0; indice -= 1) {
+            const sorteado = randomInt(indice + 1);
+            [alternativas[indice], alternativas[sorteado]] = [alternativas[sorteado], alternativas[indice]];
+        }
+    }
     return {
         id: Number(avaliacao.id),
         cursoId: cursoDaAvaliacao(avaliacao),
@@ -198,7 +205,7 @@ async function registrarTentativa(firebaseUid, avaliacaoId, respostas) {
         correta: recebidas.get(questaoId) === porQuestao.get(questaoId),
     }));
     const acertos = respostasValidadas.filter((resposta) => resposta.correta).length;
-    return repository.registrarTentativa({
+    const tentativa = await repository.registrarTentativa({
         usuarioId: usuario.id,
         avaliacaoId: idAvaliacao,
         total: idsQuestoes.length,
@@ -206,6 +213,12 @@ async function registrarTentativa(firebaseUid, avaliacaoId, respostas) {
         aprovada: acertos >= minimoAcertos,
         respostas: respostasValidadas,
     });
+    return {
+        ...tentativa,
+        questoesParaRevisar: respostasValidadas
+            .filter((resposta) => !resposta.correta)
+            .map((resposta) => resposta.questaoId),
+    };
 }
 
 module.exports = { buscarPorCurso, buscarPorId, registrarTentativa };

@@ -732,6 +732,15 @@
 }
 .quiz-status.sucesso { color: var(--green); }
 .quiz-status.erro { color: var(--red); }
+.quiz-q code {
+  color: var(--purple-bright);
+  font: 0.9em var(--mono);
+}
+.quiz-revisao {
+  margin: 8px 0 0;
+  color: var(--red);
+  font-size: 14px;
+}
 .quiz-submit:disabled { cursor: default; }
 
 .study-footer {

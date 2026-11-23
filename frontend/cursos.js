@@ -481,7 +481,7 @@ function montarMenu(keyAtual = aulaAtualId) {
       const meta = { ...modulo.avaliacao, moduloId: modulo.id, moduloTitulo: modulo.titulo };
       botoes.push(criarBotao({
         key: chaveAvaliacao(meta),
-        titulo: meta.titulo || "Avaliação do módulo",
+        titulo: "Avaliação do módulo",
         tipo: "avaliacao",
         concluida: avaliacoesAprovadas.has(String(meta.id)),
         liberada: avaliacaoLiberada(meta),
@@ -545,7 +545,9 @@ function criarSecaoAula(aula, modulo, criarEditorDeCodigo) {
     "button",
     "lesson-next",
     nextKey
-      ? nextMeta ? "Abrir avaliação do módulo" : "Siga para a próxima aula"
+      ? nextMeta
+        ? nextMeta.final ? "Abrir avaliação final" : "Abrir avaliação do módulo"
+        : "Siga para a próxima aula"
       : "Formação concluída",
   );
   advance.type = "button";
@@ -650,7 +652,9 @@ function criarSecaoProva(meta, avaliacao) {
   const questoes = avaliacao.questoes.map((questao, indice) => {
     const bloco = criarElemento("fieldset", "quiz-q");
     const grupo = `questao-${questao.id}`;
-    bloco.appendChild(criarElemento("legend", "", `${indice + 1}. ${questao.enunciado}`));
+    const legenda = criarElemento("legend");
+    legenda.innerHTML = renderizarInlineMarkdown(`${indice + 1}. ${questao.enunciado}`);
+    bloco.appendChild(legenda);
 
     const opcoes = criarElemento("div", "quiz-options");
     questao.alternativas.forEach((alternativa, alternativaIndice) => {
@@ -662,7 +666,9 @@ function criarSecaoProva(meta, avaliacao) {
       radio.required = true;
       const letra = criarElemento("span", "quiz-letra", LETRAS[alternativaIndice] || String(alternativaIndice + 1));
       letra.setAttribute("aria-hidden", "true");
-      rotulo.append(radio, letra, criarElemento("span", "", alternativa.texto));
+      const texto = criarElemento("span");
+      texto.innerHTML = renderizarInlineMarkdown(alternativa.texto);
+      rotulo.append(radio, letra, texto);
       opcoes.appendChild(rotulo);
     });
     bloco.appendChild(opcoes);
@@ -718,6 +724,13 @@ function criarSecaoProva(meta, avaliacao) {
       }
       if (!sec.isConnected) return;
 
+      const revisar = new Set(tentativa.questoesParaRevisar || []);
+      questoes.forEach((bloco, indice) => {
+        if (revisar.has(avaliacao.questoes[indice].id)) {
+          bloco.appendChild(criarElemento("p", "quiz-revisao", "Revise esta questão."));
+        }
+      });
+
       const mensagem = tentativa.aprovada
         ? "Avaliação aprovada."
         : "Revise o conteúdo e tente novamente.";
@@ -732,7 +745,10 @@ function criarSecaoProva(meta, avaliacao) {
         tentar.type = "button";
         tentar.addEventListener("click", () => {
           formulario.reset();
-          questoes.forEach((bloco) => { bloco.disabled = false; });
+          questoes.forEach((bloco) => {
+            bloco.disabled = false;
+            bloco.querySelector(".quiz-revisao")?.remove();
+          });
           tentar.remove();
           enviar.hidden = false;
           atualizarContagem();
@@ -1015,9 +1031,9 @@ async function iniciarCurso() {
     const hashAula = window.location.hash.match(/^#aula-(.+)$/)?.[1] || "";
     const solicitada = aulaSolicitada || hashAula;
     const target =
-      solicitada === PROVA.id || indiceDaAula(solicitada) >= 0
+      obterAvaliacaoPorChave(solicitada) || indiceDaAula(solicitada) >= 0
         ? solicitada
-        : primeiraAulaPendente()?.id || PROVA.id;
+        : primeiroItemPendente();
     await selecionarAula(target, { historyMode: "replace", focar: false });
   } catch (erro) {
     console.error("Erro ao carregar a formação:", erro);

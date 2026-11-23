@@ -2,36 +2,42 @@
 titulo: Instruções executadas em sequência
 descricao: Entenda como a ordem das instruções muda o resultado de um programa.
 ordem: 2
-duracao: 12
+duracao: 20
 video_url: null
 material_url: null
 ---
 
-# A ordem muda o resultado
+## Leia o código na ordem em que ele roda
 
-Uma receita funciona porque as etapas são feitas numa ordem que faz sentido. Um programa também executa as instruções seguindo o fluxo do código, de cima para baixo, exceto quando uma condição ou repetição muda esse caminho.
+Quando você pega um livro emprestado, a biblioteca registra qual exemplar vai sair antes de imprimir o comprovante. O comprovante depende de uma etapa anterior. Nos programas simples que estamos escrevendo, Python também segue as instruções em sequência, da primeira linha para a última. Mais adiante, você vai aprender a mudar esse percurso.
 
 ```python
-print("1. Separar os ingredientes")
-print("2. Misturar")
-print("3. Levar ao forno")
+print("Separe o livro")
+print("Mostre a carteirinha")
+print("Pegue o comprovante")
 ```
 
-Se trocar as linhas, Python mostra a saída na nova ordem. O computador não adivinha a intenção: ele segue as instruções que recebeu.
+Antes de executar o exemplo, escreva a saída que espera ver. Rode o código e compare a ordem. Depois mova a terceira linha para o topo. O interpretador vai seguir sua nova ordem, mesmo que ela tenha deixado de fazer sentido como orientação para quem usa a biblioteca.
 
-Uma solução bem escrita tem começo, etapas e resultado. Quando uma etapa depende de outra, essa dependência precisa aparecer na sequência. Primeiro calculamos um subtotal; depois usamos esse subtotal para calcular o total.
+## Algumas linhas dependem de outras
+
+Em Python, você pode dar um nome a um valor. Esse nome é uma **variável**. Pense numa etiqueta com o nome do que você quer acompanhar. Em `livros_manha = 3`, o sinal `=` associa o nome `livros_manha` ao número `3`. Chamamos isso de **atribuição**. O caractere `_` ajuda a separar palavras no nome.
 
 ```python
-preco_caderno = 12
-preco_caneta = 4
-total = preco_caderno + preco_caneta
+livros_manha = 3
+livros_tarde = 2
+total = livros_manha + livros_tarde
 print(total)
 ```
 
-## Pratique
+Na terceira linha, Python lê os dois valores, soma e atribui `5` a `total`. Na quarta, `print(total)` mostra esse número. Compare com `print("total")`, que mostra a palavra `total`. As aspas mudam o que a instrução pede.
 
-Mude a ordem das duas primeiras atribuições e execute. O total continua igual porque as duas compras podem ser somadas em qualquer ordem. Depois tente imprimir `total` antes de calcular seu valor: observe que o programa não consegue usar um nome que ainda não recebeu um valor.
+## Descubra quais linhas podem trocar de lugar
 
-**Pergunta de revisão:** qual instrução precisa acontecer antes de `print(total)`?
+1. **Inverta as atribuições da manhã e da tarde.** Preveja o resultado e execute. O total continua `5`, pois as duas atribuições são independentes e acontecem antes da soma.
+2. **Mova o cálculo para o topo.** Execute e leia o `NameError`. Python tentou usar `livros_manha` antes de o nome receber um valor. Conserte o programa e confirme a saída.
+3. **Mostre um resultado de cada vez.** Volte ao código que funcionava e acrescente `print(livros_manha)` logo depois da primeira atribuição. Acrescente `print(livros_tarde)` logo depois da segunda. Você deve obter `3`, `2` e `5`, em linhas diferentes. Se receber outra ordem, siga com o dedo a ordem dos `print`.
 
-**Documentação oficial:** [Uma introdução informal ao Python](https://docs.python.org/3/tutorial/introduction.html)
+## Escreva a rotina de estudo
+
+Para a prática com verificação, anote as três mensagens pedidas na ordem em que alguém deveria segui-las. Depois escreva um `print` por linha. Se a saída estiver na ordem certa e a verificação falhar, compare maiúsculas, acentos e pontuação com o enunciado.

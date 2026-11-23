@@ -48,7 +48,9 @@ function renderContinue(items) {
       const done = summary.aulasConcluidas;
       const percent = total ? Math.round((done / total) * 100) : 0;
       const next = summary.proximaAula;
-      const action = next ? "Continuar " + next.titulo : "Abrir currículo";
+      const assessment = summary.proximaAvaliacao;
+      const action = assessment ? assessment.titulo : "Continuar " + next.titulo;
+      const target = assessment ? "avaliacao-" + assessment.id : next.id;
       return (
         '<article class="continue-card"><h3>' +
         escape(course.titulo) +
@@ -62,7 +64,7 @@ function renderContinue(items) {
         total +
         " aulas</span></div>" +
         '<a class="course-card-link" href="' +
-        courseLink(course.id, next?.id) +
+        courseLink(course.id, target) +
         '" aria-label="' +
         escape(action) +
         '"></a></article>'
@@ -117,7 +119,7 @@ async function loadDashboard(user) {
     const studyRecords = courses
       .map((course) => {
         const summary = summaries.get(String(course.id));
-        return summary?.aulasConcluidas > 0 && summary.proximaAula
+        return summary?.aulasConcluidas > 0 && (summary.proximaAvaliacao || summary.proximaAula)
           ? { course, summary }
           : null;
       })

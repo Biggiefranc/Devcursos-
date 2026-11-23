@@ -47,8 +47,8 @@
     },
     "04-entrada-processamento-saida.md": {
       "titulo": "Ligue entrada, processamento e saída",
-      "enunciado": "Leia o nome de uma pessoa e mostre a mensagem Olá, NOME!, substituindo NOME pelo texto digitado.",
-      "codigo_inicial": "nome = input(\"Seu nome: \")\n# Use o nome recebido para mostrar a saudação.\n",
+      "enunciado": "Leia uma linha com o nome da pessoa. Mostre uma única linha no formato Olá, NOME!, com o nome recebido. Use input() sem uma pergunta e mantenha o espaço depois da vírgula.",
+      "codigo_inicial": "nome = input()\n# Monte e mostre a saudação.\n",
       "avaliador": {
         "tipo": "saida",
         "casos": [
@@ -63,10 +63,22 @@
               "Ravi"
             ],
             "saida_esperada": "Olá, Ravi!"
+          },
+          {
+            "entradas": [
+              "Ana Clara"
+            ],
+            "saida_esperada": "Olá, Ana Clara!"
+          },
+          {
+            "entradas": [
+              "João"
+            ],
+            "saida_esperada": "Olá, João!"
           }
         ]
       },
-      "correcao": "nome = input(\"Seu nome: \")\n# Junte a parte fixa da frase com o texto recebido.\nprint(\"Olá, \" + nome + \"!\")\n"
+      "correcao": "nome = input()\n# Junte o cumprimento, o nome recebido e a exclamação.\nprint(\"Olá, \" + nome + \"!\")\n"
     },
     "05-rastreie-os-passos.md": {
       "titulo": "Acompanhe o estado das variáveis",

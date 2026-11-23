@@ -2,37 +2,42 @@
 titulo: Seu primeiro programa conversa com Python
 descricao: Execute um arquivo simples e veja como uma instrução produz uma saída.
 ordem: 1
-duracao: 10
+duracao: 18
 video_url: null
 material_url: null
 ---
 
-# Seu primeiro programa
+## Escreva a primeira instrução
 
-Antes do primeiro código, instale Python a partir do [site oficial](https://www.python.org/downloads/) ou siga as instruções oficiais do seu sistema. No terminal, um destes comandos deve mostrar a versão instalada:
+Imagine um painel na entrada de uma escola. Para que ele mostre uma mensagem, alguém precisa escrever o que deve aparecer. Seu primeiro programa vai fazer isso. Um **programa** é um conjunto de instruções que o computador pode executar. Python é a linguagem em que você vai escrever essas instruções. O **interpretador** é o programa que lê o código Python e o executa.
 
-```bash
-python --version
-python3 --version
-py --version
-```
-
-Um programa é um conjunto de instruções que o computador executa. Vamos começar com uma que mostra uma mensagem:
+Abra o editor desta aula, troque o conteúdo pelo exemplo abaixo e clique em **Executar código**. Dá para fazer toda a aula no navegador.
 
 ```python
 print("Olá, mundo!")
 ```
 
-Salve o código em um arquivo chamado `ola.py` e execute-o com o Python instalado. Use o comando disponível no seu sistema: `python ola.py`, `python3 ola.py` ou `py ola.py`. A tela deve mostrar `Olá, mundo!`.
+Na área **Saída do programa**, você deve ler `Olá, mundo!`. Essa é a saída, ou seja, o que o programa mostrou. A linha com `print` é o código que produziu a saída.
 
-`print` é uma função pronta do Python. Ela recebe um valor e o escreve na saída. Os parênteses mostram o que será enviado a ela; as aspas indicam que `Olá, mundo!` é texto.
+Leia a instrução da esquerda para a direita. `print` é o nome de uma função pronta do Python. Uma função é uma operação que você pode chamar pelo nome. Os parênteses delimitam o que você envia para ela. As aspas marcam o começo e o fim do texto. Elas fazem parte do código e ficam de fora da mensagem exibida. Python chama um valor de texto de **string**.
 
-## Faça agora
+## Faça um teste de cada vez
 
-1. Troque a mensagem por seu próprio cumprimento e execute de novo.
-2. Escreva duas chamadas de `print`, uma em cada linha. Observe a ordem das saídas.
-3. Apague uma aspa e leia a mensagem de erro. Corrija o código.
+**Troque só o texto.** Mude `Olá, mundo!` para `Boa tarde!` e execute de novo. A nova frase deve aparecer exatamente como você a escreveu, com a exclamação. Mantenha as aspas e os parênteses.
 
-O objetivo não é decorar `print`: é aprender o ciclo **escrever, executar, observar e ajustar**.
+**Mostre duas mensagens.** Digite estas linhas e, antes de executar, tente dizer qual mensagem vem primeiro.
 
-**Documentação oficial:** [Usando o interpretador Python](https://docs.python.org/3/tutorial/interpreter.html) · [Função `print`](https://docs.python.org/3/library/functions.html#print)
+```python
+print("Biblioteca aberta")
+print("Pegue sua carteirinha")
+```
+
+Depois inverta as duas linhas. A primeira mensagem da saída deve passar a ser `Pegue sua carteirinha`. Cada `print` do exemplo termina com uma quebra de linha.
+
+**Provoque um erro e corrija.** Apague a segunda aspa da última linha e execute. Procure `SyntaxError` no erro. **Sintaxe** é o conjunto de regras para escrever uma instrução válida. Quando falta uma aspa, o interpretador não consegue ler o código todo. Coloque a aspa de volta e confirme que as duas mensagens voltaram.
+
+## Prática com verificação
+
+Monte um pequeno cartaz com duas linhas, uma com o nome de um lugar e outra com uma orientação sua. Experimente trocar a pontuação e veja o que sai. Em seguida, substitua o código pela frase exata pedida no exercício. Use **Executar código** para conferir a saída e **Verificar exercício** quando estiver pronto.
+
+Se quiser repetir no computador, salve o código em `ola.py`. Com o Python 3 instalado pelo [site do Python](https://www.python.org/downloads/), abra o terminal na pasta do arquivo e use `python3 ola.py`, `python ola.py` ou `py ola.py`, conforme o comando disponível no seu sistema. No editor desta aula, você cola só o código Python.

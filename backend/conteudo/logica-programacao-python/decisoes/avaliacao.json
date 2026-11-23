@@ -1,109 +1,109 @@
 {
-  "titulo": "Avaliação do módulo 3 — Decisões",
+  "titulo": "Avaliação do módulo 3 — Decisões e condições",
   "minimo_acertos": 4,
   "ativa": true,
   "questoes": [
     {
-      "enunciado": "O que a expressão idade >= 18 produz?",
+      "enunciado": "A entrada é liberada a partir de 16 anos, inclusive. Qual condição representa a regra?",
       "alternativas": [
         {
-          "texto": "Um valor lógico: True ou False.",
+          "texto": "`idade > 16`",
+          "correta": false
+        },
+        {
+          "texto": "`idade == 16`",
+          "correta": false
+        },
+        {
+          "texto": "`idade <= 16`",
+          "correta": false
+        },
+        {
+          "texto": "`idade >= 16`",
+          "correta": true
+        }
+      ]
+    },
+    {
+      "enunciado": "Notas a partir de 9 recebem `Excelente`; de 7 até abaixo de 9, `Aprovado`. Como escrever os primeiros testes de uma única cadeia?",
+      "alternativas": [
+        {
+          "texto": "`if nota >= 7` seguido de `elif nota >= 9`.",
+          "correta": false
+        },
+        {
+          "texto": "`if nota >= 9` seguido de `elif nota >= 7`.",
           "correta": true
         },
         {
-          "texto": "Uma nova idade sem guardar.",
+          "texto": "`if nota > 9` seguido de `elif nota >= 7`.",
           "correta": false
         },
         {
-          "texto": "Uma mensagem impressa na tela.",
-          "correta": false
-        },
-        {
-          "texto": "Um laço de repetição.",
+          "texto": "Dois `if` independentes, um para cada mensagem.",
           "correta": false
         }
       ]
     },
     {
-      "enunciado": "Em um if/else, quando o else é executado?",
+      "enunciado": "Para entrar, a pessoa precisa ter 16 anos ou mais e apresentar autorização. Qual condição exige os dois requisitos?",
       "alternativas": [
         {
-          "texto": "Quando a condição do if é falsa.",
+          "texto": "`idade >= 16 and autorizacao`",
           "correta": true
         },
         {
-          "texto": "Sempre depois do if.",
+          "texto": "`idade >= 16 or autorizacao`",
           "correta": false
         },
         {
-          "texto": "Quando o programa encontra um erro.",
+          "texto": "`idade >= 16 and not autorizacao`",
           "correta": false
         },
         {
-          "texto": "Antes de verificar a condição.",
+          "texto": "`idade > 16 and autorizacao`",
           "correta": false
         }
       ]
     },
     {
-      "enunciado": "Para classificar primeiro nota >= 9 como excelente e nota >= 7 como aprovada, qual regra vem primeiro?",
+      "enunciado": "Um `if` usa `nota > 7` e o `else` mostra `Recuperação`. A regra real aprova a partir de 7. Qual entrada revela a diferença?",
       "alternativas": [
         {
-          "texto": "nota >= 9",
+          "texto": "`8.0`, porque cai no `if`.",
+          "correta": false
+        },
+        {
+          "texto": "`6.9`, porque cai no `else`.",
+          "correta": false
+        },
+        {
+          "texto": "`7.0`, porque deveria aprovar e cai no `else`.",
           "correta": true
         },
         {
-          "texto": "nota >= 7",
-          "correta": false
-        },
-        {
-          "texto": "nota == 0",
-          "correta": false
-        },
-        {
-          "texto": "A ordem não importa.",
+          "texto": "`10.0`, porque cai no `if`.",
           "correta": false
         }
       ]
     },
     {
-      "enunciado": "Uma regra exige que idade seja pelo menos 16 E tenha autorização. Qual operador expressa as duas exigências?",
+      "enunciado": "Uma compra recebe frete grátis se `total >= 100 or retirada` for verdadeiro. Se o total é 80 e `retirada` é `True`, qual resultado a condição produz?",
       "alternativas": [
         {
-          "texto": "and",
+          "texto": "`False`, pois 80 é menor que 100.",
+          "correta": false
+        },
+        {
+          "texto": "`False`, pois os dois lados precisam ser verdadeiros.",
+          "correta": false
+        },
+        {
+          "texto": "`True`, pois a retirada já atende à regra.",
           "correta": true
         },
         {
-          "texto": "or",
-          "correta": false
-        },
-        {
-          "texto": "not",
-          "correta": false
-        },
-        {
-          "texto": "in",
-          "correta": false
-        }
-      ]
-    },
-    {
-      "enunciado": "Por que testar os limites 6.9 e 7.0 numa regra de aprovação?",
-      "alternativas": [
-        {
-          "texto": "Para confirmar o comportamento exatamente na fronteira da regra.",
-          "correta": true
-        },
-        {
-          "texto": "Para fazer o Python arredondar todas as notas.",
-          "correta": false
-        },
-        {
-          "texto": "Para evitar escrever if e else.",
-          "correta": false
-        },
-        {
-          "texto": "Porque valores inteiros não podem ser comparados.",
+          "texto": "`True` apenas quando `total` for exatamente 100.",
           "correta": false
         }
       ]

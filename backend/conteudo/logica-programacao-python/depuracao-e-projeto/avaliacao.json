@@ -4,106 +4,106 @@
   "ativa": true,
   "questoes": [
     {
-      "enunciado": "Qual erro costuma aparecer quando int(\"dez\") tenta converter texto inválido?",
+      "enunciado": "A linha `int(\"dez\")` causa um erro. O nome existe e a chamada está escrita corretamente. Que exceção descreve o problema?",
       "alternativas": [
         {
-          "texto": "ValueError",
+          "texto": "`NameError`, pois `int` não existe.",
+          "correta": false
+        },
+        {
+          "texto": "`SyntaxError`, pois não se pode usar aspas com `int`.",
+          "correta": false
+        },
+        {
+          "texto": "`ValueError`, pois o texto não representa um inteiro.",
           "correta": true
         },
         {
-          "texto": "NameError",
-          "correta": false
-        },
-        {
-          "texto": "IndexError",
-          "correta": false
-        },
-        {
-          "texto": "SyntaxError",
+          "texto": "`EOFError`, pois o programa chegou ao fim do arquivo.",
           "correta": false
         }
       ]
     },
     {
-      "enunciado": "Qual é a forma mais cuidadosa de tratar apenas uma conversão inválida?",
+      "enunciado": "Seu código lê uma idade, converte com `int()` e depois calcula o resultado. Qual tratamento isola melhor falhas da conversão?",
       "alternativas": [
         {
-          "texto": "try/except ValueError ao redor da conversão.",
+          "texto": "Colocar a conversão num `try` curto e capturar `ValueError`.",
           "correta": true
         },
         {
-          "texto": "except: em todo o programa para esconder qualquer falha.",
+          "texto": "Capturar todas as exceções em volta de todo o programa.",
           "correta": false
         },
         {
-          "texto": "Apagar a conversão e continuar com o texto.",
+          "texto": "Capturar apenas `NameError` em volta do cálculo.",
           "correta": false
         },
         {
-          "texto": "Reiniciar o computador dentro do except.",
+          "texto": "Checar somente se a idade digitada excede o limite.",
           "correta": false
         }
       ]
     },
     {
-      "enunciado": "Uma soma de 1 até limite deveria incluir o limite. Qual teste ajuda a encontrar um erro de fronteira?",
+      "enunciado": "Uma função deve somar de 1 até o limite inclusive. Com limite 1, retorna 0. Qual pista vale investigar primeiro?",
       "alternativas": [
         {
-          "texto": "Verificar limite=1 e limite=3 com resultados calculados à mão.",
+          "texto": "O acumulador deveria começar em 1 em todos os casos.",
+          "correta": false
+        },
+        {
+          "texto": "O resultado 0 prova que a função recebeu um texto.",
+          "correta": false
+        },
+        {
+          "texto": "A função deve somar apenas valores pares.",
+          "correta": false
+        },
+        {
+          "texto": "O laço pode ter excluído o valor final do intervalo.",
+          "correta": true
+        }
+      ]
+    },
+    {
+      "enunciado": "Você suspeita de um erro ao adicionar a primeira tarefa. Qual teste torna a causa mais fácil de localizar?",
+      "alternativas": [
+        {
+          "texto": "Preencher a lista com muitas tarefas e testar todas as funções juntas.",
+          "correta": false
+        },
+        {
+          "texto": "Começar com uma lista vazia, adicionar uma tarefa conhecida e conferir o novo conteúdo.",
           "correta": true
         },
         {
-          "texto": "Testar somente limite=100000.",
+          "texto": "Executar apenas o menu e conferir se o título aparece.",
           "correta": false
         },
         {
-          "texto": "Mudar várias linhas ao mesmo tempo.",
-          "correta": false
-        },
-        {
-          "texto": "Evitar executar a função.",
+          "texto": "Adicionar uma tarefa sem observar o estado antes e depois.",
           "correta": false
         }
       ]
     },
     {
-      "enunciado": "Por que dividir o organizador de estudos em funções pequenas?",
+      "enunciado": "Uma mensagem do organizador está errada. A lista guardada, porém, tem as tarefas certas. Qual parte faz mais sentido revisar primeiro?",
       "alternativas": [
         {
-          "texto": "Cada função pode cuidar de uma tarefa e ser verificada separadamente.",
+          "texto": "A função que monta ou exibe a mensagem.",
           "correta": true
         },
         {
-          "texto": "Toda função cria automaticamente um arquivo no computador.",
+          "texto": "A função que cria a lista vazia.",
           "correta": false
         },
         {
-          "texto": "O programa deixa de precisar de dados.",
+          "texto": "A função que adiciona tarefas já conferidas.",
           "correta": false
         },
         {
-          "texto": "Funções eliminam todos os possíveis erros.",
-          "correta": false
-        }
-      ]
-    },
-    {
-      "enunciado": "Ao revisar uma função que adiciona uma tarefa, qual teste cobre um caso importante?",
-      "alternativas": [
-        {
-          "texto": "Verificar um título com espaços e também um título vazio.",
-          "correta": true
-        },
-        {
-          "texto": "Executar apenas com um título longo e ignorar outras entradas.",
-          "correta": false
-        },
-        {
-          "texto": "Confirmar que o programa imprime sem testar a lista.",
-          "correta": false
-        },
-        {
-          "texto": "Apagar a lista antes de cada chamada.",
+          "texto": "Todas as funções ao mesmo tempo.",
           "correta": false
         }
       ]
