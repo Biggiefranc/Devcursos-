@@ -4,6 +4,7 @@ const app = require("./app");
 const { PORT } = require("./config/env");
 const { pool, testarConexao } = require("./shared/database/database");
 const { shouldBypassFirebaseAuth } = require("./shared/providers/firebaseAdmin");
+const { modoExecucao } = require("./modules/execution/execution.service");
 
 const HOST = shouldBypassFirebaseAuth
     ? "127.0.0.1"
@@ -55,6 +56,10 @@ async function startServer() {
         throw new Error(`A porta ${PORT} já está ocupada. Encerre o processo que a usa ou configure outra porta em PORT.`, { cause: erro });
     }
     console.log(`Servidor do DevCursos+ rodando em http://localhost:${PORT}`);
+    void modoExecucao("python").then((modo) => {
+        if (modo === "remoto") console.log("Executor Python disponível para verificar práticas.");
+        else console.warn("Verificação de práticas indisponível: confira a configuração e o acesso ao executor Python.");
+    });
 
     servidor.on("error", (erro) => {
         console.error("Erro no servidor HTTP:", erro.message);

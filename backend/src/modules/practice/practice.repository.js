@@ -14,8 +14,8 @@ async function buscarExercicioPorAula(aulaId) {
 async function registrarTentativa({ usuarioId, exercicioId, totalCasos, acertos, aprovado }) {
     await pool.execute(
         `INSERT INTO tentativas_exercicio
-            (usuario_id, exercicio_id, total_casos, acertos, aprovado)
-         VALUES (?, ?, ?, ?, ?)`,
+            (usuario_id, exercicio_id, total_casos, acertos, aprovado, verificada_isoladamente)
+         VALUES (?, ?, ?, ?, ?, 1)`,
         [usuarioId, exercicioId, totalCasos, acertos, aprovado ? 1 : 0],
     );
 }
@@ -25,7 +25,7 @@ async function possuiConclusaoAprovada(usuarioId, aulaId) {
         `SELECT 1
          FROM tentativas_exercicio te
          INNER JOIN exercicios_praticos ep ON ep.id = te.exercicio_id
-         WHERE te.usuario_id = ? AND ep.aula_id = ? AND te.aprovado = 1
+         WHERE te.usuario_id = ? AND ep.aula_id = ? AND te.aprovado = 1 AND te.verificada_isoladamente = 1
          LIMIT 1`,
         [usuarioId, aulaId],
     );
@@ -39,7 +39,7 @@ async function listarAulasComExerciciosAprovados(usuarioId, cursoId) {
          INNER JOIN exercicios_praticos ep ON ep.id = te.exercicio_id
          INNER JOIN aulas a ON a.id = ep.aula_id
          INNER JOIN modulos m ON m.id = a.modulo_id
-         WHERE te.usuario_id = ? AND m.curso_id = ? AND te.aprovado = 1
+         WHERE te.usuario_id = ? AND m.curso_id = ? AND te.aprovado = 1 AND te.verificada_isoladamente = 1
          ORDER BY ep.aula_id ASC`,
         [usuarioId, cursoId],
     );

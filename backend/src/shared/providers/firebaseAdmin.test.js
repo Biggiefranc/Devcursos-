@@ -1,5 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const { spawnSync } = require("node:child_process");
 const { getFirebaseAuthMode } = require("./firebaseAdmin");
 
 test("usa autenticação estrita por padrão", () => {
@@ -68,4 +69,28 @@ test("recusa bypass de desenvolvimento apontado para banco remoto", () => {
         if (originalDbHost === undefined) delete process.env.DB_HOST;
         else process.env.DB_HOST = originalDbHost;
     }
+});
+
+function iniciarComEmulador(ambiente) {
+    return spawnSync(process.execPath, ["-e", "require('./firebaseAdmin')"], {
+        cwd: __dirname,
+        env: {
+            ...process.env,
+            NODE_ENV: ambiente,
+            FIREBASE_AUTH_MODE: "strict",
+            FIREBASE_AUTH_EMULATOR_HOST: "127.0.0.1:9099",
+        },
+        encoding: "utf8",
+    });
+}
+
+test("recusa iniciar em produção com o emulador de Auth configurado", () => {
+    const resultado = iniciarComEmulador("production");
+    assert.equal(resultado.status, 1);
+    assert.match(resultado.stderr, /FIREBASE_AUTH_EMULATOR_HOST/);
+});
+
+test("permite iniciar com o emulador de Auth em desenvolvimento", () => {
+    const resultado = iniciarComEmulador("development");
+    assert.equal(resultado.status, 0, resultado.stderr);
 });

@@ -1,5 +1,5 @@
-const fs = require("node:fs");
 const mysql = require("mysql2/promise");
+const { opcoesTls } = require("./tls");
 const {
     DB_HOST,
     DB_PORT,
@@ -10,27 +10,27 @@ const {
     DB_SSL_CA
 } = require("../../config/env");
 
-const ssl = DB_SSL
-    ? {
-        minVersion: "TLSv1.2",
-        rejectUnauthorized: true,
-        ...(DB_SSL_CA ? { ca: fs.readFileSync(DB_SSL_CA, "utf8") } : {})
-    }
-    : undefined;
-
-const pool = mysql.createPool({
+const opcoesConexao = {
     host: DB_HOST,
     port: DB_PORT,
     user: DB_USER,
     password: DB_PASSWORD,
     database: DB_NAME,
-    ssl,
+    ssl: DB_SSL ? opcoesTls(DB_HOST, DB_SSL_CA) : undefined
+};
+
+const pool = mysql.createPool({
+    ...opcoesConexao,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 100,
     enableKeepAlive: true,
     keepAliveInitialDelay: 0
 });
+
+function criarConexao() {
+    return mysql.createConnection(opcoesConexao);
+}
 
 async function testarConexao() {
     const conexao = await pool.getConnection();
@@ -42,4 +42,4 @@ async function testarConexao() {
     }
 }
 
-module.exports = { pool, testarConexao };
+module.exports = { pool, criarConexao, testarConexao };

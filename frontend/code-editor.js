@@ -38,11 +38,24 @@ export function criarEditorDeCodigo({ aula, usuario, concluido, aoAprovar }) {
   const botoes = elemento("div", "exercise-actions");
   const executar = botao("lesson-next exercise-run", "Executar código");
   const verificar = botao("lesson-next exercise-check", "Verificar exercício");
+  const podeExecutar = ["remoto", "navegador"].includes(aula.modoExecucao);
+  const podeVerificar = aula.correcaoDisponivel === true;
+  executar.disabled = !podeExecutar;
+  verificar.disabled = !podeVerificar;
   const limpar = botao("lesson-previous", "Limpar");
   const restaurar = botao("lesson-previous", "Restaurar início");
   botoes.append(executar, verificar, limpar, restaurar);
   cabecalho.append(elemento("span", "exercise-language", nome), botoes);
   painel.append(cabecalho);
+  if (!podeVerificar) {
+    const mensagem = aula.modoExecucao === "navegador"
+      ? "Você pode testar o código no navegador. Para concluir a prática, aguarde a verificação no servidor."
+      : "A verificação no servidor está indisponível. Seu rascunho pode ser editado enquanto isso.";
+    const aviso = elemento("p", "exercise-prompt", mensagem);
+    const recarregar = botao("lesson-previous", "Consultar disponibilidade novamente");
+    recarregar.onclick = () => location.reload();
+    painel.append(aviso, recarregar);
+  }
 
   const area = elemento("div", "exercise-codemirror");
   painel.append(area);
@@ -159,7 +172,7 @@ export function criarEditorDeCodigo({ aula, usuario, concluido, aoAprovar }) {
   }
 
   async function interagir(corrigir) {
-    if (ocupado) return;
+    if (ocupado || (corrigir ? !podeVerificar : !podeExecutar)) return;
     const codigo = view.state.doc.toString();
     if (!codigo.trim() || codigo.length > 12000) {
       status("Digite um código com até 12.000 caracteres.", "erro");
@@ -188,11 +201,11 @@ export function criarEditorDeCodigo({ aula, usuario, concluido, aoAprovar }) {
         return;
       }
 
-      const dados = { exercicioId: exercicio.id, codigo };
-      if (aula.modoExecucao === "navegador") {
-        dados.resultados = await executarLocal(codigo, exercicio.avaliador);
-      }
-      const registro = await requisitar(`/aulas/${encodeURIComponent(aula.id)}/exercicio/tentativas`, dados, 20000);
+      const registro = await requisitar(
+        `/aulas/${encodeURIComponent(aula.id)}/exercicio/tentativas`,
+        { exercicioId: exercicio.id, codigo },
+        40000,
+      );
       if (abortador.signal.aborted) return;
       mostrarCasos(registro);
       if (registro.aprovado) {
@@ -213,7 +226,9 @@ export function criarEditorDeCodigo({ aula, usuario, concluido, aoAprovar }) {
       }
     } finally {
       if (!abortador.signal.aborted) {
-        ocupado = executar.disabled = verificar.disabled = limpar.disabled = restaurar.disabled = textoEntrada.disabled = false;
+        ocupado = limpar.disabled = restaurar.disabled = textoEntrada.disabled = false;
+        executar.disabled = !podeExecutar;
+        verificar.disabled = !podeVerificar;
         view.dispatch({ effects: edicao.reconfigure(EditorState.readOnly.of(false)) });
         acionado.textContent = original;
       }

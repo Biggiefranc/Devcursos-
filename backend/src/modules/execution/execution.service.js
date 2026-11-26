@@ -6,10 +6,15 @@ const linguagens = Object.freeze({
 });
 
 const emDesenvolvimento = process.env.NODE_ENV !== "production";
-const piston = process.env.PISTON_API_URL?.trim();
+const piston = process.env.PISTON_API_URL?.trim().replace(/\/+$/, "");
 const token = process.env.PISTON_API_TOKEN?.trim();
 const ativos = new Set();
 const ultimaExecucao = new Map();
+const sondas = new Map();
+const programasDeSonda = {
+    python: 'print("devcursos-executor-ok")',
+    java: 'public class Main { public static void main(String[] args) { System.out.println("devcursos-executor-ok"); } }'
+};
 
 function validarPrograma({ linguagem, codigo, entrada = "" } = {}) {
     if (typeof linguagem !== "string" || !Object.hasOwn(linguagens, linguagem)) {
@@ -44,21 +49,47 @@ async function comLimite(uid, executar) {
     }
 }
 
-function modoExecucao(linguagem) {
-    if (piston) return "remoto";
+async function verificarExecutor(linguagem) {
+    if (!piston || !Object.hasOwn(linguagens, linguagem)) return false;
+
+    const anterior = sondas.get(linguagem);
+    if (anterior && (anterior.expiraEm === null || anterior.expiraEm > Date.now())) {
+        return anterior.resultado;
+    }
+
+    const sonda = { expiraEm: null };
+    sonda.resultado = executarJob({
+        linguagem,
+        codigo: programasDeSonda[linguagem],
+        entrada: "",
+        signal: AbortSignal.timeout(4500),
+    }).then(({ ok, saida }) => ok && saida.trim() === "devcursos-executor-ok", () => false)
+        .then((disponivel) => {
+            sonda.expiraEm = Date.now() + (disponivel ? 60000 : 15000);
+            return disponivel;
+        });
+    sondas.set(linguagem, sonda);
+    return sonda.resultado;
+}
+
+async function modoExecucao(linguagem) {
+    if (await verificarExecutor(linguagem)) return "remoto";
     if (emDesenvolvimento && linguagem === "python") return "navegador";
     return "indisponivel";
 }
 
-async function executarRemoto({ linguagem, codigo, entrada }) {
+async function executarJob({ linguagem, codigo, entrada, arquivosAdicionais = [], signal }) {
     if (!piston) {
         throw new AppError(503, "EXECUTOR_NAO_CONFIGURADO", "A execução desta linguagem está indisponível.");
     }
     const runtime = linguagens[linguagem];
     const inicio = Date.now();
+    const prazo = AbortSignal.timeout(16000);
+    const sinal = signal ? AbortSignal.any([prazo, signal]) : prazo;
     let resposta;
+    let resultado;
     try {
-        resposta = await fetch(piston.replace(/\/+$/, "") + "/execute", {
+        resposta = await fetch(piston + "/execute", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -67,19 +98,26 @@ async function executarRemoto({ linguagem, codigo, entrada }) {
             body: JSON.stringify({
                 language: linguagem,
                 version: runtime.versao,
-                files: [{ name: runtime.arquivo, content: codigo }],
+                files: [{ name: runtime.arquivo, content: codigo }, ...arquivosAdicionais],
                 stdin: entrada,
                 run_timeout: 3000,
                 run_cpu_time: 2000,
+                ...(linguagem === "python" ? { run_memory_limit: 128 * 1024 * 1024 } : {}),
                 compile_timeout: 10000,
                 compile_cpu_time: 8000
             }),
             redirect: "error",
-            signal: AbortSignal.timeout(16000),
+            signal: sinal,
         });
+        if (resposta.ok) {
+            resultado = await resposta.json();
+        }
     } catch (erro) {
-        if (erro.name === "TimeoutError") {
+        if (sinal.aborted) {
             throw new AppError(504, "EXECUTOR_DEMOROU", "O serviço de execução demorou demais. Tente novamente.");
+        }
+        if (erro instanceof SyntaxError) {
+            throw new AppError(502, "RESPOSTA_INVALIDA_DO_EXECUTOR", "O serviço devolveu um resultado inválido.");
         }
         throw new AppError(502, "EXECUTOR_INACESSIVEL", "Não foi possível conectar ao serviço de execução.");
     }
@@ -95,11 +133,11 @@ async function executarRemoto({ linguagem, codigo, entrada }) {
         throw new AppError(502, "EXECUTOR_FALHOU", "O serviço não conseguiu iniciar esta execução.");
     }
 
-    const resultado = await resposta.json().catch(() => null);
     const compilacao = resultado?.compile;
     const falhouAoCompilar = compilacao && (compilacao.code !== 0 || compilacao.signal || compilacao.status);
     const etapa = falhouAoCompilar ? compilacao : resultado?.run;
-    if (!etapa || typeof etapa.stdout !== "string" || typeof etapa.stderr !== "string") {
+    if (!etapa || typeof etapa.stdout !== "string" || typeof etapa.stderr !== "string"
+        || (!Number.isInteger(etapa.code) && !(etapa.code === null && (etapa.signal || etapa.status)))) {
         throw new AppError(502, "RESPOSTA_INVALIDA_DO_EXECUTOR", "O serviço devolveu um resultado inválido.");
     }
     const ok = etapa.code === 0 && !etapa.signal && !etapa.status;
@@ -114,4 +152,13 @@ async function executarRemoto({ linguagem, codigo, entrada }) {
     };
 }
 
-module.exports = { validarPrograma, comLimite, modoExecucao, executarRemoto };
+async function executarRemoto(programa) {
+    try {
+        return await executarJob(programa);
+    } catch (erro) {
+        if (!programa.signal?.aborted) sondas.delete(programa.linguagem);
+        throw erro;
+    }
+}
+
+module.exports = { validarPrograma, comLimite, modoExecucao, verificarExecutor, executarRemoto };

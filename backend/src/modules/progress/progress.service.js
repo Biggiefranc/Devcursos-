@@ -2,7 +2,6 @@ const progressRepository = require("./progress.repository");
 const usersRepository = require("../users/users.repository");
 const coursesRepository = require("../courses/cursos.repository");
 const assessmentsRepository = require("../assessments/assessments.repository");
-const { modoExecucao } = require("../execution/execution.service");
 const practiceService = require("../practice/practice.service");
 const AppError = require("../../shared/errors/AppError");
 const { validarIdPositivo } = require("../../shared/validation/ids");
@@ -86,7 +85,6 @@ async function buscarAulaLiberada(firebaseUid, aulaId) {
 
     return {
         ...aula,
-        modoExecucao: aula.linguagem ? modoExecucao(aula.linguagem) : null,
         duracao_minutos: aula.duracao_minutos == null
             ? null
             : Number(aula.duracao_minutos)

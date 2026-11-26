@@ -1,5 +1,6 @@
 const service = require("./cursos.service");
 const progressService = require("../progress/progress.service");
+const { modoExecucao } = require("../execution/execution.service");
 
 async function listarCursos(req, res) {
     return res.json(await service.listarCursos());
@@ -27,10 +28,17 @@ async function listarAulasPorModulo(req, res) {
 }
 
 async function buscarAulaPorId(req, res) {
-    return res.json(await progressService.buscarAulaLiberada(
+    const aula = await progressService.buscarAulaLiberada(
         req.firebaseUser.uid,
         req.params.id
-    ));
+    );
+    const linguagem = aula.linguagem || "python";
+    const modo = aula.exercicio ? await modoExecucao(linguagem) : null;
+    return res.json({
+        ...aula,
+        modoExecucao: modo,
+        correcaoDisponivel: linguagem === "python" && modo === "remoto",
+    });
 }
 
 module.exports = {

@@ -48,11 +48,13 @@ CREATE TABLE IF NOT EXISTS aulas (
 CREATE TABLE IF NOT EXISTS usuarios (
   id            INT UNSIGNED NOT NULL AUTO_INCREMENT,
   firebase_uid  VARCHAR(128) NOT NULL,
+  firebase_uid_exato VARBINARY(512) GENERATED ALWAYS AS (CAST(firebase_uid AS BINARY)) VIRTUAL,
   nome          VARCHAR(100) NOT NULL,
   email         VARCHAR(150) NOT NULL,
   data_criacao  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  UNIQUE KEY uq_usuarios_firebase_uid (firebase_uid),
+  KEY idx_usuarios_firebase_uid (firebase_uid),
+  UNIQUE KEY uq_usuarios_firebase_uid_exato (firebase_uid_exato),
   UNIQUE KEY uq_usuarios_email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -167,6 +169,7 @@ CREATE TABLE IF NOT EXISTS tentativas_exercicio (
   total_casos     SMALLINT UNSIGNED NOT NULL,
   acertos         SMALLINT UNSIGNED NOT NULL,
   aprovado        TINYINT(1) NOT NULL DEFAULT 0,
+  verificada_isoladamente TINYINT(1) NOT NULL DEFAULT 0,
   criada_em       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   KEY idx_tentativas_exercicio_usuario (usuario_id, exercicio_id, aprovado),

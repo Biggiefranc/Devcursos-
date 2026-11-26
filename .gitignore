@@ -7,7 +7,7 @@ node_modules/
 dist/
 **/dist/
 prompt.md
-# Variáveis de ambiente e credenciais
+# Variï¿½veis de ambiente e credenciais
 .env
 .env.*
 !.env.example

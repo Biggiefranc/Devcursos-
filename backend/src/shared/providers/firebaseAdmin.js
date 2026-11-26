@@ -8,6 +8,10 @@ const {
 const { getAuth } = require("firebase-admin/auth");
 
 function getFirebaseAuthMode() {
+    if (process.env.NODE_ENV !== "development" && process.env.FIREBASE_AUTH_EMULATOR_HOST) {
+        throw new Error("FIREBASE_AUTH_EMULATOR_HOST só pode ser usado em NODE_ENV=development.");
+    }
+
     const configured = String(process.env.FIREBASE_AUTH_MODE || "strict")
         .trim()
         .toLowerCase();

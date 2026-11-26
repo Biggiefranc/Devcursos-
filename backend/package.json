@@ -13,7 +13,9 @@
     "import:avaliacoes": "node scripts/importar-avaliacoes.js",
     "migrate:course-language": "node scripts/migrate-course-language.js",
     "migrate:interactive-learning": "node scripts/migrate-interactive-learning.js",
-    "migrate:course-metadata": "node scripts/migrate-course-metadata.js"
+    "migrate:course-metadata": "node scripts/migrate-course-metadata.js",
+    "migrate:firebase-uid": "node scripts/migrate-firebase-uid.js",
+    "migrate:practice-grading": "node scripts/migrate-practice-grading.js"
   },
   "keywords": [],
   "author": "",

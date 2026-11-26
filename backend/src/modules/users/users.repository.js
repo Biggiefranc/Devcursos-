@@ -11,16 +11,19 @@ const CAMPOS_USUARIO = `
     data_criacao
 `;
 
+// A primeira comparação usa o índice. A segunda exige igualdade byte a byte.
+const FILTRO_UID = "firebase_uid = ? AND CAST(firebase_uid AS BINARY) = CAST(? AS BINARY)";
+
 // Busca um usuário pelo UID do Firebase.
 async function buscarPorFirebaseUid(firebaseUid) {
     const sql = `
         SELECT ${CAMPOS_USUARIO}
         FROM usuarios
-        WHERE firebase_uid = ?
+        WHERE ${FILTRO_UID}
         LIMIT 1
     `;
 
-    const [usuarios] = await pool.execute(sql, [firebaseUid]);
+    const [usuarios] = await pool.execute(sql, [firebaseUid, firebaseUid]);
 
     return usuarios[0] || null;
 }
@@ -58,8 +61,8 @@ async function criar({ firebaseUid, nome, email }) {
 
 async function atualizarEmailPorFirebaseUid(firebaseUid, email) {
     await pool.execute(
-        "UPDATE usuarios SET email = ? WHERE firebase_uid = ?",
-        [email, firebaseUid]
+        `UPDATE usuarios SET email = ? WHERE ${FILTRO_UID}`,
+        [email, firebaseUid, firebaseUid]
     );
     return buscarPorFirebaseUid(firebaseUid);
 }

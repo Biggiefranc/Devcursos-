@@ -1,4 +1,5 @@
 const mysql = require("mysql2/promise");
+const { opcoesTls } = require("./src/shared/database/tls");
 
 async function main() {
   const connection = await mysql.createConnection({
@@ -6,9 +7,7 @@ async function main() {
     port: Number(process.env.DB_PORT || 4000),
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    ssl: {
-      rejectUnauthorized: true
-    }
+    ssl: opcoesTls(process.env.DB_HOST, process.env.DB_SSL_CA)
   });
 
   try {

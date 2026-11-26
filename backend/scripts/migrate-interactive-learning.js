@@ -81,6 +81,7 @@ async function migrar() {
             total_casos SMALLINT UNSIGNED NOT NULL,
             acertos SMALLINT UNSIGNED NOT NULL,
             aprovado TINYINT(1) NOT NULL DEFAULT 0,
+            verificada_isoladamente TINYINT(1) NOT NULL DEFAULT 0,
             criada_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
             KEY idx_tentativas_exercicio_usuario (usuario_id, exercicio_id, aprovado),

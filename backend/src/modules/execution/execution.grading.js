@@ -5,31 +5,40 @@ const { executarRemoto } = require("./execution.service");
 const verificador = fs.readFileSync(path.join(__dirname, "verificar-python.py"), "utf8");
 
 async function executarCasosPython(codigo, avaliador) {
-    const dados = Buffer.from(JSON.stringify({
-        codigo,
-        avaliador: {
-            tipo: avaliador.tipo,
-            nomeFuncao: avaliador.nome_funcao,
-            casos: avaliador.casos.map(({ entradas, argumentos }) => ({ entradas, argumentos }))
+    const prazo = AbortSignal.timeout(32000);
+    const resultados = [];
+    // Cada job recebe só o caso corrente. Os valores esperados ficam na API.
+    for (const { entradas, argumentos } of avaliador.casos) {
+        const execucao = await executarRemoto({
+            linguagem: "python",
+            codigo: verificador,
+            arquivosAdicionais: [{ name: "submissao.py", content: codigo }],
+            entrada: JSON.stringify({
+                tipo: avaliador.tipo,
+                nomeFuncao: avaliador.nome_funcao,
+                entradas,
+                argumentos,
+            }),
+            signal: prazo,
+        });
+        resultados.push(observarResultado(execucao, avaliador.tipo));
+    }
+    return resultados;
+}
+
+function observarResultado(execucao, tipo) {
+    if (!execucao.ok) return { erro: (execucao.erro || "Falha de execução.").slice(-4000) };
+
+    const saida = execucao.saida.trim();
+    if (saida.length <= 12000) {
+        try {
+            const valor = JSON.parse(saida);
+            if (tipo !== "saida" || typeof valor === "string") return { valor };
+        } catch {
+            // A submissão pode interromper o processo ou emitir uma saída fora do formato.
         }
-    })).toString("base64");
-    const programa = [
-        verificador,
-        "import base64",
-        `dados = json.loads(base64.b64decode("${dados}"))`,
-        'print(executar(dados["codigo"], json.dumps(dados["avaliador"])))'
-    ].join("\n");
-    const execucao = await executarRemoto({ linguagem: "python", codigo: programa, entrada: "" });
-    if (!execucao.ok) {
-        return avaliador.casos.map(() => ({ erro: (execucao.erro || "Falha de execução.").slice(-4000) }));
     }
-    try {
-        const resultados = JSON.parse(execucao.saida);
-        if (Array.isArray(resultados) && resultados.length === avaliador.casos.length) return resultados;
-    } catch {
-        // O runner pode cortar saídas grandes.
-    }
-    return avaliador.casos.map(() => ({ erro: "A saída da verificação foi interrompida. Reduza a saída do programa e execute novamente." }));
+    return { erro: "A execução não produziu um resultado válido para este caso." };
 }
 
 module.exports = { executarCasosPython };

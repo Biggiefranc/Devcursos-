@@ -1,9 +1,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const matter = require("gray-matter");
-const mysql = require("mysql2/promise");
-require("../src/config/env");
-const { DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME, DB_SSL, DB_SSL_CA } = require("../src/config/env");
+const { criarConexao } = require("../src/shared/database/database");
 
 const indiceFiltroCurso = process.argv.indexOf("--curso");
 const filtroCurso = indiceFiltroCurso >= 0 ? process.argv[indiceFiltroCurso + 1] : null;
@@ -114,18 +112,7 @@ async function importarAvaliacao(db, { curso, cursoId, caminhoCurso, caminhoModu
 }
 
 async function importarAvaliacoes() {
-    const db = await mysql.createConnection({
-        host: DB_HOST,
-        port: DB_PORT,
-        user: DB_USER,
-        password: DB_PASSWORD,
-        database: DB_NAME,
-        ssl: DB_SSL ? {
-            minVersion: "TLSv1.2",
-            rejectUnauthorized: true,
-            ...(DB_SSL_CA ? { ca: fs.readFileSync(DB_SSL_CA, "utf8") } : {}),
-        } : undefined,
-    });
+    const db = await criarConexao();
 
     try {
         const raiz = path.join(__dirname, "..", "conteudo");
