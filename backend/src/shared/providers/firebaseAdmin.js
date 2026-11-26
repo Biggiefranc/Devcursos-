@@ -2,9 +2,10 @@ require("../../config/loadEnv");
 
 const {
     initializeApp,
-    applicationDefault,
+    cert,
     getApps
 } = require("firebase-admin/app");
+
 const { getAuth } = require("firebase-admin/auth");
 
 function getFirebaseAuthMode() {
@@ -22,7 +23,9 @@ function getFirebaseAuthMode() {
 
     if (configured === "bypass") {
         const hostsLocais = new Set(["localhost", "127.0.0.1", "::1"]);
-        const bancoLocal = hostsLocais.has(String(process.env.DB_HOST || "").trim().toLowerCase());
+        const bancoLocal = hostsLocais.has(
+            String(process.env.DB_HOST || "").trim().toLowerCase()
+        );
 
         if (process.env.NODE_ENV !== "development" || !bancoLocal) {
             throw new Error(
@@ -32,6 +35,40 @@ function getFirebaseAuthMode() {
     }
 
     return configured;
+}
+
+function getFirebaseCredential() {
+    const encoded = process.env.FIREBASE_SERVICE_ACCOUNT_BASE64;
+    const projectId = process.env.FIREBASE_PROJECT_ID;
+
+    if (!encoded || !projectId) {
+        throw new Error(
+            "Configure FIREBASE_SERVICE_ACCOUNT_BASE64 e FIREBASE_PROJECT_ID."
+        );
+    }
+
+    let serviceAccount;
+
+    try {
+        serviceAccount = JSON.parse(
+            Buffer.from(encoded, "base64").toString("utf8")
+        );
+    } catch {
+        throw new Error("A credencial Firebase Base64 não contém um JSON válido.");
+    }
+
+    if (
+        serviceAccount.type !== "service_account" ||
+        !serviceAccount.client_email ||
+        !serviceAccount.private_key ||
+        serviceAccount.project_id !== projectId
+    ) {
+        throw new Error(
+            "A credencial Firebase está incompleta ou pertence a outro projeto."
+        );
+    }
+
+    return cert(serviceAccount);
 }
 
 const firebaseAuthMode = getFirebaseAuthMode();
@@ -44,9 +81,16 @@ if (firebaseAuthMode === "bypass") {
 
 const firebaseApp = getApps().length
     ? getApps()[0]
-    : initializeApp(firebaseAuthMode === "strict"
-        ? { credential: applicationDefault() }
-        : { projectId: process.env.FIREBASE_PROJECT_ID || "devcursos-b3589" });
+    : initializeApp(
+        firebaseAuthMode === "strict"
+            ? {
+                credential: getFirebaseCredential(),
+                projectId: process.env.FIREBASE_PROJECT_ID
+            }
+            : {
+                projectId: process.env.FIREBASE_PROJECT_ID || "devcursos-b3589"
+            }
+    );
 
 const firebaseAuth = getAuth(firebaseApp);
 
