@@ -1,5 +1,4 @@
 import { auth } from "./firebase/firebase-config";
-import { onAuthStateChanged } from "firebase/auth";
 import { requisicaoAPI, encerrarSessao } from "./services/api";
 import { escapeHtml } from "./courseCard";
 
@@ -8,19 +7,10 @@ const courseId = params.get("curso");
 const root = document.getElementById("courseDetail");
 const breadcrumb = document.getElementById("breadcrumbCourse");
 const accountLink = document.getElementById("accountLink");
-let user = null;
 let favorites = new Set();
 
-const authReady = new Promise((resolve) => {
-  const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-    unsubscribe();
-    resolve(currentUser);
-  });
-});
-
 const esc = escapeHtml;
-const get = (path) => requisicaoAPI(path);
-const isLogged = () => Boolean(auth.currentUser || user);
+const isLogged = () => Boolean(auth.currentUser);
 
 function nameFor(userData) {
   const raw = String(userData?.nome || userData?.email || "").trim();
@@ -40,12 +30,11 @@ async function loadAccount() {
   }
   try {
     const [profileData, favoriteData] = await Promise.all([
-      get("/me"),
-      get("/me/favoritos"),
+      requisicaoAPI("/me"),
+      requisicaoAPI("/me/favoritos"),
     ]);
-    user = profileData.usuario || null;
+    const user = profileData.usuario;
     if (user) {
-      localStorage.setItem("devcursos_user", JSON.stringify(user));
       accountLink.textContent = nameFor(user);
       accountLink.href = "menudashbord.html";
     }
@@ -54,10 +43,7 @@ async function loadAccount() {
     );
   } catch (error) {
     if (error.status === 401 || error.status === 404) {
-      localStorage.removeItem("devcursos_token");
-      localStorage.removeItem("devcursos_user");
       await encerrarSessao();
-      user = null;
       favorites.clear();
       accountLink.textContent = "Entrar";
       accountLink.href =
@@ -242,8 +228,6 @@ function render(course, modules) {
       event.preventDefault();
       if (!confirm("Deseja sair da sua conta?")) return;
       await encerrarSessao();
-      localStorage.removeItem("devcursos_token");
-      localStorage.removeItem("devcursos_user");
       location.href = "index.html";
     },
     { once: true },
@@ -251,7 +235,7 @@ function render(course, modules) {
 }
 
 async function loadCourse() {
-  await authReady;
+  await auth.authStateReady();
   if (!courseId) {
     root.innerHTML =
       '<div class="inline-error"><p>Escolha uma formação para consultar o currículo.</p><a class="button button-primary" href="catalogo.html">Abrir catálogo</a></div>';
@@ -260,8 +244,9 @@ async function loadCourse() {
 
   try {
     const accountPromise = loadAccount();
-    const curriculumPromise = get(
+    const curriculumPromise = requisicaoAPI(
       "/cursos/" + encodeURIComponent(courseId) + "/estrutura",
+      { autenticada: false },
     );
     const [accountResult, curriculum] = await Promise.all([
       accountPromise,

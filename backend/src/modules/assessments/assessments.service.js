@@ -215,9 +215,9 @@ async function registrarTentativa(firebaseUid, avaliacaoId, respostas) {
     });
     return {
         ...tentativa,
-        questoesParaRevisar: respostasValidadas
-            .filter((resposta) => !resposta.correta)
-            .map((resposta) => resposta.questaoId),
+        questoesParaRevisar: avaliacao.modulo_id == null
+            ? []
+            : respostasValidadas.filter((resposta) => !resposta.correta).map((resposta) => resposta.questaoId),
     };
 }
 

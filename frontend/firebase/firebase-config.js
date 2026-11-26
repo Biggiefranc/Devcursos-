@@ -1,11 +1,11 @@
-//import { getAuth } from "firebase/auth";
-//export const auth = getAuth(app);
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import {
+  browserPopupRedirectResolver,
+  browserSessionPersistence,
+  GoogleAuthProvider,
+  indexedDBLocalPersistence,
+  initializeAuth,
+} from "firebase/auth";
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -21,6 +21,17 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
+try {
+  // Remove as cópias legadas da aplicação e a sessão Firebase antes gravada no localStorage.
+  localStorage.removeItem("devcursos_token");
+  localStorage.removeItem("devcursos_user");
+  localStorage.removeItem(`firebase:authUser:${firebaseConfig.apiKey}:${app.name}`);
+} catch {
+  // O navegador pode bloquear localStorage.
+}
+export const auth = initializeAuth(app, {
+  persistence: [indexedDBLocalPersistence, browserSessionPersistence],
+  popupRedirectResolver: browserPopupRedirectResolver,
+});
 
 export const googleProvider = new GoogleAuthProvider();

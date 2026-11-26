@@ -1,4 +1,4 @@
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { signOut } from "firebase/auth";
 import { auth } from "./firebase/firebase-config";
 import { requisicaoAPI } from "./services/api";
 import { courseCard, escapeHtml } from "./courseCard";
@@ -52,25 +52,16 @@ function render() {
 
 document.getElementById("logoutBtn").addEventListener("click", async () => {
   await signOut(auth);
-  localStorage.removeItem("devcursos_token");
-  localStorage.removeItem("devcursos_user");
   location.href = "index.html";
 });
 
-const authReady = new Promise((resolve) => {
-  const unsubscribe = onAuthStateChanged(auth, (user) => {
-    unsubscribe();
-    resolve(user);
-  });
-});
-
-authReady
-  .then(async (user) => {
+auth.authStateReady()
+  .then(async () => {
+    const user = auth.currentUser;
     if (!user) {
       location.replace("login.html?redirect=" + encodeURIComponent("salvos.html"));
       return;
     }
-    localStorage.setItem("devcursos_token", await user.getIdToken());
     const [profile, result] = await Promise.all([
       requisicaoAPI("/me"),
       requisicaoAPI("/me/favoritos"),

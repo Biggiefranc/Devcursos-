@@ -43,32 +43,9 @@ document.querySelectorAll("[data-session-sign-out]").forEach((button) => {
     } catch (error) {
       console.error("Não foi possível encerrar a sessão.", error);
     } finally {
-      localStorage.removeItem("devcursos_token");
-      localStorage.removeItem("devcursos_user");
       button.disabled = false;
     }
   });
 });
 
-onAuthStateChanged(auth, async (user) => {
-  renderSession(user);
-  if (!user) {
-    localStorage.removeItem("devcursos_token");
-    localStorage.removeItem("devcursos_user");
-    return;
-  }
-
-  try {
-    const token = await user.getIdToken();
-    const profile = {
-      uid: user.uid,
-      nome: user.displayName || user.email?.split("@")[0] || "Aluno",
-      email: user.email,
-      foto: user.photoURL || null,
-    };
-    localStorage.setItem("devcursos_token", token);
-    localStorage.setItem("devcursos_user", JSON.stringify(profile));
-  } catch (error) {
-    console.warn("Não foi possível atualizar a sessão local.", error);
-  }
-});
+onAuthStateChanged(auth, renderSession);

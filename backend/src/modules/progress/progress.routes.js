@@ -1,6 +1,7 @@
 const express = require("express");
 const controller = require("./progress.controller");
 const autenticar = require("../../shared/middlewares/autenticar");
+const { reinicioPorConta } = require("../../shared/middlewares/limitarRequisicoes");
 
 const router = express.Router();
 
@@ -26,6 +27,7 @@ router.put(
 router.delete(
     "/cursos/:id/progresso",
     autenticar,
+    reinicioPorConta,
     controller.reiniciarProgresso
 );
 

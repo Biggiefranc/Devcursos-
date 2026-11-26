@@ -1,6 +1,6 @@
 import { auth } from "./firebase/firebase-config";
-import { onAuthStateChanged } from "firebase/auth";
 import { requisicaoAPI, encerrarSessao } from "./services/api";
+import { renderizarMarkdown, renderizarInlineMarkdown } from "./services/markdown";
 
 const PROVA = { id: "prova-final", titulo: "Avaliação final" };
 const LETRAS = ["A", "B", "C", "D", "E", "F"];
@@ -77,20 +77,14 @@ function criarElemento(tag, classe, texto) {
 
 pagina.tabIndex = -1;
 
-async function tokenAtual() {
-  if (auth.currentUser) {
-    return auth.currentUser.getIdToken();
-  }
-
-  const salvo = localStorage.getItem("devcursos_token");
-  return salvo || null;
+function redirecionarAoLogin() {
+  const destino = window.location.pathname + window.location.search + window.location.hash;
+  window.location.href = `login.html?redirect=${encodeURIComponent(destino)}`;
 }
 
 async function carregarConclusoes() {
-  const token = await tokenAtual();
-  if (!token) {
-    const destino = `cursos.html?curso=${encodeURIComponent(cursoId)}`;
-    window.location.href = `login.html?redirect=${encodeURIComponent(destino)}`;
+  if (!auth.currentUser) {
+    redirecionarAoLogin();
     throw new Error("É necessário entrar para consultar seu progresso.");
   }
 
@@ -108,11 +102,8 @@ async function carregarConclusoes() {
     localStorage.removeItem("devcursos-feitas");
   } catch (erro) {
     if (erro.status === 401) {
-      localStorage.removeItem("devcursos_token");
-      localStorage.removeItem("devcursos_user");
       await encerrarSessao();
-      const destino = `cursos.html?curso=${encodeURIComponent(cursoId)}`;
-      window.location.href = `login.html?redirect=${encodeURIComponent(destino)}`;
+      redirecionarAoLogin();
     }
     throw erro;
   }
@@ -133,156 +124,6 @@ function chaveAvaliacao(avaliacao) {
 function obterAvaliacaoPorChave(key) {
   return avaliacaoPorChave(key);
 }
-
-/* ----- Renderização ----- */
-function escaparHtml(valor) {
-  return String(valor ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/\"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-function renderizarInlineMarkdown(texto) {
-  const tokens = [];
-  const proteger = (html) => {
-    const indice = tokens.push(html) - 1;
-    return `\u0001${indice}\u0001`;
-  };
-
-  let valor = escaparHtml(texto)
-    .replace(/`([^`]+)`/g, (_, codigo) => proteger(`<code>${codigo}</code>`))
-    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, (_, rotulo, url) =>
-      proteger(
-        `<a href="${url}" target="_blank" rel="noopener noreferrer">${rotulo}</a>`,
-      ),
-    );
-
-  valor = valor
-    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*([^*]+)\*/g, "<em>$1</em>")
-    .replace(
-      /(https?:\/\/[^\s<]+)/g,
-      '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>',
-    );
-
-  return valor.replace(
-    /\u0001(\d+)\u0001/g,
-    (_, indice) => tokens[Number(indice)] || "",
-  );
-}
-
-function renderizarMarkdown(markdown) {
-  const texto = String(markdown ?? "").replace(/(?:\r\n|\r|\n)/g, "\n");
-  // Separe o texto antes de tratar parágrafos. Linhas em branco dentro
-  // de um bloco Python pertencem ao código.
-  const partes = texto.split(/^ {0,3}```[^\n]*\n([\s\S]*?)^ {0,3}```[ \t]*$/gm);
-  if (partes.length > 1) {
-    return partes.map((parte, indice) =>
-      indice % 2
-        ? `<pre><code>${escaparHtml(parte.replace(/\n$/, ""))}</code></pre>`
-        : renderizarMarkdown(parte),
-    ).join("");
-  }
-  const blocos = texto.split(/\n\s*\n/).filter((bloco) => bloco.trim());
-
-  return blocos
-    .map((bloco) => {
-      const linhas = bloco.split("\n");
-
-      if (linhas.every((linha) => /^```/.test(linha.trim()))) {
-        return "";
-      }
-
-      if (linhas[0]?.trim().startsWith("```")) {
-        const codigo = linhas
-          .slice(1)
-          .filter((linha) => !/^```$/.test(linha.trim()))
-          .join("\n");
-        return `<pre><code>${escaparHtml(codigo)}</code></pre>`;
-      }
-
-      const blocoLimpo = bloco.trim();
-
-      // --- ADICIONE ESTE BLOCO PARA RENDERIZAR VÍDEOS DO YOUTUBE ---
-      const matchYoutube = blocoLimpo.match(
-        /^!\[([^\]]*)\]\(https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})(?:[?&]([^\s)]*))?\)$/,
-      );
-
-      if (matchYoutube) {
-        const titulo = escaparHtml(matchYoutube[1] || "Vídeo do YouTube");
-        const videoId = matchYoutube[2];
-        const paramsRaw = matchYoutube[3] || "";
-        const params = new URLSearchParams(paramsRaw);
-
-        // Converte &t=18s (link comum) para ?start=18 (padrão do player embed)
-        if (params.has("t")) {
-          const segundos = parseInt(params.get("t"), 10);
-          if (!Number.isNaN(segundos)) {
-            params.delete("t");
-            params.set("start", String(segundos));
-          }
-        }
-        params.delete("pp");
-
-        const queryString = params.toString();
-        const embedUrl = `https://www.youtube.com/embed/${videoId}${queryString ? `?${queryString}` : ""}`;
-
-        return `<div class="video-wrapper" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;margin:1.5rem 0;"><iframe src="${embedUrl}" title="${titulo}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
-      }
-      // -------------------------------------------------------------
-
-      if (/^#{1,6}[ \t]+/.test(blocoLimpo)) {
-        const match = blocoLimpo.match(
-          /^(#{1,6})[ \t]+([^\n]*)(?:\n([\s\S]*))?$/,
-        );
-
-        if (match) {
-          const nivel = Math.min(match[1].length + 1, 6);
-          const titulo = renderizarInlineMarkdown(match[2].trim());
-          const restante = match[3]?.trim();
-
-          const htmlTitulo = `<h${nivel}>${titulo}</h${nivel}>`;
-
-          return htmlTitulo + (restante ? renderizarMarkdown(restante) : "");
-        }
-      }
-
-      if (/^>\s*/.test(bloco.trim())) {
-        const conteudo = renderizarInlineMarkdown(
-          bloco
-            .split("\n")
-            .map((linha) => linha.replace(/^>\s?/, "").trim())
-            .filter(Boolean)
-            .join("\n"),
-        ).replace(/\n/g, "<br>");
-        return `<blockquote>${conteudo}</blockquote>`;
-      }
-
-      const itens = bloco
-        .split("\n")
-        .filter(
-          (linha) =>
-            /^[-*]\s+/.test(linha.trim()) || /^\d+\.\s+/.test(linha.trim()),
-        );
-
-      if (itens.length) {
-        const htmlLista = itens
-          .map((linha) => {
-            const textoLinha = linha.replace(/^\s*[-*]\s+|^\s*\d+\.\s+/, "");
-            return `<li>${renderizarInlineMarkdown(textoLinha)}</li>`;
-          })
-          .join("");
-        return `<ul>${htmlLista}</ul>`;
-      }
-
-      // Aproveita para corrigir também o <br> que aparecia escrito nos parágrafos
-      return `<p>${renderizarInlineMarkdown(bloco).replace(/\n/g, "<br>")}</p>`;
-    })
-    .join("");
-}
-
 
 function indiceDaAula(key) {
   return todas.findIndex((aula) => String(aula.id) === String(key));
@@ -530,7 +371,7 @@ function criarSecaoAula(aula, modulo, criarEditorDeCodigo) {
   const corpo = criarElemento("div", "corpo-aula");
   const conteudo = String(aula.conteudo ?? "");
   if (conteudo.trim()) {
-    corpo.innerHTML = renderizarMarkdown(conteudo);
+    corpo.append(renderizarMarkdown(conteudo));
   } else {
     corpo.appendChild(
       criarElemento("p", "", "Esta aula ainda não possui conteúdo cadastrado."),
@@ -653,7 +494,7 @@ function criarSecaoProva(meta, avaliacao) {
     const bloco = criarElemento("fieldset", "quiz-q");
     const grupo = `questao-${questao.id}`;
     const legenda = criarElemento("legend");
-    legenda.innerHTML = renderizarInlineMarkdown(`${indice + 1}. ${questao.enunciado}`);
+    legenda.append(renderizarInlineMarkdown(`${indice + 1}. ${questao.enunciado}`));
     bloco.appendChild(legenda);
 
     const opcoes = criarElemento("div", "quiz-options");
@@ -667,7 +508,7 @@ function criarSecaoProva(meta, avaliacao) {
       const letra = criarElemento("span", "quiz-letra", LETRAS[alternativaIndice] || String(alternativaIndice + 1));
       letra.setAttribute("aria-hidden", "true");
       const texto = criarElemento("span");
-      texto.innerHTML = renderizarInlineMarkdown(alternativa.texto);
+      texto.append(renderizarInlineMarkdown(alternativa.texto));
       rotulo.append(radio, letra, texto);
       opcoes.appendChild(rotulo);
     });
@@ -998,6 +839,7 @@ async function iniciarCurso() {
     const [curriculum] = await Promise.all([
       requisicaoAPI(
         "/cursos/" + encodeURIComponent(cursoId) + "/estrutura",
+        { autenticada: false },
       ),
       carregarConclusoes(),
     ]);
@@ -1043,22 +885,12 @@ async function iniciarCurso() {
   }
 }
 
-const aguardarAuth = new Promise((resolve) => {
-  const unsubscribe = onAuthStateChanged(auth, (usuario) => {
-    unsubscribe();
-    resolve(usuario);
-  });
-});
-
-aguardarAuth
-  .then(async (usuario) => {
-    if (!usuario) {
-      localStorage.removeItem("devcursos_token");
-      const destino = window.location.pathname + window.location.search;
-      window.location.href = `login.html?redirect=${encodeURIComponent(destino)}`;
+auth.authStateReady()
+  .then(async () => {
+    if (!auth.currentUser) {
+      redirecionarAoLogin();
       return;
     }
-    localStorage.setItem("devcursos_token", await usuario.getIdToken());
     await iniciarCurso();
   })
   .catch((erro) => {

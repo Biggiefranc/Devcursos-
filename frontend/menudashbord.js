@@ -1,4 +1,4 @@
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { signOut } from "firebase/auth";
 import { auth } from "./firebase/firebase-config";
 import { requisicaoAPI } from "./services/api";
 import { courseCard } from "./courseCard";
@@ -9,13 +9,6 @@ const courseGrid = document.getElementById("dashboardCourses");
 const courseStatus = document.getElementById("dashboardStatus");
 const continueSection = document.getElementById("continueSection");
 const continueGrid = document.getElementById("continueGrid");
-
-const authReady = new Promise((resolve) => {
-  const unsubscribe = onAuthStateChanged(auth, (user) => {
-    unsubscribe();
-    resolve(user);
-  });
-});
 
 function escape(value) {
   return String(value ?? "").replace(
@@ -75,10 +68,9 @@ function renderContinue(items) {
 
 async function loadDashboard(user) {
   try {
-    localStorage.setItem("devcursos_token", await user.getIdToken());
     const [profile, coursesData, progressData] = await Promise.all([
       requisicaoAPI("/me"),
-      requisicaoAPI("/cursos"),
+      requisicaoAPI("/cursos", { autenticada: false }),
       requisicaoAPI("/me/progresso").catch((error) => {
         console.warn("Não foi possível carregar o resumo de progresso.", error);
         return { cursos: [] };
@@ -93,13 +85,6 @@ async function loadDashboard(user) {
     nameNode.textContent = firstName;
     welcome.innerHTML =
       "Olá, <span>" + escape(firstName) + "</span>.";
-    localStorage.setItem(
-      "devcursos_user",
-      JSON.stringify(
-        profile.usuario || { nome: profileName, email: user.email },
-      ),
-    );
-
     const courses = Array.isArray(coursesData) ? coursesData : [];
     courseGrid.innerHTML = courses
       .map(courseCard)
@@ -135,14 +120,13 @@ async function loadDashboard(user) {
 }
 
 document.getElementById("logoutBtn").addEventListener("click", async () => {
-  localStorage.removeItem("devcursos_token");
-  localStorage.removeItem("devcursos_user");
   await signOut(auth);
   location.href = "index.html";
 });
 
-authReady
-  .then((user) => {
+auth.authStateReady()
+  .then(() => {
+    const user = auth.currentUser;
     if (!user) {
       const target = encodeURIComponent(location.pathname + location.search);
       location.replace("login.html?redirect=" + target);

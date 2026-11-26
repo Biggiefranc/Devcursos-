@@ -8,20 +8,11 @@ import {
 
 import { auth, googleProvider } from "./firebase/firebase-config";
 import { configurarPersistencia, sincronizarPerfil } from "./services/api";
+import { destinoDepoisDoLogin } from "./services/login-redirect";
 
-function destinoDepoisDoLogin() {
-  const params = new URLSearchParams(window.location.search);
-  const destino = params.get("redirect");
-
-  if (!destino) return "menudashbord.html";
-
-  try {
-    const url = new URL(destino, window.location.origin);
-    if (url.origin !== window.location.origin) return "menudashbord.html";
-    return `${url.pathname}${url.search}` || "menudashbord.html";
-  } catch {
-    return "menudashbord.html";
-  }
+function voltarAoDestino() {
+  const destino = new URLSearchParams(window.location.search).get("redirect");
+  window.location.assign(destinoDepoisDoLogin(destino, window.location.href));
 }
 
 const loginForm = document.getElementById("loginForm");
@@ -96,19 +87,7 @@ loginForm.addEventListener("submit", async (event) => {
 
     await sincronizarPerfil(nome);
 
-    const token = await credencial.user.getIdToken();
-    localStorage.setItem("devcursos_token", token);
-    localStorage.setItem(
-      "devcursos_user",
-      JSON.stringify({
-        uid: credencial.user.uid,
-        nome,
-        email: credencial.user.email,
-        foto: credencial.user.photoURL || null,
-      }),
-    );
-
-    window.location.href = destinoDepoisDoLogin();
+    voltarAoDestino();
   } catch (erro) {
     console.error("Falha no login:", erro);
 
@@ -173,19 +152,7 @@ async function autenticarComGoogle() {
 
     await sincronizarPerfil(nome);
 
-    const idToken = await user.getIdToken();
-    localStorage.setItem("devcursos_token", idToken);
-    localStorage.setItem(
-      "devcursos_user",
-      JSON.stringify({
-        uid: user.uid,
-        nome,
-        email: user.email,
-        foto: user.photoURL || null,
-      }),
-    );
-
-    window.location.href = destinoDepoisDoLogin();
+    voltarAoDestino();
   } catch (error) {
     console.error("Erro no login com Google:", error);
     mostrarMensagem(

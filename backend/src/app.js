@@ -12,9 +12,16 @@ const practiceRoutes = require("./modules/practice/practice.routes");
 
 const { pool } = require("./shared/database/database");
 const tratarErros = require("./shared/middlewares/tratarErros");
+const limites = require("./shared/middlewares/limitarRequisicoes");
 
 const app = express();
 app.disable("x-powered-by");
+
+const saltosDeProxy = Number(process.env.TRUST_PROXY_HOPS ?? (process.env.RENDER === "true" ? 1 : 0));
+if (!Number.isSafeInteger(saltosDeProxy) || saltosDeProxy < 0) {
+  throw new Error("TRUST_PROXY_HOPS precisa ser um número inteiro não negativo.");
+}
+app.set("trust proxy", saltosDeProxy);
 
 app.use((req, res, next) => {
   req.id = randomUUID();
@@ -81,17 +88,16 @@ app.use(
     },
     credentials: false,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"]
+    allowedHeaders: ["Content-Type", "Authorization"],
+    exposedHeaders: ["Retry-After", "RateLimit", "RateLimit-Policy"]
   })
 );
-
-app.use(express.json({ limit: "1mb" }));
 
 app.get("/", (req, res) => {
   res.send("Backend do DevCursos+ funcionando!");
 });
 
-app.get("/health", async (req, res) => {
+app.get("/health", limites.saudePorIp, async (req, res) => {
   try {
     await pool.execute("SELECT 1 AS conectado");
 
@@ -113,6 +119,12 @@ app.get("/health", async (req, res) => {
     });
   }
 });
+
+app.use(limites.geralPorIp);
+app.post("/usuarios/sincronizar", limites.perfilPorIp);
+app.post(["/api/executar", "/aulas/:id/exercicio/tentativas"], limites.execucaoPorIp);
+app.post("/avaliacoes/:id/tentativas", limites.avaliacaoPorIp);
+app.use(express.json({ limit: "1mb" }));
 
 app.use(usersRoutes);
 app.use(cursosRoutes);

@@ -1,6 +1,7 @@
 const express = require("express");
 
 const autenticar = require("../../shared/middlewares/autenticar");
+const { perfilPorConta } = require("../../shared/middlewares/limitarRequisicoes");
 const usersController = require("./users.controller");
 
 const router = express.Router();
@@ -9,6 +10,7 @@ const router = express.Router();
 router.post(
     "/usuarios/sincronizar",
     autenticar,
+    perfilPorConta,
     usersController.sincronizarPerfil
 );
 

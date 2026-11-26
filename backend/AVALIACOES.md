@@ -12,6 +12,8 @@ O projeto possui estrutura de persistência e endpoints para avaliações finais
 - O aluno só pode enviar uma tentativa depois de concluir todas as aulas do curso.
 - O navegador recebe apenas o texto e o ID das alternativas. O gabarito não é enviado.
 - O Back-End calcula a pontuação e registra a tentativa e as respostas dentro de uma transação.
+- As avaliações de módulo dão feedback por questão. As finais retornam apenas a nota e a aprovação, sem indicar os erros por questão.
+- As tentativas de avaliação têm limite de 10 por conta a cada 15 minutos. Se uma avaliação final for usada para certificar proficiência, mantenha o banco de questões e o gabarito em uma fonte privada. Quem tem acesso aos JSONs versionados pode consultar as respostas desses exercícios.
 
 ## Cadastro manual de uma avaliação
 
