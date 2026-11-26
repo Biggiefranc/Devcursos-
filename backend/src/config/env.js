@@ -1,4 +1,7 @@
 
+
+
+
 const path = require("node:path");
 require("./loadEnv");
 
@@ -32,12 +35,20 @@ if (!DB_HOST || !DB_USER || !DB_NAME) {
     );
 }
 
-const hostsLocais = new Set(["localhost", "127.0.0.1", "::1"]);
-const bancoRemotoEmProducao = process.env.NODE_ENV === "production"
-    && !hostsLocais.has(DB_HOST.trim().toLowerCase());
+const hostNormalizado = DB_HOST.trim().toLowerCase();
 
-if (bancoRemotoEmProducao && !DB_SSL) {
-    throw new Error("DB_SSL=true é obrigatório para conectar a um banco remoto em produção.");
+const hostsLocais = new Set(["localhost", "127.0.0.1", "::1"]);
+
+const bancoInternoRailway = hostNormalizado.endsWith(".railway.internal");
+
+const bancoRemotoEmProducao =
+    process.env.NODE_ENV === "production" &&
+    !hostsLocais.has(hostNormalizado);
+
+if (bancoRemotoEmProducao && !bancoInternoRailway && !DB_SSL) {
+    throw new Error(
+        "DB_SSL=true é obrigatório para conectar a um banco público remoto em produção."
+    );
 }
 
 if (process.env.NODE_ENV === "production" && !DB_PASSWORD) {
