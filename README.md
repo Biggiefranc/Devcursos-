@@ -1,12 +1,10 @@
 # DevCursos+
+**[Acessar](https://devcursos-s9i4.vercel.app/)**
 
-Plataforma de cursos com frontend em JavaScript/Vite, API Node.js/Express, Firebase Authentication e MySQL/TiDB.
+Plataforma de aprendizado online focada em tecnologia e desenvolvimento de habilidades práticas.
 
-## Requisitos
-
-- Node.js 20.19 ou superior e npm.
-- Um projeto Firebase com Email/Password e Google Sign-In habilitados.
-- MySQL 8 ou um serviço compatível com MySQL.
+## Sobre o projeto
+O DevCursos+ surgiu com a ideia de facilitar o acesso ao conhecimento na área de Tecnologia da Informação, oferecendo um espaço onde os usuários possam encontrar cursos e materiais de estudo de forma organizada e prática. O projeto busca atender pessoas que desejam aprender sobre tecnologia, aprimorar seus conhecimentos ou dar os primeiros passos na área, proporcionando uma experiência de aprendizado simples, acessível e centralizada em uma única plataforma.
 
 ##
 <!-- ## Instalação
