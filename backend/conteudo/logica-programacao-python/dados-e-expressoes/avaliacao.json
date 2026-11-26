@@ -4,106 +4,106 @@
   "ativa": true,
   "questoes": [
     {
-      "enunciado": "O que input() devolve antes de uma conversão?",
+      "enunciado": "Duas respostas chegam por `input()`: `12` e `8`. O programa faz `print(manha + tarde)` e mostra `128`. Qual alteração mantém a mesma entrada e produz `20`?",
       "alternativas": [
         {
-          "texto": "Um texto (str).",
+          "texto": "Converter os dois textos com `int()` antes da soma.",
           "correta": true
         },
         {
-          "texto": "Um número inteiro sempre.",
+          "texto": "Colocar `manha + tarde` entre aspas.",
           "correta": false
         },
         {
-          "texto": "Um número decimal sempre.",
+          "texto": "Fazer `int(manha + tarde)` depois de juntar os textos.",
           "correta": false
         },
         {
-          "texto": "Um valor lógico bool.",
+          "texto": "Converter apenas `manha` em número e somar com `tarde`.",
           "correta": false
         }
       ]
     },
     {
-      "enunciado": "Qual instrução converte o texto digitado em inteiro?",
+      "enunciado": "Uma sessão tem 20 minutos. Você fez 3 sessões e revisou por mais 8 minutos. Qual expressão calcula o total?",
       "alternativas": [
         {
-          "texto": "int(input(\"Número: \"))",
+          "texto": "`3 * (20 + 8)`",
+          "correta": false
+        },
+        {
+          "texto": "`(3 + 20) * 8`",
+          "correta": false
+        },
+        {
+          "texto": "`3 + 20 * 8`",
+          "correta": false
+        },
+        {
+          "texto": "`3 * 20 + 8`",
+          "correta": true
+        }
+      ]
+    },
+    {
+      "enunciado": "Um cronômetro registrou `135` minutos. Você quer mostrar horas completas e minutos restantes. Qual par de expressões dá `2` e `15`, nessa ordem?",
+      "alternativas": [
+        {
+          "texto": "`135 / 60` e `135 % 60`",
+          "correta": false
+        },
+        {
+          "texto": "`135 // 60` e `135 % 60`",
           "correta": true
         },
         {
-          "texto": "input(int(\"Número: \"))",
+          "texto": "`135 % 60` e `135 // 60`",
           "correta": false
         },
         {
-          "texto": "str(input(\"Número: \"))",
-          "correta": false
-        },
-        {
-          "texto": "bool(input(\"Número: \"))",
+          "texto": "`135 // 60` e `135 - 60`",
           "correta": false
         }
       ]
     },
     {
-      "enunciado": "Qual é o resultado de 2 + 3 * 4?",
+      "enunciado": "A variável `cidade` vale `\"Recife\"`. Qual linha mostra `Você mora em Recife.` e continua funcionando com outra cidade?",
       "alternativas": [
         {
-          "texto": "14",
+          "texto": "`print(f\"Você mora em {cidade}.\")`",
           "correta": true
         },
         {
-          "texto": "20",
+          "texto": "`print(\"Você mora em {cidade}.\")`",
           "correta": false
         },
         {
-          "texto": "24",
+          "texto": "`print(f\"Você mora em cidade.\")`",
           "correta": false
         },
         {
-          "texto": "9",
+          "texto": "`print(\"Você mora em Recife.\")`",
           "correta": false
         }
       ]
     },
     {
-      "enunciado": "Para 135 minutos, que combinação encontra horas completas e minutos restantes?",
+      "enunciado": "O que sai depois de `saldo = 10`, `registro = saldo`, `saldo = saldo + 5` e `print(registro, saldo)`?",
       "alternativas": [
         {
-          "texto": "135 // 60 e 135 % 60",
+          "texto": "`15 15`",
+          "correta": false
+        },
+        {
+          "texto": "`10 10`",
+          "correta": false
+        },
+        {
+          "texto": "`10 15`",
           "correta": true
         },
         {
-          "texto": "135 / 60 e 135 ** 60",
-          "correta": false
-        },
-        {
-          "texto": "135 % 60 e 135 + 60",
-          "correta": false
-        },
-        {
-          "texto": "135 * 60 e 135 // 2",
-          "correta": false
-        }
-      ]
-    },
-    {
-      "enunciado": "O que uma f-string ajuda a fazer?",
-      "alternativas": [
-        {
-          "texto": "Montar texto incluindo valores de variáveis.",
-          "correta": true
-        },
-        {
-          "texto": "Converter qualquer texto em número automaticamente.",
-          "correta": false
-        },
-        {
-          "texto": "Repetir instruções até uma condição mudar.",
-          "correta": false
-        },
-        {
-          "texto": "Criar uma lista sem colchetes.",
+          "texto": "`15 10`",
           "correta": false
         }
       ]

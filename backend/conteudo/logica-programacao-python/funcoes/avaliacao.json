@@ -1,110 +1,110 @@
 {
-  "titulo": "Avaliação do módulo 5 — Funções",
+  "titulo": "Avaliação do módulo 5 — Funções e decomposição",
   "minimo_acertos": 4,
   "ativa": true,
   "questoes": [
     {
-      "enunciado": "O que acontece ao executar uma linha def dobrar(numero):?",
+      "enunciado": "O programa contém `def dobro(numero): return numero * 2` e depois `print(dobro(5))`. Em que momento o cálculo acontece?",
       "alternativas": [
         {
-          "texto": "A função é definida; seu corpo roda quando ela é chamada.",
+          "texto": "Quando `dobro(5)` chama a função.",
           "correta": true
         },
         {
-          "texto": "O corpo da função roda imediatamente duas vezes.",
+          "texto": "Quando Python encontra `def` e cria a função.",
           "correta": false
         },
         {
-          "texto": "O valor numero é criado para todo o programa.",
+          "texto": "Quando a palavra `return` é lida fora da função.",
           "correta": false
         },
         {
-          "texto": "Python imprime a função.",
+          "texto": "Quando `print` repete automaticamente o corpo da função.",
           "correta": false
         }
       ]
     },
     {
-      "enunciado": "Em somar(4, 6), o que são 4 e 6?",
+      "enunciado": "Você precisa guardar `somar(4, 6)` em `total` e usar `total` em outra conta. O que deve acontecer dentro de `somar`?",
       "alternativas": [
         {
-          "texto": "Argumentos enviados para os parâmetros da função.",
+          "texto": "Mostrar a soma com `print` e encerrar sem devolver valor.",
+          "correta": false
+        },
+        {
+          "texto": "Mostrar os argumentos em linhas separadas.",
+          "correta": false
+        },
+        {
+          "texto": "Devolver a soma com `return`.",
           "correta": true
         },
         {
-          "texto": "Parâmetros definidos por def.",
-          "correta": false
-        },
-        {
-          "texto": "Nomes de funções.",
-          "correta": false
-        },
-        {
-          "texto": "Valores devolvidos automaticamente por print.",
+          "texto": "Guardar a soma num nome local e encerrar sem devolver valor.",
           "correta": false
         }
       ]
     },
     {
-      "enunciado": "Qual é a diferença principal entre print e return?",
+      "enunciado": "Fora da função, `valor = 3`. A função `dobro(valor)` devolve `valor * 2`. Depois de chamar `dobro(5)`, quanto vale `valor` fora dela?",
       "alternativas": [
         {
-          "texto": "print mostra algo; return entrega um resultado para o código que chamou a função.",
+          "texto": "5",
+          "correta": false
+        },
+        {
+          "texto": "6",
+          "correta": false
+        },
+        {
+          "texto": "3",
           "correta": true
         },
         {
-          "texto": "print encerra a função; return apenas mostra texto.",
-          "correta": false
-        },
-        {
-          "texto": "Não existe diferença.",
-          "correta": false
-        },
-        {
-          "texto": "return só pode devolver texto.",
+          "texto": "10",
           "correta": false
         }
       ]
     },
     {
-      "enunciado": "Por que parâmetros ajudam a evitar variáveis globais?",
+      "enunciado": "Uma função deve calcular horas a partir de minutos. Você quer conferir a passagem de 0 para 1 hora completa. Qual par de entradas testa essa fronteira?",
       "alternativas": [
         {
-          "texto": "A função recebe explicitamente os dados de que precisa.",
+          "texto": "59 e 60 minutos",
           "correta": true
         },
         {
-          "texto": "Parâmetros guardam dados depois que o programa termina.",
+          "texto": "30 e 45 minutos",
           "correta": false
         },
         {
-          "texto": "Variáveis globais só aceitam números.",
+          "texto": "60 e 120 minutos",
           "correta": false
         },
         {
-          "texto": "Parâmetros fazem o código rodar mais rápido sempre.",
+          "texto": "10 e 60 minutos",
           "correta": false
         }
       ]
     },
     {
-      "enunciado": "Para que serve testar uma função com casos de limite?",
+      "enunciado": "Duas telas precisam calcular o mesmo desconto, mas cada uma exibe a resposta de um jeito. Onde faz mais sentido colocar a fórmula?",
       "alternativas": [
         {
-          "texto": "Para verificar também situações próximas às fronteiras das regras.",
+          "texto": "Numa função que imprime uma frase e não devolve o valor.",
+          "correta": false
+        },
+        {
+          "texto": "Numa cópia da fórmula em cada tela.",
+          "correta": false
+        },
+        {
+          "texto": "Em dois valores globais que cada tela altera sem passar argumentos.",
+          "correta": false
+        },
+        {
+          "texto": "Numa função que recebe os dados e devolve o desconto para as telas.",
           "correta": true
-        },
-        {
-          "texto": "Para substituir todos os parâmetros por constantes.",
-          "correta": false
-        },
-        {
-          "texto": "Para confirmar que a função imprime bastante texto.",
-          "correta": false
-        },
-        {
-          "texto": "Para impedir que ela retorne valores.",
-          "correta": false
         }
       ]
     }

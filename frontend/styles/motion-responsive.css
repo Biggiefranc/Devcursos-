@@ -1,27 +1,4 @@
 /* shared motion */
-[data-reveal] {
-  opacity: 0;
-  transform: translateY(22px);
-  transition:
-    opacity 0.75s var(--ease),
-    transform 0.85s var(--ease);
-}
-[data-reveal].is-visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-[data-delay="100"] {
-  transition-delay: 0.1s;
-}
-[data-delay="120"] {
-  transition-delay: 0.12s;
-}
-[data-delay="140"] {
-  transition-delay: 0.14s;
-}
-[data-delay="200"] {
-  transition-delay: 0.2s;
-}
 @keyframes console-arrive {
   from {
     opacity: 0;
@@ -32,29 +9,13 @@
     transform: rotateY(-8deg) rotateX(2deg);
   }
 }
-@keyframes console-float {
-  0%,
-  100% {
-    translate: 0 0;
-  }
-  50% {
-    translate: 0 -7px;
-  }
+@keyframes console-arrive-mobile {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
 }
 @keyframes shimmer {
   to {
     transform: translateX(100%);
-  }
-}
-@keyframes cue-pulse {
-  0%,
-  100% {
-    transform: scaleY(0.6);
-    opacity: 0.5;
-  }
-  50% {
-    transform: scaleY(1);
-    opacity: 1;
   }
 }
 @keyframes expand-in {
@@ -97,39 +58,9 @@
     transform: translateY(0) scale(1);
   }
 }
-@keyframes orbit-breathe {
-  0%,
-  100% {
-    transform: translate(-50%, -50%) scale(0.97);
-    opacity: 0.65;
-  }
-  50% {
-    transform: translate(-50%, -50%) scale(1.03);
-    opacity: 1;
-  }
-}
-@keyframes screen-pulse {
-  0%,
-  100% {
-    opacity: 0.35;
-  }
-  50% {
-    opacity: 1;
-    box-shadow: 0 0 15px #a98abf60;
-  }
-}
 @keyframes cursor-blink {
   to {
     visibility: hidden;
-  }
-}
-@keyframes code-drift {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
   }
 }
 @media (max-width: 1000px) {
@@ -142,12 +73,6 @@
   }
   .hero-visual {
     min-height: 430px;
-  }
-  .learning-console {
-    min-height: 380px;
-  }
-  .console-layout {
-    min-height: 320px;
   }
   .console-content {
     padding: 24px;
@@ -180,10 +105,10 @@
   }
   .menu-trigger {
     display: block;
-    border: 1px solid #47414c;
+    border: 1px solid var(--line);
     background: transparent;
     padding: 7px 11px;
-    color: #c8c0cb;
+    color: var(--muted);
     font-size: 10px;
   }
   .main-nav {
@@ -196,24 +121,24 @@
     align-items: stretch;
     gap: 0;
     padding: 9px 20px 17px;
-    background: rgba(13, 13, 16, 0.96);
+    background: var(--overlay-solid);
     border-bottom: 1px solid var(--line);
-    backdrop-filter: blur(15px);
+    backdrop-filter: var(--header-blur);
   }
   .main-nav.is-open {
     display: flex;
   }
   .main-nav a {
     padding: 13px 0;
-    border-bottom: 1px solid #ffffff0b;
+    border-bottom: 1px solid var(--line);
   }
   .main-nav .session-sign-out {
     width: 100%;
     padding: 13px 0;
     border: 0;
-    border-bottom: 1px solid #ffffff0b;
+    border-bottom: 1px solid var(--line);
     background: transparent;
-    color: #c8c0cb;
+    color: var(--muted);
     text-align: left;
     font: inherit;
     cursor: pointer;
@@ -233,20 +158,13 @@
     font-size: clamp(3.3rem, 12vw, 5.5rem);
   }
   .hero-visual {
-    min-height: 380px;
+    min-height: 0;
     margin-top: 8px;
   }
   .learning-console {
-    width: min(90%, 490px);
-  }
-  .note-top {
-    right: 2%;
-  }
-  .note-bottom {
-    left: 1%;
-  }
-  .hero-caption {
-    margin-top: 40px;
+    width: min(100%, 490px);
+    transform: none;
+    animation-name: console-arrive-mobile;
   }
   .section-pad {
     padding: 80px 22px;
@@ -260,17 +178,10 @@
   .section-heading h2 {
     font-size: clamp(2.45rem, 9vw, 4rem);
   }
-  .intro-rule {
-    margin-top: 55px;
-    font-size: 7px;
-  }
   .section-heading {
     align-items: flex-start;
     flex-direction: column;
     gap: 18px;
-  }
-  .section-aside {
-    max-width: 440px;
   }
   .method-steps {
     grid-template-columns: 1fr;
@@ -283,16 +194,13 @@
   .method-step + .method-step {
     padding-left: 5px;
     border-left: 0;
-    border-top: 1px solid #39353e;
+    border-top: 1px solid var(--line);
   }
   .step-mark {
     height: 72px;
   }
   .method-step h3 {
     margin-top: 9px;
-  }
-  .step-meta {
-    bottom: 17px;
   }
   .course-grid,
   .catalog-grid {
@@ -310,34 +218,11 @@
   .platform-window {
     width: 100%;
   }
-  .quote-section {
-    padding: 75px 22px;
-  }
-  .quote-grid {
-    grid-template-columns: 34px 1fr;
-    gap: 10px;
-  }
-  .quote-mark {
-    font-size: 56px;
-  }
-  .quote-grid blockquote {
-    font-size: clamp(1.8rem, 8vw, 3.2rem);
-  }
-  .quote-label {
-    grid-column: 2;
-    margin-top: 12px;
-    white-space: normal;
-  }
   .faq-list {
     margin-top: 30px;
   }
   .closing-cta {
     min-height: 345px;
-  }
-  .closing-stamp {
-    right: 4%;
-    top: 46%;
-    font-size: 52px;
   }
   .site-footer,
   .compact-footer {
@@ -381,96 +266,104 @@
   .course-detail-layout {
     grid-template-columns: 1fr;
   }
-  .detail-aside {
-    position: static;
-    grid-row: 1;
-  }
   .course-detail-main h1 {
-    font-size: clamp(2.8rem, 11vw, 4.4rem);
+    font-size: clamp(2.25rem, 10vw, 4.4rem);
+    overflow-wrap: anywhere;
+  }
+  .detail-lesson-list {
+    padding-left: 12px;
   }
   .study-header {
     height: 60px;
-    grid-template-columns: auto 1fr auto;
-    gap: 14px;
-    padding: 0 14px;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 4px 14px;
+    padding: 8px 14px;
+  }
+  .study-header .wordmark {
+    grid-row: span 2;
   }
   .study-site {
-    grid-template-rows: 60px minmax(0, 1fr) 38px;
+    grid-template-rows: 60px minmax(0, 1fr) 44px;
+    height: 100dvh;
   }
   .study-back {
     display: none;
   }
-  .study-course-name {
-    font-size: 9px;
-  }
   .study-progress-copy {
-    font-size: 7px;
+    font-size: 12px;
+    line-height: 1.25;
   }
   .study-layout {
-    grid-template-columns: 1fr;
-    grid-template-rows: minmax(145px, 32svh) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr);
+  }
+  .curriculum-toggle {
+    grid-row: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 44px;
+    padding: 8px 16px;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--white);
+    text-align: left;
+    cursor: pointer;
+  }
+  .curriculum-current {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+  }
+  .curriculum-toggle-label {
+    flex: none;
+    color: var(--purple-bright);
+    font-size: 13px;
+  }
+  .curriculum-toggle-label::after {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin: 0 2px 3px 8px;
+    border: solid currentColor;
+    border-width: 0 1px 1px 0;
+    transform: rotate(45deg);
+  }
+  .curriculum-toggle[aria-expanded="true"] .curriculum-toggle-label::after {
+    transform: rotate(225deg);
+  }
+  .curriculum-toggle[aria-expanded="false"] + .curriculum-panel {
+    display: none;
   }
   .curriculum-panel {
-    min-height: 0;
-    overflow-y: auto;
+    grid-row: 2;
+    max-height: 38dvh;
     border-right: 0;
-    border-bottom: 1px solid #302d34;
-    padding: 0 0 8px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 8px;
   }
   .curriculum-head {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 15px 11px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    padding: 12px 15px;
   }
   .curriculum-head h2 {
     margin: 0;
-    font-size: 11px;
-  }
-  .curriculum-count {
-    margin-left: auto;
-  }
-  .curriculum-list {
-    display: grid;
-    overflow: visible;
-    padding: 0 7px;
-  }
-  .modulo {
-    min-width: 0;
-  }
-  .modulo-btn {
-    min-height: 42px;
-    padding: 10px 11px;
-  }
-  .modulo .aulas {
-    display: grid;
-  }
-  .modulo:not(.aberto) > .aulas {
-    display: none;
-  }
-  .curriculum-module-heading {
-    display: none;
-  }
-  .aulas {
-    display: grid;
-    gap: 0;
+    font-size: 14px;
   }
   .aula-btn {
-    min-width: 0;
-    grid-template-columns: 22px minmax(0, 1fr) auto;
-    padding: 9px 10px;
-    border: 0;
-    border-left: 2px solid transparent;
-  }
-  .aula-btn.ativa {
-    border: 0;
-    border-left: 2px solid #b18fc8;
-  }
-  .aula-status {
-    display: block;
-    font-size: 6px;
+    grid-template-columns: 24px minmax(0, 1fr) auto;
+    padding: 9px 12px;
   }
   .lesson-main {
+    grid-row: 3;
     min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
@@ -488,13 +381,11 @@
     width: 100%;
   }
   .study-footer {
-    min-height: 38px;
-    padding: 6px 12px;
+    padding: 0 12px;
     gap: 12px;
-    font-size: 7px;
   }
   .study-reset {
-    font-size: 7px;
+    min-height: 44px;
   }
   .auth-layout {
     grid-template-columns: 1fr;
@@ -538,17 +429,16 @@
     gap: 13px;
   }
   .app-nav a {
-    font-size: 9px;
+    font-size: 13px;
   }
   .app-account {
     grid-column: 2;
     grid-row: 1;
     gap: 10px;
-    font-size: 8px;
+    font-size: 12px;
   }
   .app-footer {
     padding: 13px 17px;
-    font-size: 7px;
   }
 }
 @media (max-width: 420px) {
@@ -557,40 +447,11 @@
     flex-direction: column;
     gap: 8px;
   }
-  .hero-visual {
-    min-height: 315px;
-  }
-  .learning-console {
-    width: 95%;
-    min-height: 350px;
-  }
-  .console-layout {
-    min-height: 306px;
-  }
   .console-content {
     padding: 19px 15px;
   }
   .console-content h2 {
     font-size: 24px;
-  }
-  .console-content > p {
-    font-size: 9px;
-  }
-  .visual-note {
-    font-size: 7px;
-  }
-  .note-top {
-    top: 8%;
-  }
-  .note-bottom {
-    bottom: 4%;
-  }
-  .intro-rule {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-  .intro-rule span + span {
-    text-align: right;
   }
   .platform-row {
     grid-template-columns: 25px 1fr 66px;
@@ -598,19 +459,7 @@
     padding: 15px 12px;
   }
   .row-status {
-    font-size: 6px;
-  }
-  .study-course-name {
-    display: none;
-  }
-  .study-header {
-    grid-template-columns: auto 1fr auto;
-  }
-  .app-nav {
-    gap: 9px;
-  }
-  .app-nav a {
-    font-size: 8px;
+    font-size: 11px;
   }
   .app-account #userName {
     max-width: 86px;
@@ -619,6 +468,9 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  .learning-console {
+    animation: none;
+  }
   *,
   *::before,
   *::after {
@@ -626,9 +478,5 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-  }
-  [data-reveal] {
-    opacity: 1;
-    transform: none;
   }
 }

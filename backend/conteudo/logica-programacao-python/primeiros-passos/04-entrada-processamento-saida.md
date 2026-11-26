@@ -1,30 +1,43 @@
 ---
 titulo: Entrada, processamento e saída
-
 descricao: Leia uma resposta com input, transforme-a em um dado e apresente um resultado.
 ordem: 4
-duracao: 12
+duracao: 25
 video_url: null
 material_url: null
 ---
 
-# Faça o programa conversar
+## Deixe o programa receber uma resposta
 
-Até agora, os valores estavam escritos no arquivo. Com `input`, o programa pode pedir uma resposta durante a execução. O que a pessoa digita chega inicialmente como texto.
+Nos exemplos anteriores, você precisava editar o código para trocar os dados. Um balcão de atendimento funciona de outro jeito. A mesma pessoa pode pedir o nome de Lia ou de Ravi e usar a resposta que ouviu. Em Python, `input()` lê uma linha da entrada e devolve o que chegou como texto.
 
 ```python
-nome = input("Como você se chama? ")
-print("Olá,", nome)
+nome = input()
+print("Olá, " + nome + "!")
 ```
 
-O programa mostra a pergunta, espera a resposta e depois usa o texto recebido. O espaço no fim da pergunta deixa a digitação visualmente separada.
+Na primeira linha, o lado direito é executado primeiro. `input()` lê uma linha e o sinal `=` associa a resposta ao nome `nome`. Na segunda, `+` junta os trechos de texto na ordem em que aparecem. O espaço em `"Olá, "` separa a vírgula do nome. `print` escreve a frase pronta. Uma execução com `Lia` produz `Olá, Lia!`.
 
-Um problema pode ser descrito como um fluxo: receber dados, processá-los e apresentar uma saída. Nesta aula a entrada é um nome. Quando receber números, precisaremos converter o texto para um tipo numérico; faremos isso no módulo seguinte.
+### Onde digitar a entrada
 
-## Pratique
+No terminal do computador, um programa com `input()` aguarda uma linha digitada. No DevCursos+, abra **Entrada (stdin)**, escreva a resposta e clique em **Executar código**. Cada chamada de `input()` consome uma linha, começando pela primeira. Se quiser testar de novo com outro nome, edite a entrada e execute o mesmo código.
 
-Adapte o programa para perguntar a cidade e mostrar uma frase como `Você estuda em Fortaleza.`. Depois peça nome e cidade em duas entradas diferentes.
+No terminal, você também pode escrever `input("Seu nome: ")`. O texto entre parênteses aparece antes da leitura. Nos exercícios que comparam a saída exata, prefira `input()` quando o enunciado pedir só a resposta final. Assim nenhuma pergunta extra entra na saída avaliada.
 
-**Confira:** cada `input` precisa guardar a resposta em um nome que você use depois. Se a saída mostrar uma palavra que você escreveu diretamente no código, reveja qual variável passou para `print`.
+## Faça três experiências
 
-**Documentação oficial:** [Funções de entrada e saída](https://docs.python.org/3/tutorial/inputoutput.html) · [Função `input`](https://docs.python.org/3/library/functions.html#input)
+**Uma resposta, duas execuções.** Rode o exemplo com `Lia` e depois com `Ravi`. A saudação deve trocar de nome nas duas execuções sem você tocar no código. Troque `nome` por `"nome"` dentro de `print` e veja por que a frase deixa de usar a entrada. Corrija antes de seguir.
+
+**Duas respostas numa só execução.** Use este código e digite `Lia` na primeira linha da entrada e `Recife` na segunda.
+
+```python
+nome = input()
+cidade = input()
+print(nome + " estuda em " + cidade + ".")
+```
+
+A saída esperada é `Lia estuda em Recife.`. Troque a ordem das linhas no campo de entrada e observe qual nome recebe cada texto. Depois remova a segunda linha e rode de novo. Se aparecer `EOFError`, faltou uma entrada para o segundo `input()`.
+
+**O mesmo sinal, dois usos.** Execute `print("2" + "3")` e `print(2 + 3)`, um abaixo do outro. A primeira linha mostra `23` porque junta texto. A segunda mostra `5` porque soma números. Quando você digita `2` em `input()`, Python recebe o texto `"2"`. Vamos converter entradas em números no próximo módulo.
+
+Na prática com verificação, monte a saudação que o enunciado pede. Execute com um nome seu e confira os espaços e a exclamação. A verificação testa outros nomes automaticamente.

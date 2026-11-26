@@ -43,16 +43,14 @@
     </header>
     <main class="catalog-page">
       <section class="catalog-masthead">
-        <p class="section-kicker"><span>DC / 01</span> FORMAÇÕES</p>
-        <h1>Conhecimento que<br /><em>vira capacidade.</em></h1>
+        <h1>Qual curso você <em>quer fazer?</em></h1>
         <p>
-          Explore cursos por área, encontre o ponto de partida e veja o
-          currículo antes de começar.
+          Busque por título, tema ou tecnologia.
         </p>
       </section>
       <section class="catalog-controls" aria-label="Filtros do catálogo">
         <form class="catalog-search" id="catalogSearch">
-          <label for="catalogQuery">Pesquisar formações</label
+          <label for="catalogQuery">Pesquisar cursos</label
           ><input
             id="catalogQuery"
             type="search"
@@ -69,9 +67,9 @@
       </section>
       <section class="catalog-results">
         <div class="results-heading">
-          <h2 id="catalogTitle">Todas as formações</h2>
-          <span id="courseCount" class="mono-label" aria-live="polite"
-            >CARREGANDO</span
+          <h2 id="catalogTitle">Todos os cursos</h2>
+          <span id="courseCount" aria-live="polite"
+            >Carregando cursos</span
           >
         </div>
         <div class="catalog-grid" id="catalogGrid" aria-live="polite">
@@ -92,8 +90,7 @@
           </article>
         </div>
         <div class="empty-state" id="catalogEmpty" hidden>
-          <p class="section-kicker">NENHUM RESULTADO</p>
-          <h3>Não encontramos uma formação com esses filtros.</h3>
+          <h3>Nenhum curso encontrado.</h3>
           <button class="button button-quiet" id="clearCatalog" type="button">
             Limpar busca
           </button>

@@ -1,109 +1,130 @@
 {
-  "titulo": "Avaliação do módulo 1 — Algoritmos e primeiros passos",
-  "minimo_acertos": 4,
+  "titulo": "Avaliação do módulo 1 — Algoritmos e primeiros programas",
+  "minimo_acertos": 5,
   "ativa": true,
   "questoes": [
     {
-      "enunciado": "O que é um algoritmo?",
+      "enunciado": "A biblioteca precisa contar as revistas que chegaram. São 3 caixas com 5 revistas em cada e 4 revistas avulsas. Qual plano resolve o pedido para qualquer quantidade?",
       "alternativas": [
         {
-          "texto": "Uma sequência finita e organizada de passos para resolver um problema.",
+          "texto": "Somar caixas e revistas por caixa, depois somar as avulsas.",
+          "correta": false
+        },
+        {
+          "texto": "Multiplicar o número de caixas pela soma de revistas por caixa e avulsas.",
+          "correta": false
+        },
+        {
+          "texto": "Multiplicar o número de caixas pelas revistas por caixa, somar as avulsas e mostrar o total.",
           "correta": true
         },
         {
-          "texto": "Qualquer programa escrito em Python, mesmo que não termine.",
-          "correta": false
-        },
-        {
-          "texto": "Uma lista de nomes de variáveis.",
-          "correta": false
-        },
-        {
-          "texto": "Uma mensagem que aparece no terminal.",
+          "texto": "Mostrar as avulsas, depois multiplicar o número de caixas pelas revistas por caixa.",
           "correta": false
         }
       ]
     },
     {
-      "enunciado": "Por que a ordem das instruções importa?",
+      "enunciado": "O cartaz deve mostrar apenas Biblioteca aberta, sem aspas. Qual linha faz isso?",
       "alternativas": [
         {
-          "texto": "Porque cada etapa pode usar o resultado produzido pela etapa anterior.",
+          "texto": "`print(\"Biblioteca aberta\")`",
           "correta": true
         },
         {
-          "texto": "Porque o computador executa todas as linhas ao mesmo tempo.",
+          "texto": "`print(Biblioteca aberta)`",
           "correta": false
         },
         {
-          "texto": "Porque a última linha sempre apaga as anteriores.",
+          "texto": "`\"Biblioteca aberta\"`",
           "correta": false
         },
         {
-          "texto": "Porque variáveis só podem aparecer na primeira linha.",
+          "texto": "`print(\"\\\"Biblioteca aberta\\\"\")`",
           "correta": false
         }
       ]
     },
     {
-      "enunciado": "Qual descrição está mais perto de um bom algoritmo?",
+      "enunciado": "Considere `total = manha + tarde`, `manha = 12`, `tarde = 9` e `print(total)`, nessa ordem. Qual ajuste resolve o erro?",
       "alternativas": [
         {
-          "texto": "“Faça alguma coisa até ficar bom.”",
+          "texto": "Mover só `print(total)` para o topo.",
           "correta": false
         },
         {
-          "texto": "“Repita para sempre e veja o que acontece.”",
+          "texto": "Colocar apenas `manha = 12` antes da soma.",
           "correta": false
         },
         {
-          "texto": "“Leia dois valores, some-os e mostre o resultado.”",
+          "texto": "Trocar a saída para `print(\"total\")`.",
+          "correta": false
+        },
+        {
+          "texto": "Colocar as duas atribuições de `manha` e `tarde` antes da soma.",
+          "correta": true
+        }
+      ]
+    },
+    {
+      "enunciado": "Com `nome = input()`, `cidade = input()` e `print(nome + \" estuda em \" + cidade)`, a entrada de duas linhas é `Ravi` e `Recife`, nessa ordem. Qual é a saída?",
+      "alternativas": [
+        {
+          "texto": "Recife estuda em Ravi",
+          "correta": false
+        },
+        {
+          "texto": "Ravi estuda em Recife",
           "correta": true
         },
         {
-          "texto": "“Use o computador para resolver.”",
+          "texto": "Ravi Recife estuda em Ravi Recife",
+          "correta": false
+        },
+        {
+          "texto": "nome estuda em cidade",
           "correta": false
         }
       ]
     },
     {
-      "enunciado": "Em entrada, processamento e saída, qual é o processamento?",
+      "enunciado": "Ao rastrear `pontos = 4`, `pontos = pontos + 3` e `pontos = pontos * 2`, quais valores `pontos` assume após cada linha?",
       "alternativas": [
         {
-          "texto": "A informação que a pessoa digita.",
-          "correta": false
-        },
-        {
-          "texto": "A transformação ou o cálculo feito com os dados.",
+          "texto": "4, 7, 14",
           "correta": true
         },
         {
-          "texto": "O resultado mostrado na tela.",
+          "texto": "4, 7, 8",
           "correta": false
         },
         {
-          "texto": "A tela que abre o programa.",
+          "texto": "4, 3, 6",
+          "correta": false
+        },
+        {
+          "texto": "4, 7, 9",
           "correta": false
         }
       ]
     },
     {
-      "enunciado": "Se valor começa em 5, recebe mais 2 e depois é multiplicado por 3, qual resultado final?",
+      "enunciado": "Você quer testar se o programa soma as páginas da manhã e da tarde. Qual caso detecta uma solução que sempre imprime 21?",
       "alternativas": [
         {
-          "texto": "21",
+          "texto": "Use 12 de manhã e 9 à tarde. A saída esperada é 21.",
+          "correta": false
+        },
+        {
+          "texto": "Use 9 de manhã e 12 à tarde. A saída esperada é 21.",
+          "correta": false
+        },
+        {
+          "texto": "Use 12 de manhã e 0 à tarde. A saída esperada é 12.",
           "correta": true
         },
         {
-          "texto": "15",
-          "correta": false
-        },
-        {
-          "texto": "10",
-          "correta": false
-        },
-        {
-          "texto": "7",
+          "texto": "Use 21 de manhã e 0 à tarde. A saída esperada é 21.",
           "correta": false
         }
       ]

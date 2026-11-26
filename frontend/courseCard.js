@@ -12,58 +12,27 @@ export function escapeHtml(value) {
   );
 }
 
-export function courseCard(course, index = 0, options = {}) {
-  const id = encodeURIComponent(course.id);
-  const category = escapeHtml(course.categoria || "Formação");
-  const level = escapeHtml(course.nivel || "Não informado");
-  const hours = Number(course.duracao_horas);
-  const duration =
-    Number.isFinite(hours) && hours > 0
-      ? hours < 1
-        ? Math.round(hours * 60) + " MIN"
-        : new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 }).format(
-            hours,
-          ) + " H"
-      : "A DEFINIR";
-  const technologies =
-    Array.isArray(course.tecnologias) && course.tecnologias.length
-      ? course.tecnologias.slice(0, 4).map(escapeHtml).join(" · ")
-      : "A DEFINIR";
-  const project = course.projeto_final
-    ? escapeHtml(course.projeto_final)
-    : "A DEFINIR";
-  const description = escapeHtml(
-    course.descricao ||
-      "Consulte o currículo desta formação e comece pelo módulo inicial.",
-  );
+export function courseCard(course) {
+  const href = "visualizarcurso.html?curso=" + encodeURIComponent(course.id);
   const title = escapeHtml(course.titulo || "Formação");
-  const href = options.href || "visualizarcurso.html?curso=" + id;
+  const hours = Number(course.duracao_horas);
+  const duration = Number.isFinite(hours) && hours > 0
+    ? hours < 1
+      ? Math.max(1, Math.round(hours * 60)) + " min"
+      : new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 }).format(hours) + " h"
+    : "";
+  const metadata = [course.nivel, duration]
+    .filter(Boolean)
+    .map((value) => "<span>" + escapeHtml(value) + "</span>")
+    .join("");
 
-  return (
-    '<article class="course-card" data-reveal>' +
-    '<div class="course-card-head"><span class="course-index">DC / ' +
-    String(index + 1).padStart(2, "0") +
-    '</span><span class="course-category">' +
-    category +
-    "</span></div>" +
-    "<h3>" +
-    title +
-    '</h3><p class="course-description">' +
-    description +
-    "</p>" +
-    '<div class="course-meta"><span>NÍVEL ' +
-    level +
-    "</span><span>" +
-    duration +
-    "</span><span>TECNOLOGIAS " +
-    technologies +
-    "</span><span>PROJETO " +
-    project +
-    "</span></div>" +
-    '<p class="course-open">Ver currículo</p><a class="course-card-link" href="' +
-    href +
-    '" aria-label="Ver currículo: ' +
-    title +
-    '"></a></article>'
-  );
+  return `
+    <article class="course-card">
+      ${course.categoria ? `<span class="course-category">${escapeHtml(course.categoria)}</span>` : ""}
+      <h3>${title}</h3>
+      ${course.descricao ? `<p class="course-description">${escapeHtml(course.descricao)}</p>` : ""}
+      ${metadata ? `<div class="course-meta">${metadata}</div>` : ""}
+      <p class="course-open">Ver currículo</p>
+      <a class="course-card-link" href="${href}" aria-label="Ver currículo de ${title}"></a>
+    </article>`;
 }

@@ -7,8 +7,9 @@ const { DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME, DB_SSL, DB_SSL_CA } = r
 
 const indiceFiltroCurso = process.argv.indexOf("--curso");
 const filtroCurso = indiceFiltroCurso >= 0 ? process.argv[indiceFiltroCurso + 1] : null;
+const somenteModulos = process.argv.includes("--somente-modulos");
 if (indiceFiltroCurso >= 0 && !filtroCurso) {
-    throw new Error("Uso: node scripts/importar-avaliacoes.js [--curso \"Título do curso\"]");
+    throw new Error("Uso: node scripts/importar-avaliacoes.js [--curso \"Título do curso\"] [--somente-modulos]");
 }
 
 function validarAvaliacao(arquivo, dados) {
@@ -143,7 +144,7 @@ async function importarAvaliacoes() {
             if (!cursos[0]) throw new Error(`Curso não encontrado no banco: ${curso.titulo}`);
             const cursoId = Number(cursos[0].id);
 
-            if (await importarAvaliacao(db, { curso, cursoId, caminhoCurso })) encontradas += 1;
+            if (!somenteModulos && await importarAvaliacao(db, { curso, cursoId, caminhoCurso })) encontradas += 1;
             for (const modulo of fs.readdirSync(caminhoCurso, { withFileTypes: true })) {
                 if (!modulo.isDirectory()) continue;
                 if (await importarAvaliacao(db, {

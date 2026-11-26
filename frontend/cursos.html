@@ -21,9 +21,13 @@
       </div>
     </header>
     <div class="study-layout">
-      <aside class="curriculum-panel">
+      <button class="curriculum-toggle" id="curriculumToggle" type="button"
+        aria-expanded="false" aria-controls="curriculumPanel" hidden>
+        <span class="curriculum-current" id="curriculumCurrent">Carregando aulas</span>
+        <span class="curriculum-toggle-label">Currículo</span>
+      </button>
+      <aside class="curriculum-panel" id="curriculumPanel">
         <div class="curriculum-head">
-          <span class="section-kicker">CURRÍCULO</span>
           <h2 id="curriculumTitle">Conteúdo do curso</h2>
           <div class="curriculum-count">
             <span id="curriculumCount">Carregando aulas</span>
@@ -47,7 +51,7 @@
       </main>
     </div>
     <div class="study-footer">
-      <span>DEV CURSOS+ / ESPAÇO DE ESTUDO</span
+      <span>DevCursos+</span
       ><button type="button" id="btnReiniciar" class="study-reset">
         Reiniciar meu progresso
       </button>
