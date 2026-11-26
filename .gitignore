@@ -7,3 +7,12 @@ node_modules/
 dist/
 **/dist/
 prompt.md
+# Variáveis de ambiente e credenciais
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+serviceAccountKey.json
+firebase-adminsdk*.json
